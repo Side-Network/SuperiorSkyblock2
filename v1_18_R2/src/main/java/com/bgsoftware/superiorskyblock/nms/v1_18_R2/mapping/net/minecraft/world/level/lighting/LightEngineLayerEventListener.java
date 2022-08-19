@@ -11,6 +11,7 @@ public final class LightEngineLayerEventListener extends
         MappedObject<net.minecraft.world.level.lighting.LightEngineLayerEventListener> {
 
     private static final ReflectMethod<Void> SKY_LIGHT_UPDATE = new ReflectMethod<>(
+
             LightEngineGraph.class, 1, Long.class, Long.class, Integer.class, Boolean.class);
 
     public LightEngineLayerEventListener(net.minecraft.world.level.lighting.LightEngineLayerEventListener handle) {

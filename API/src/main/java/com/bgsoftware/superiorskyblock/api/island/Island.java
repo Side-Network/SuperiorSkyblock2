@@ -1868,4 +1868,18 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      */
     void setChestRows(int index, int rows);
 
+    /**
+     * Get the list of all strikes of this island.
+     */
+    List<IslandStrike> getStrikes();
+
+    /**
+     * Add a strike to this island.
+     */
+    IslandStrike addStrike(String reason, String givenBy);
+
+    /**
+     * Remove an island strike with specified id.
+     */
+    IslandStrike removeStrike(int id);
 }

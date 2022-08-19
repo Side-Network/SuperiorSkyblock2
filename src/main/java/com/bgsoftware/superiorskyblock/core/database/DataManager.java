@@ -170,6 +170,7 @@ public class DataManager extends Manager {
         IslandsDeserializer.deserializeIslandSettings(islandsLoader, databaseCache);
         IslandsDeserializer.deserializeBankTransactions(islandsLoader, databaseCache);
         IslandsDeserializer.deserializePersistentDataContainer(islandsLoader, databaseCache);
+        IslandsDeserializer.deserializeStrikes(islandsLoader, databaseCache);
 
         islandsLoader.loadAllObjects("islands", resultSet -> {
             plugin.getGrid().createIsland(databaseCache, new DatabaseResult(resultSet));

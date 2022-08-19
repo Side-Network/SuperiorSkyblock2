@@ -59,7 +59,8 @@ public class IslandAttributes extends AttributesRegistry<IslandAttributes.Field>
         SPAWNER_RATES_MULTIPLIER,
         MOB_DROPS_MULTIPLIER,
         COOP_LIMIT,
-        BANK_LIMIT
+        BANK_LIMIT,
+        STRIKES
     }
 
 }

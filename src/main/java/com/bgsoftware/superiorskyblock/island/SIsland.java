@@ -4,13 +4,7 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
-import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.island.IslandChest;
-import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
-import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
-import com.bgsoftware.superiorskyblock.api.island.PermissionNode;
-import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
-import com.bgsoftware.superiorskyblock.api.island.SortingType;
+import com.bgsoftware.superiorskyblock.api.island.*;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandCalculationAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandEntitiesTrackerAlgorithm;
@@ -37,6 +31,7 @@ import com.bgsoftware.superiorskyblock.core.collections.CompletableFutureList;
 import com.bgsoftware.superiorskyblock.core.database.DatabaseResult;
 import com.bgsoftware.superiorskyblock.core.database.bridge.IslandsDatabaseBridge;
 import com.bgsoftware.superiorskyblock.core.database.cache.CachedIslandInfo;
+import com.bgsoftware.superiorskyblock.core.database.cache.CachedStrikeInfo;
 import com.bgsoftware.superiorskyblock.core.database.cache.DatabaseCache;
 import com.bgsoftware.superiorskyblock.core.database.serialization.IslandsDeserializer;
 import com.bgsoftware.superiorskyblock.core.debug.PluginDebugger;
@@ -224,6 +219,7 @@ public class SIsland implements Island {
     private Synchronized<CompletableFuture<Biome>> biomeGetterTask = Synchronized.of(null);
     private final AtomicInteger generatedSchematics = new AtomicInteger(0);
     private final AtomicInteger unlockedWorlds = new AtomicInteger(0);
+    private final List<IslandStrike> strikes = new ArrayList<>();
 
     public SIsland(@Nullable SuperiorPlayer owner, UUID uuid, Location location, String islandName,
                    @Nullable String schemName) {
@@ -3304,6 +3300,34 @@ public class SIsland implements Island {
     }
 
     @Override
+    public List<IslandStrike> getStrikes() {
+        return strikes.stream().sorted(Comparator.comparingLong(IslandStrike::getGivenAt)).collect(Collectors.toList());
+    }
+
+    @Override
+    public IslandStrike addStrike(String reason, String givenBy) {
+        IslandStrike strike = new SIslandStrike(this, reason, System.currentTimeMillis() / 1000, givenBy);
+
+        IslandsDatabaseBridge.addStrike(this, strike);
+        strikes.add(strike);
+
+        return strike;
+    }
+
+    @Override
+    public IslandStrike removeStrike(int id) {
+        List<IslandStrike> sortedStrikes = getStrikes();
+        if (sortedStrikes.size() < id)
+            return null;
+
+        IslandStrike strike = sortedStrikes.remove(id - 1);
+        strikes.remove(strike);
+
+        IslandsDatabaseBridge.removeStrike(this, strike);
+        return strike;
+    }
+
+    @Override
     public DatabaseBridge getDatabaseBridge() {
         return databaseBridge;
     }
@@ -3632,6 +3656,11 @@ public class SIsland implements Island {
 
         if (cachedIslandInfo.persistentData.length > 0)
             getPersistentDataContainer().load(cachedIslandInfo.persistentData);
+
+        for (CachedStrikeInfo cachedStrikeInfo : cachedIslandInfo.cachedStrikeList) {
+            IslandStrike strike = new SIslandStrike(this, cachedStrikeInfo.reason, cachedStrikeInfo.givenAt, cachedStrikeInfo.givenBy);
+            strikes.add(strike);
+        }
     }
 
     private void startBankInterest() {

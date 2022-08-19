@@ -12,10 +12,7 @@ import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.database.DatabaseResult;
-import com.bgsoftware.superiorskyblock.core.database.cache.CachedIslandInfo;
-import com.bgsoftware.superiorskyblock.core.database.cache.CachedWarpCategoryInfo;
-import com.bgsoftware.superiorskyblock.core.database.cache.CachedWarpInfo;
-import com.bgsoftware.superiorskyblock.core.database.cache.DatabaseCache;
+import com.bgsoftware.superiorskyblock.core.database.cache.*;
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer.IDeserializer;
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer.JsonDeserializer;
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer.MultipleDeserializer;
@@ -814,6 +811,42 @@ public class IslandsDeserializer {
 
             CachedIslandInfo cachedIslandInfo = databaseCache.computeIfAbsentInfo(uuid.get(), CachedIslandInfo::new);
             cachedIslandInfo.persistentData = persistentData;
+        });
+    }
+
+    public static void deserializeStrikes(DatabaseBridge databaseBridge, DatabaseCache<CachedIslandInfo> databaseCache) {
+        databaseBridge.loadAllObjects("islands_strikes", strikesRow -> {
+            DatabaseResult strike = new DatabaseResult(strikesRow);
+
+            Optional<UUID> uuid = strike.getUUID("island");
+            if (!uuid.isPresent()) {
+                SuperiorSkyblockPlugin.log("&cCannot load strikes for null islands, skipping...");
+                return;
+            }
+
+            Optional<String> reason = strike.getString("reason");
+            if (!reason.isPresent()) {
+                SuperiorSkyblockPlugin.log(
+                        String.format("&cCannot load strikes for with invalid reason for %s, skipping...", uuid.get()));
+                return;
+            }
+
+            Optional<String> givenBy = strike.getString("given_by");
+            if (!givenBy.isPresent()) {
+                SuperiorSkyblockPlugin.log(
+                        String.format("&cCannot load strikes for with invalid given_by for %s, skipping...", uuid.get()));
+                return;
+            }
+
+            long givenAt = strike.getLong("given_at").orElse(System.currentTimeMillis() / 1000L);
+
+            CachedStrikeInfo cachedStrikeInfo = new CachedStrikeInfo();
+            cachedStrikeInfo.reason = reason.get();
+            cachedStrikeInfo.givenBy = givenBy.get();
+            cachedStrikeInfo.givenAt = givenAt;
+
+            CachedIslandInfo cachedIslandInfo = databaseCache.computeIfAbsentInfo(uuid.get(), CachedIslandInfo::new);
+            cachedIslandInfo.cachedStrikeList.add(cachedStrikeInfo);
         });
     }
 

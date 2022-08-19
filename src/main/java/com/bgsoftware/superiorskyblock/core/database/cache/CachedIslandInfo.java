@@ -58,6 +58,7 @@ public class CachedIslandInfo {
     public BigDecimal balance = BigDecimal.ZERO;
     public long lastInterestTime = 0L;
     public List<CachedWarpInfo> cachedWarpInfoList = new ArrayList<>();
+    public List<CachedStrikeInfo> cachedStrikeList = new ArrayList<>();
     public List<CachedWarpCategoryInfo> cachedWarpCategoryInfoList = new ArrayList<>();
     public List<BankTransaction> bankTransactions = new ArrayList<>();
     public byte[] persistentData = new byte[0];
