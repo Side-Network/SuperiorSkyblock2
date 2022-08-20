@@ -75,7 +75,7 @@ public class CmdAdminStrikes implements IAdminIslandCommand {
             }
 
             if (args[3].equalsIgnoreCase("info")) {
-                Message.STRIKE_LIST.send(sender, islandName);
+                Message.STRIKE_LIST.send(sender, islandName, island.getStrikes().size());
 
                 int i = 1;
                 for (IslandStrike strike : island.getStrikes()) {
@@ -101,7 +101,7 @@ public class CmdAdminStrikes implements IAdminIslandCommand {
             island.addStrike(reason.toString(), sender.getName());
 
             Message.STRIKE_GIVEN.send(sender, islandName, reason);
-            IslandUtils.sendMessage(island, Message.STRIKE_GIVEN_INFO, Collections.emptyList(), reason);
+            Message.STRIKE_GIVEN_INFO.broadcast(locale, islandName, reason);
             return;
         }
 
