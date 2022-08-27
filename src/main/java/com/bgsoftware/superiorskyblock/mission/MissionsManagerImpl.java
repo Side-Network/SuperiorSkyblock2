@@ -475,6 +475,24 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         return newMission;
     }
 
+    public void reloadMission(Mission<?> mission, String missionName, ConfigurationSection missionSection) {
+        try {
+            MissionData data = missionsContainer.getMissionData(mission);
+            if (data == null) {
+                throw new Exception("Couldn't get previous mission data for " + missionName);
+            }
+            data.reloadData(missionSection);
+
+            SuperiorSkyblockPlugin.log("Reloaded mission " + missionName);
+        } catch (Exception ex) {
+            SuperiorSkyblockPlugin.log("Couldn't reload mission " + missionName + ": ");
+            ManagerLoadException handlerError = new ManagerLoadException(ex, "Couldn't reload mission " + missionName + ".",
+                    ManagerLoadException.ErrorLevel.CONTINUE);
+            PluginDebugger.debug(handlerError);
+            handlerError.printStackTrace();
+        }
+    }
+
     public Optional<MissionData> getMissionData(Mission<?> mission) {
         return Optional.ofNullable(this.missionsContainer.getMissionData(mission));
     }

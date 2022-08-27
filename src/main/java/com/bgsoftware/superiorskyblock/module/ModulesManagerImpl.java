@@ -10,6 +10,7 @@ import com.bgsoftware.superiorskyblock.core.debug.PluginDebugger;
 import com.bgsoftware.superiorskyblock.core.errors.ManagerLoadException;
 import com.bgsoftware.superiorskyblock.core.io.JarFiles;
 import com.bgsoftware.superiorskyblock.module.container.ModulesContainer;
+import com.bgsoftware.superiorskyblock.module.missions.MissionsModule;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -154,6 +155,8 @@ public class ModulesManagerImpl extends Manager implements ModulesManager {
         getModules().forEach(pluginModule -> {
             try {
                 pluginModule.onReload(plugin);
+                if (pluginModule instanceof MissionsModule)
+                    ((MissionsModule) pluginModule).onPluginReload(plugin);
             } catch (Throwable error) {
                 SuperiorSkyblockPlugin.log("&cAn error occurred while reloading the module " + pluginModule.getName() + ":");
                 SuperiorSkyblockPlugin.log("&cContact " + pluginModule.getAuthor() + " regarding this, this has nothing to do with the plugin.");
