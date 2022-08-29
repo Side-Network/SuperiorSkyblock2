@@ -21,5 +21,5 @@ public interface MissionCategory {
      */
     List<Mission<?>> getMissions();
 
-    void sendBossBar(SuperiorPlayer superiorPlayer, Mission<?> mission, String action, double progress, double total, double totalProgress);
+    void sendBossBar(SuperiorPlayer superiorPlayer, Mission<?> mission, String action, int progress, int total, double totalProgress);
 }

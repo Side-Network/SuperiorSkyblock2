@@ -7,6 +7,8 @@ import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBar;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +42,7 @@ public class SMissionCategory implements MissionCategory {
     }
 
     @Override
-    public void sendBossBar(SuperiorPlayer superiorPlayer, Mission<?> mission, String action, double progress, double total, double totalProgress) {
+    public void sendBossBar(SuperiorPlayer superiorPlayer, Mission<?> mission, String action, int progress, int total, double totalProgress) {
         String displayName;
         Optional<MissionData> data = SuperiorSkyblockPlugin.getPlugin().getMissions().getMissionData(mission);
         if (data.isPresent())
@@ -48,7 +50,8 @@ public class SMissionCategory implements MissionCategory {
         else
             displayName = "?";
 
-        String message = Message.MISSION_BOSS_BAR.getMessage(superiorPlayer.getUserLocale(), displayName, action, progress, total, totalProgress * 100);
-        SuperiorSkyblockPlugin.getPlugin().getServices().getBossBarsService().createStaticBossBar(superiorPlayer.asPlayer(), message, BossBar.Color.YELLOW, Math.min(1.0, progress / total),100);
+        double fTotal = BigDecimal.valueOf(totalProgress * 100).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        String message = Message.MISSION_BOSS_BAR.getMessage(superiorPlayer.getUserLocale(), displayName, action, Math.min(progress, total), total, fTotal);
+        SuperiorSkyblockPlugin.getPlugin().getServices().getBossBarsService().createStaticBossBar(superiorPlayer.asPlayer(), message, BossBar.Color.YELLOW, Math.min(1.0, (double) progress / total),100);
     }
 }
