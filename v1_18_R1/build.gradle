@@ -26,8 +26,8 @@ dependencies {
     compileOnly 'net.kyori:adventure-api:4.9.3'
     compileOnly 'net.md-5:bungeecord-chat:1.16-R0.4'
 
-    compileOnly project(":v1_18_R1-Spigot")
     compileOnly project(":API")
+    compileOnly project(":v1_18_R1-Spigot")
     compileOnly parent
 }
 

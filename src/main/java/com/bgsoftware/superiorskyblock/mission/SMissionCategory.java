@@ -1,10 +1,15 @@
 package com.bgsoftware.superiorskyblock.mission;
 
+import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.missions.MissionCategory;
+import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBar;
+import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
+import com.bgsoftware.superiorskyblock.core.messages.Message;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class SMissionCategory implements MissionCategory {
 
@@ -34,4 +39,16 @@ public class SMissionCategory implements MissionCategory {
         return Collections.unmodifiableList(this.missions);
     }
 
+    @Override
+    public void sendBossBar(SuperiorPlayer superiorPlayer, Mission<?> mission, String action, double progress, double total, double totalProgress) {
+        String displayName;
+        Optional<MissionData> data = SuperiorSkyblockPlugin.getPlugin().getMissions().getMissionData(mission);
+        if (data.isPresent())
+            displayName = data.get().getNotCompleted().getItemMeta().getDisplayName();
+        else
+            displayName = "?";
+
+        String message = Message.MISSION_BOSS_BAR.getMessage(superiorPlayer.getUserLocale(), displayName, action, progress, total, totalProgress * 100);
+        SuperiorSkyblockPlugin.getPlugin().getServices().getBossBarsService().createStaticBossBar(superiorPlayer.asPlayer(), message, BossBar.Color.YELLOW, Math.min(1.0, progress / total),100);
+    }
 }

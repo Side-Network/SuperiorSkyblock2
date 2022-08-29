@@ -103,6 +103,13 @@ public class NMSPlayersImpl implements NMSPlayers {
     }
 
     @Override
+    public BossBar createStaticBossBar(Player player, String message, BossBar.Color color, double progress, double ticksToRun) {
+        BossBarImpl bossBar = new BossBarImpl(message, BarColor.valueOf(color.name()), ticksToRun);
+        bossBar.addPlayer(player);
+        return bossBar;
+    }
+
+    @Override
     public void sendTitle(Player player, String title, String subtitle, int fadeIn, int duration, int fadeOut) {
         player.sendTitle(title, subtitle, fadeIn, duration, fadeOut);
     }
@@ -124,6 +131,11 @@ public class NMSPlayersImpl implements NMSPlayers {
         } catch (IllegalArgumentException error) {
             return null;
         }
+    }
+
+    @Override
+    public void onLoad() {
+
     }
 
     private static class BossBarImpl implements BossBar {

@@ -306,6 +306,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
                 }
             }, 1L);
 
+            nmsPlayers.onLoad();
             eventsBus.callPluginInitializedEvent(this);
 
         } catch (Throwable ex) {
