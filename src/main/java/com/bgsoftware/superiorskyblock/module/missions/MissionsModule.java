@@ -11,6 +11,7 @@ import com.bgsoftware.superiorskyblock.core.io.MenuParser;
 import com.bgsoftware.superiorskyblock.core.io.Resources;
 import com.bgsoftware.superiorskyblock.core.menu.MenuParseResult;
 import com.bgsoftware.superiorskyblock.core.menu.MenuPatternSlots;
+import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuMembers;
 import com.bgsoftware.superiorskyblock.core.menu.pattern.impl.RegularMenuPattern;
 import com.bgsoftware.superiorskyblock.mission.SMissionCategory;
@@ -22,6 +23,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,6 +107,7 @@ public class MissionsModule extends BuiltinModule {
     }
 
     public void onPluginReload(SuperiorSkyblockPlugin plugin) {
+        plugin.getMissions().setCompletePrevious(MenuParser.getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
         ConfigurationSection categoriesSection = config.getConfigurationSection("categories");
 
         if (categoriesSection != null) {
@@ -124,6 +127,7 @@ public class MissionsModule extends BuiltinModule {
         if (!enabled)
             return;
 
+        plugin.getMissions().setCompletePrevious(MenuParser.getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
         ConfigurationSection categoriesSection = config.getConfigurationSection("categories");
 
         if (categoriesSection != null) {
