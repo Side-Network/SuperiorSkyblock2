@@ -8,6 +8,7 @@ import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.missions.MissionCategory;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.Manager;
+import com.bgsoftware.superiorskyblock.core.SequentialListBuilder;
 import com.bgsoftware.superiorskyblock.core.debug.PluginDebugger;
 import com.bgsoftware.superiorskyblock.core.errors.ManagerLoadException;
 import com.bgsoftware.superiorskyblock.core.events.EventResult;
@@ -33,10 +34,7 @@ import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class MissionsManagerImpl extends Manager implements MissionsManager {
@@ -90,6 +88,11 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
     @Override
     public List<MissionCategory> getMissionCategories() {
         return this.missionsContainer.getMissionCategories();
+    }
+
+    @Override
+    public List<MissionCategory> getSortedMissionCategories() {
+        return this.missionsContainer.getSortedMissionCategories();
     }
 
     @Override

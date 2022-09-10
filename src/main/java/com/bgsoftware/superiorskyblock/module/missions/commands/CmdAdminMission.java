@@ -74,7 +74,7 @@ public class CmdAdminMission implements IAdminPlayerCommand {
                 sender.sendMessage(cf.format(" \n&bCompleted mission list for &3" + island.getName() + "&b Island:\n "));
 
                 categories:
-                for (MissionCategory category : plugin.getMissions().getMissionCategories()) {
+                for (MissionCategory category : plugin.getMissions().getSortedMissionCategories()) {
                     for (Mission<?> mission : category.getMissions()) {
                         if (completed.contains(mission)) {
                             sender.sendMessage(cf.format("&a" + mission.getName()));
