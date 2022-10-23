@@ -57,4 +57,6 @@ public interface IDeserializer {
 
     String deserializeDirtyChunks(String dirtyChunksParam);
 
+    List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes);
+
 }

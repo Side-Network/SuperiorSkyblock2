@@ -2048,6 +2048,21 @@ public class SpawnIsland implements Island {
     }
 
     @Override
+    public List<IslandStrike> getStrikes() {
+        return null;
+    }
+
+    @Override
+    public IslandStrike addStrike(String reason, String givenBy) {
+        return null;
+    }
+
+    @Override
+    public IslandStrike removeStrike(int id) {
+        return null;
+    }
+
+    @Override
     public int getCoopLimitRaw() {
         return -1;
     }
