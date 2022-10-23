@@ -8,6 +8,11 @@ dependencies {
     compileOnly "org.spigotmc:v1_8_R1:latest"
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
 
 publishing {
     publications {

@@ -306,6 +306,14 @@ public class SQLDatabaseLoader extends MachineStateDatabaseLoader {
         );
 
         SQLHelper.modifyColumnType("islands_warps", "name", "LONG_UNIQUE_TEXT");
+
+
+        SQLHelper.createTable("islands_strikes",
+                new Pair<>("island", "UUID"),
+                new Pair<>("reason", "TEXT"),
+                new Pair<>("given_by", "TEXT"),
+                new Pair<>("given_at", "BIGINT")
+        );
     }
 
     @SuppressWarnings("unchecked")

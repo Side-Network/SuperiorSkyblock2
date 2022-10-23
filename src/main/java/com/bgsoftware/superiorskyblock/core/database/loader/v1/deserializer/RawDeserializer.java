@@ -10,14 +10,12 @@ import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.DirtyChunk;
 import com.bgsoftware.superiorskyblock.core.Text;
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.DatabaseLoader_V1;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.IslandChestAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.IslandWarpAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.PlayerAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.WarpCategoryAttributes;
+import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.*;
 import com.bgsoftware.superiorskyblock.core.database.serialization.IslandsSerializer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
 import com.bgsoftware.superiorskyblock.core.key.KeyMapImpl;
+import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.island.IslandUtils;
 import com.bgsoftware.superiorskyblock.island.privilege.PlayerPrivilegeNode;
 import com.bgsoftware.superiorskyblock.island.role.SPlayerRole;
@@ -457,6 +455,38 @@ public class RawDeserializer implements IDeserializer {
         }
 
         return IslandsSerializer.serializeDirtyChunks(dirtyChunks);
+    }
+
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        List<IslandStrikeAttributes> strikeAttributes = new LinkedList<>();
+
+        if (islandStrikes == null)
+            return strikeAttributes;
+
+        for (String entry : islandStrikes.split(";")) {
+            try {
+                String[] sections = entry.split("=");
+                if (sections.length < 3)
+                    continue;
+
+                String reason = sections[0];
+                if (reason.isEmpty())
+                    continue;
+
+                long givenAt = Long.parseLong(sections[1]);
+                String givenBy = sections[2];
+
+                strikeAttributes.add(new IslandStrikeAttributes()
+                        .setValue(IslandStrikeAttributes.Field.REASON, reason)
+                        .setValue(IslandStrikeAttributes.Field.GIVEN_AT, givenAt)
+                        .setValue(IslandStrikeAttributes.Field.GIVEN_BY, givenBy));
+            } catch (Exception error) {
+                Log.error(error);
+            }
+        }
+
+        return Collections.unmodifiableList(strikeAttributes);
     }
 
     private void deserializeGenerators(String generator, KeyMap<Integer> cobbleGenerator) {

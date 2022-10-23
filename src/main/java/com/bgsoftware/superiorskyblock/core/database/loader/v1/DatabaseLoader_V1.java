@@ -275,6 +275,7 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
         StatementHolder islandsVisitorsQuery = new StatementHolder("REPLACE INTO {prefix}islands_visitors VALUES(?,?,?)");
         StatementHolder islandsWarpCategoriesQuery = new StatementHolder("REPLACE INTO {prefix}islands_warp_categories VALUES(?,?,?,?)");
         StatementHolder islandsWarpsQuery = new StatementHolder("REPLACE INTO {prefix}islands_warps VALUES(?,?,?,?,?,?)");
+        StatementHolder islandsStrikesQuery = new StatementHolder("REPLACE INTO {prefix}islands_strikes VALUES(?,?,?,?)");
 
         for (IslandAttributes islandAttributes : loadedIslands) {
             insertIsland(islandAttributes, currentTime, islandsQuery, islandsBanksQuery, islandsBansQuery,
@@ -282,7 +283,7 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
                     islandsFlagsQuery, islandsGeneratorsQuery, islandsHomesQuery, islandsMembersQuery,
                     islandsMissionsQuery, islandsPlayerPermissionsQuery, islandsRatingsQuery, islandsRoleLimitsQuery,
                     islandsRolePermissionsQuery, islandsSettingsQuery, islandsUpgradesQuery, islandsVisitorHomesQuery,
-                    islandsVisitorsQuery, islandsWarpCategoriesQuery, islandsWarpsQuery);
+                    islandsVisitorsQuery, islandsWarpCategoriesQuery, islandsWarpsQuery, islandsStrikesQuery);
         }
 
         islandsQuery.executeBatch(false);
@@ -397,7 +398,8 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
                               StatementHolder islandsRoleLimitsQuery, StatementHolder islandsRolePermissionsQuery,
                               StatementHolder islandsSettingsQuery, StatementHolder islandsUpgradesQuery,
                               StatementHolder islandsVisitorHomesQuery, StatementHolder islandsVisitorsQuery,
-                              StatementHolder islandsWarpCategoriesQuery, StatementHolder islandsWarpsQuery) {
+                              StatementHolder islandsWarpCategoriesQuery, StatementHolder islandsWarpsQuery,
+                              StatementHolder islandsStrikesQuery) {
         String islandUUID = islandAttributes.getValue(IslandAttributes.Field.UUID);
         islandsQuery.setObject(islandUUID)
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.OWNER))
@@ -662,7 +664,8 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
                 .setValue(IslandAttributes.Field.SPAWNER_RATES_MULTIPLIER, resultSet.get("spawnerRates", -1D))
                 .setValue(IslandAttributes.Field.MOB_DROPS_MULTIPLIER, resultSet.get("mobDrops", -1D))
                 .setValue(IslandAttributes.Field.COOP_LIMIT, resultSet.get("coopLimit", -1))
-                .setValue(IslandAttributes.Field.BANK_LIMIT, resultSet.get("bankLimit", "-2"));
+                .setValue(IslandAttributes.Field.BANK_LIMIT, resultSet.get("bankLimit", "-2"))
+                .setValue(IslandAttributes.Field.STRIKES, deserializer.deserializeStrikes(resultSet.get("strikes", "")));
     }
 
     private StackedBlockAttributes loadStackedBlock(ResultSetMapBridge resultSet) {

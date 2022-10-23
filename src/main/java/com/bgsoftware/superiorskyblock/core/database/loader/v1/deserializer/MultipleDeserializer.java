@@ -6,10 +6,7 @@ import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.IslandChestAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.IslandWarpAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.PlayerAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.WarpCategoryAttributes;
+import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.*;
 import com.bgsoftware.superiorskyblock.island.privilege.PlayerPrivilegeNode;
 import org.bukkit.potion.PotionEffectType;
 
@@ -131,6 +128,11 @@ public class MultipleDeserializer implements IDeserializer {
     @Override
     public String deserializeDirtyChunks(String dirtyChunksParam) {
         return runDeserializers(deserializer -> deserializer.deserializeDirtyChunks(dirtyChunksParam));
+    }
+
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        return runDeserializers(deserializer -> deserializer.deserializeStrikes(islandStrikes));
     }
 
 }

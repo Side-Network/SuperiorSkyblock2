@@ -3,13 +3,7 @@ package com.bgsoftware.superiorskyblock.island;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
-import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.island.IslandChest;
-import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
-import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
-import com.bgsoftware.superiorskyblock.api.island.PermissionNode;
-import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
-import com.bgsoftware.superiorskyblock.api.island.SortingType;
+import com.bgsoftware.superiorskyblock.api.island.*;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandCalculationAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandEntitiesTrackerAlgorithm;
@@ -1539,6 +1533,21 @@ public class SpawnIsland implements Island {
     @Override
     public void setChestRows(int index, int rows) {
         // Do nothing.
+    }
+
+    @Override
+    public List<IslandStrike> getStrikes() {
+        return null;
+    }
+
+    @Override
+    public IslandStrike addStrike(String reason, String givenBy) {
+        return null;
+    }
+
+    @Override
+    public IslandStrike removeStrike(int id) {
+        return null;
     }
 
     @Override

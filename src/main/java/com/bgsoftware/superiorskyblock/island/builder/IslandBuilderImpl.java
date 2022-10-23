@@ -96,6 +96,7 @@ public class IslandBuilderImpl implements Island.Builder {
     public List<WarpCategoryRecord> warpCategories = new LinkedList<>();
     public List<BankTransaction> bankTransactions = new LinkedList<>();
     public byte[] persistentData = new byte[0];
+    public List<StrikeRecord> strikes = new LinkedList<>();
 
     public IslandBuilderImpl() {
 
@@ -741,6 +742,12 @@ public class IslandBuilderImpl implements Island.Builder {
     @Override
     public byte[] getPersistentData() {
         return this.persistentData;
+    }
+
+    @Override
+    public Island.Builder addStrike(String reason, long givenAt, String givenBy) {
+        strikes.add(new StrikeRecord(reason, givenAt, givenBy));
+        return this;
     }
 
     @Override

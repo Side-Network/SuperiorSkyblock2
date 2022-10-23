@@ -777,4 +777,33 @@ public class IslandsDeserializer {
             builder.setPersistentData(persistentData);
         });
     }
+
+    public static void deserializeStrikes(DatabaseBridge databaseBridge, DatabaseCache<Island.Builder> databaseCache) {
+        databaseBridge.loadAllObjects("islands_strikes", strikesRow -> {
+            DatabaseResult strike = new DatabaseResult(strikesRow);
+
+            Optional<UUID> uuid = strike.getUUID("island");
+            if (!uuid.isPresent()) {
+                Log.warn("&cCannot load strikes for null islands, skipping...");
+                return;
+            }
+
+            Optional<String> reason = strike.getString("reason");
+            if (!reason.isPresent()) {
+                Log.warnFromFile("&cCannot load strikes for with invalid reason for", uuid.get(), ", skipping...");
+                return;
+            }
+
+            Optional<String> givenBy = strike.getString("given_by");
+            if (!givenBy.isPresent()) {
+                Log.warnFromFile("&cCannot load strikes for with invalid given_by for", uuid.get(), ", skipping...");
+                return;
+            }
+
+            long givenAt = strike.getLong("given_at").orElse(System.currentTimeMillis() / 1000L);
+
+            Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
+            builder.addStrike(reason.get(), givenAt, givenBy.get());
+        });
+    }
 }

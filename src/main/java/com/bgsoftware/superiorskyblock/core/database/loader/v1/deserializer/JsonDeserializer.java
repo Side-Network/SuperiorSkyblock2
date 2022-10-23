@@ -8,10 +8,7 @@ import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.DatabaseLoader_V1;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.IslandChestAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.IslandWarpAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.PlayerAttributes;
-import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.WarpCategoryAttributes;
+import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.*;
 import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
 import com.bgsoftware.superiorskyblock.core.key.KeyMapImpl;
 import com.bgsoftware.superiorskyblock.island.privilege.PlayerPrivilegeNode;
@@ -353,6 +350,26 @@ public class JsonDeserializer implements IDeserializer {
     public String deserializeDirtyChunks(String dirtyChunksParam) {
         gson.fromJson(dirtyChunksParam, JsonObject.class);
         return dirtyChunksParam;
+    }
+
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        List<IslandStrikeAttributes> islandStrikeList = new LinkedList<>();
+
+        JsonArray strikesArray = gson.fromJson(islandStrikes, JsonArray.class);
+        strikesArray.forEach(strikeElement -> {
+            JsonObject strikeObject = strikeElement.getAsJsonObject();
+            String reason = strikeObject.get("reason").getAsString();
+            long givenAt = strikeObject.get("given_at").getAsLong();
+            String givenBy = strikeObject.get("given_by").getAsString();
+
+            islandStrikeList.add(new IslandStrikeAttributes()
+                    .setValue(IslandStrikeAttributes.Field.REASON, reason)
+                    .setValue(IslandStrikeAttributes.Field.GIVEN_AT, givenAt)
+                    .setValue(IslandStrikeAttributes.Field.GIVEN_BY, givenBy));
+        });
+
+        return Collections.unmodifiableList(islandStrikeList);
     }
 
 }
