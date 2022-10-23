@@ -83,6 +83,7 @@ public class AdminCommandsMap extends CommandsMap {
         registerCommand(new CmdAdminTitleAll());
         registerCommand(new CmdAdminUnignore());
         registerCommand(new CmdAdminUnlockWorld());
+        registerCommand(new CmdAdminStrikes(), false);
     }
 
 }

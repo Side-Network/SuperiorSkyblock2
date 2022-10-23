@@ -1947,6 +1947,21 @@ public class DelegateIsland implements Island {
     }
 
     @Override
+    public List<IslandStrike> getStrikes() {
+        return this.handle.getStrikes();
+    }
+
+    @Override
+    public IslandStrike addStrike(String reason, String givenBy) {
+        return this.handle.addStrike(reason, givenBy);
+    }
+
+    @Override
+    public IslandStrike removeStrike(int id) {
+        return this.handle.removeStrike(id);
+    }
+
+    @Override
     public int compareTo(Island o) {
         return this.handle.compareTo(o);
     }

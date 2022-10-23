@@ -352,4 +352,24 @@ public class JsonDeserializer implements IDeserializer {
         return dirtyChunksParam;
     }
 
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        List<IslandStrikeAttributes> islandStrikeList = new LinkedList<>();
+
+        JsonArray strikesArray = gson.fromJson(islandStrikes, JsonArray.class);
+        strikesArray.forEach(strikeElement -> {
+            JsonObject strikeObject = strikeElement.getAsJsonObject();
+            String reason = strikeObject.get("reason").getAsString();
+            long givenAt = strikeObject.get("given_at").getAsLong();
+            String givenBy = strikeObject.get("given_by").getAsString();
+
+            islandStrikeList.add(new IslandStrikeAttributes()
+                    .setValue(IslandStrikeAttributes.Field.REASON, reason)
+                    .setValue(IslandStrikeAttributes.Field.GIVEN_AT, givenAt)
+                    .setValue(IslandStrikeAttributes.Field.GIVEN_BY, givenBy));
+        });
+
+        return Collections.unmodifiableList(islandStrikeList);
+    }
+
 }

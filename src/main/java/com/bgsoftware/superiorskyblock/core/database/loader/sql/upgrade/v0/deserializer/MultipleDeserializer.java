@@ -133,4 +133,9 @@ public class MultipleDeserializer implements IDeserializer {
         return runDeserializers(deserializer -> deserializer.deserializeDirtyChunks(dirtyChunksParam));
     }
 
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        return runDeserializers(deserializer -> deserializer.deserializeStrikes(islandStrikes));
+    }
+
 }

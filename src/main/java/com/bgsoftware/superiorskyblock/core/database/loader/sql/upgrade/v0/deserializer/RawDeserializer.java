@@ -472,6 +472,38 @@ public class RawDeserializer implements IDeserializer {
         return IslandsSerializer.serializeDirtyChunks(dirtyChunks);
     }
 
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        List<IslandStrikeAttributes> strikeAttributes = new LinkedList<>();
+
+        if (islandStrikes == null)
+            return strikeAttributes;
+
+        for (String entry : islandStrikes.split(";")) {
+            try {
+                String[] sections = entry.split("=");
+                if (sections.length < 3)
+                    continue;
+
+                String reason = sections[0];
+                if (reason.isEmpty())
+                    continue;
+
+                long givenAt = Long.parseLong(sections[1]);
+                String givenBy = sections[2];
+
+                strikeAttributes.add(new IslandStrikeAttributes()
+                        .setValue(IslandStrikeAttributes.Field.REASON, reason)
+                        .setValue(IslandStrikeAttributes.Field.GIVEN_AT, givenAt)
+                        .setValue(IslandStrikeAttributes.Field.GIVEN_BY, givenBy));
+            } catch (Exception error) {
+                Log.error(error);
+            }
+        }
+
+        return Collections.unmodifiableList(strikeAttributes);
+    }
+
     private void deserializeGenerators(String generator, KeyMap<Integer> cobbleGenerator) {
         for (String limit : generator.split(",")) {
             try {

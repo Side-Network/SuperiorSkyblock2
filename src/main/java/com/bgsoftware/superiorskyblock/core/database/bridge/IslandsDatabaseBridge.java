@@ -741,7 +741,31 @@ public class IslandsDatabaseBridge {
                 databaseBridge.deleteObject("islands_warp_categories", islandFilter);
                 databaseBridge.deleteObject("islands_warps", islandFilter);
             }
+            databaseBridge.deleteObject("islands_strikes", islandFilter);
         });
+    }
+
+    public static void addStrike(Island island, IslandStrike strike) {
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.insertObject("islands_strikes",
+                new Pair<>("island", island.getUniqueId().toString()),
+                new Pair<>("reason", strike.getReason()),
+                new Pair<>("given_by", strike.getGivenBy()),
+                new Pair<>("given_at", strike.getGivenAt())
+        ));
+    }
+
+    public static void removeStrike(Island island, IslandStrike strike) {
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_strikes",
+                createFilter("island", island,
+                        new Pair<>("reason", strike.getReason()),
+                        new Pair<>("given_by", strike.getGivenBy()),
+                        new Pair<>("given_at", strike.getGivenAt())
+                )));
+    }
+
+    public static void clearStrikes(Island island) {
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_strikes",
+                createFilter("island", island)));
     }
 
     public static void markIslandChestsToBeSaved(Island island, IslandChest islandChest) {

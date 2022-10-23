@@ -136,4 +136,9 @@ public class EmptyParameterGuardDeserializer implements IDeserializer {
         return checkParam(dirtyChunksParam, () -> "[]");
     }
 
+    @Override
+    public List<IslandStrikeAttributes> deserializeStrikes(String islandStrikes) {
+        return checkParam(islandStrikes, Collections::emptyList);
+    }
+
 }

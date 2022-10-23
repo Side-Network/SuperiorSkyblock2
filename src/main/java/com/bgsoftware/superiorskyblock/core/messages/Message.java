@@ -26,6 +26,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -311,6 +312,7 @@ public enum Message {
     COMMAND_DESCRIPTION_SET_TELEPORT,
     COMMAND_DESCRIPTION_SET_WARP,
     COMMAND_DESCRIPTION_SHOW,
+    COMMAND_DESCRIPTION_STRIKES,
     COMMAND_DESCRIPTION_TEAM,
     COMMAND_DESCRIPTION_TEAM_CHAT,
     COMMAND_DESCRIPTION_TELEPORT,
@@ -531,6 +533,7 @@ public enum Message {
     ISLAND_INFO_RATE_THREE_COLOR,
     ISLAND_INFO_RATE_TWO_COLOR,
     ISLAND_INFO_ROLES,
+    ISLAND_INFO_STRIKES,
     ISLAND_INFO_VISITORS_COUNT,
     ISLAND_INFO_WORTH,
     ISLAND_NAME_NONE,
@@ -727,6 +730,11 @@ public enum Message {
     SPAWN_SET_SUCCESS,
     SPAWN_TELEPORT_SUCCESS,
     SPY_TEAM_CHAT_FORMAT,
+    STRIKE_LIST,
+    STRIKE_LIST_FORMAT,
+    STRIKE_GIVEN,
+    STRIKE_GIVEN_INFO,
+    STRIKE_TAKEN,
     SYNC_UPGRADES,
     SYNC_UPGRADES_ALL,
     SYNC_UPGRADES_NAME,
@@ -988,6 +996,15 @@ public enum Message {
 
     public void send(CommandSender sender, Locale locale) {
         send(sender, locale, EMPTY_ARGS);
+    }
+
+    public void broadcast(Locale locale, Object... objects) {
+        IMessageComponent messageComponent = getComponent(locale);
+        if (messageComponent != null) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                messageComponent.sendMessage(player, objects);
+            }
+        }
     }
 
     public void send(CommandSender sender, Locale locale, Object... args) {
