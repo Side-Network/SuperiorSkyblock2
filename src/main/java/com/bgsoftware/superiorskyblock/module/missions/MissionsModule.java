@@ -103,6 +103,21 @@ public class MissionsModule extends BuiltinModule {
         updateConfig(plugin);
     }
 
+    public void onPluginReload(SuperiorSkyblockPlugin plugin) {
+        ConfigurationSection categoriesSection = config.getConfigurationSection("categories");
+
+        if (categoriesSection != null) {
+            for (String categoryName : categoriesSection.getKeys(false)) {
+                ConfigurationSection categorySection = categoriesSection.getConfigurationSection(categoryName);
+
+                if (categorySection == null)
+                    continue;
+
+                reloadCategory(plugin, categoryName);
+            }
+        }
+    }
+
     @Override
     public void onEnable(SuperiorSkyblockPlugin plugin) {
         if (!enabled)
@@ -235,6 +250,58 @@ public class MissionsModule extends BuiltinModule {
 
         // Sort missions by their names and weights.
         categoryMissions.sort(new MissionsComparator(missionWeights));
+
+        return true;
+    }
+
+    private boolean reloadCategory(SuperiorSkyblockPlugin plugin, String categoryName) {
+        File categoryFolder = new File(getModuleFolder(), "categories/" + categoryName);
+
+        if (!categoryFolder.exists()) {
+            Log.warn("&cThe directory of the mission category " + categoryName + " doesn't exist, skipping...");
+            return false;
+        }
+
+        if (!categoryFolder.isDirectory()) {
+            Log.warn("&cThe directory of the mission category " + categoryName + " is not valid, skipping...");
+            return false;
+        }
+
+        File[] missionFiles = categoryFolder.listFiles(file ->
+                file.isFile() && file.getName().endsWith(".yml"));
+
+        if (missionFiles == null || missionFiles.length == 0) {
+            Log.warn("&cThe mission category " + categoryName + " doesn't have missions, skipping...");
+            return false;
+        }
+
+        for (File missionFile : missionFiles) {
+            String missionName = missionFile.getName().replace(".yml", "");
+
+            if (missionName.length() > MAX_MISSIONS_NAME_LENGTH)
+                missionName = missionName.substring(0, MAX_MISSIONS_NAME_LENGTH);
+
+            YamlConfiguration missionConfigFile = new YamlConfiguration();
+
+            try {
+                missionConfigFile.load(missionFile);
+            } catch (InvalidConfigurationException ex) {
+                Log.warn("&cError occurred while parsing mission file " + missionFile.getName() + ":");
+                ex.printStackTrace();
+                Log.warn(ex);
+                continue;
+            } catch (IOException ex) {
+                Log.warn("&cError occurred while opening mission file " + missionFile.getName() + ":");
+                ex.printStackTrace();
+                Log.warn(ex);
+                continue;
+            }
+
+            ConfigurationSection missionSection = missionConfigFile.getConfigurationSection("");
+            Mission<?> mission = plugin.getMissions().getMission(missionName);
+
+            plugin.getMissions().reloadMission(mission, missionName, missionSection);
+        }
 
         return true;
     }
