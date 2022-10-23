@@ -25,11 +25,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class MenuMissionsCategory extends AbstractPagedMenu<MenuMissionsCategory.View, MenuMissionsCategory.Args, MissionReference> {
 
     private final boolean sortByCompletion;
     private final boolean removeCompleted;
+    private SuperiorPlayer target = null;
 
     private MenuMissionsCategory(MenuParseResult<View> parseResult, boolean sortByCompletion, boolean removeCompleted) {
         super(MenuIdentifiers.MENU_MISSIONS_CATEGORY, parseResult, false);
@@ -40,7 +42,12 @@ public class MenuMissionsCategory extends AbstractPagedMenu<MenuMissionsCategory
     @Override
     protected View createViewInternal(SuperiorPlayer superiorPlayer, Args args,
                                       @Nullable MenuView<?, ?> previousMenuView) {
-        return new View(superiorPlayer, previousMenuView, this, args);
+        return new View(superiorPlayer, superiorPlayer, previousMenuView, this, args);
+    }
+
+    protected View createViewInternal(SuperiorPlayer superiorPlayer, SuperiorPlayer target, Args args,
+                                      @Nullable MenuView<?, ?> previousMenuView) {
+        return new View(superiorPlayer, target, previousMenuView, this, args);
     }
 
     public void refreshViews(MissionCategory missionCategory) {
@@ -87,6 +94,13 @@ public class MenuMissionsCategory extends AbstractPagedMenu<MenuMissionsCategory
         return new MenuMissionsCategory(menuParseResult, sortByCompletion, removeCompleted);
     }
 
+    public final CompletableFuture<MenuMissionsCategory.View> createMissionView(SuperiorPlayer superiorPlayer, SuperiorPlayer target, Args args, @Nullable MenuView<?, ?> previousMenu) {
+        this.target = target;
+        MenuMissionsCategory.View view = createViewInternal(superiorPlayer, target, args, previousMenu);
+        addView(view);
+        return refreshView(view);
+    }
+
     public static class Args implements ViewArgs {
 
         private final MissionCategory missionCategory;
@@ -101,12 +115,14 @@ public class MenuMissionsCategory extends AbstractPagedMenu<MenuMissionsCategory
 
         private final MissionCategory missionCategory;
         private final List<MissionReference> missions;
+        private final SuperiorPlayer target;
 
-        View(SuperiorPlayer inventoryViewer, @Nullable MenuView<?, ?> previousMenuView,
+        View(SuperiorPlayer inventoryViewer, SuperiorPlayer target, @Nullable MenuView<?, ?> previousMenuView,
              Menu<View, Args> menu, Args args) {
             super(inventoryViewer, previousMenuView, menu);
 
             this.missionCategory = args.missionCategory;
+            this.target = target;
 
             if (inventoryViewer == null) {
                 this.missions = Collections.emptyList();
@@ -117,7 +133,7 @@ public class MenuMissionsCategory extends AbstractPagedMenu<MenuMissionsCategory
                     listBuilder.sorted(Comparator.comparingInt(this::getCompletionStatus));
 
                 this.missions = listBuilder
-                        .filter(mission -> plugin.getMissions().canDisplayMission(mission, inventoryViewer, removeCompleted))
+                        .filter(mission -> plugin.getMissions().canDisplayMission(mission, target, removeCompleted))
                         .map(args.missionCategory.getMissions(), MissionReference::new);
             }
         }
@@ -133,13 +149,15 @@ public class MenuMissionsCategory extends AbstractPagedMenu<MenuMissionsCategory
         }
 
         private int getCompletionStatus(Mission<?> mission) {
-            SuperiorPlayer inventoryViewer = getInventoryViewer();
-            IMissionsHolder missionsHolder = mission.getIslandMission() ? inventoryViewer.getIsland() : inventoryViewer;
+            IMissionsHolder missionsHolder = mission.getIslandMission() ? target.getIsland() : target;
             return missionsHolder == null ? 0 :
                     !missionsHolder.canCompleteMissionAgain(mission) ? 2 :
-                            plugin.getMissions().canComplete(inventoryViewer, mission) ? 1 : 0;
+                            plugin.getMissions().canComplete(target, mission) ? 1 : 0;
         }
 
+        public SuperiorPlayer getTarget() {
+            return target;
+        }
     }
 
 }

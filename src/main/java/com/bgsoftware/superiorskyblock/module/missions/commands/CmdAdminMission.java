@@ -11,6 +11,7 @@ import com.bgsoftware.superiorskyblock.commands.IAdminPlayerCommand;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
 import com.bgsoftware.superiorskyblock.core.events.plugin.PluginEventsFactory;
 import com.bgsoftware.superiorskyblock.core.formatting.impl.ColorFormatter;
+import com.bgsoftware.superiorskyblock.core.menu.view.MenuViewWrapper;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.player.PlayerLocales;
 import org.bukkit.command.CommandSender;
@@ -72,28 +73,8 @@ public class CmdAdminMission implements IAdminPlayerCommand {
                 if (island == null)
                     return;
 
-                List<Mission<?>> completed = island.getCompletedMissions();
-                int notCompleted = 0;
-
-                ColorFormatter cf = ColorFormatter.getInstance();
-                sender.sendMessage(cf.format(" \n&bCompleted mission list for &3" + island.getName() + "&b Island:\n "));
-
-                categories:
-                for (MissionCategory category : plugin.getMissions().getSortedMissionCategories()) {
-                    for (Mission<?> mission : category.getMissions()) {
-                        if (completed.contains(mission)) {
-                            sender.sendMessage(cf.format("&a" + mission.getName()));
-                        } else {
-                            sender.sendMessage(cf.format("&c" + mission.getName()));
-                            notCompleted++;
-                        }
-
-                        if (notCompleted == 12) {
-                            sender.sendMessage(cf.format("&c..."));
-                            break categories;
-                        }
-                    }
-                }
+                SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(sender);
+                plugin.getMenus().openIslandMainMissionsMenu(superiorPlayer, targetPlayer);
 
                 return;
             }
