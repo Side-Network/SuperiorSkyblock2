@@ -25,11 +25,11 @@ public class MissionData {
     private final boolean disbandReset;
     private final boolean leaveReset;
     @Nullable
-    private final TemplateItem notCompleted;
+    private TemplateItem notCompleted;
     @Nullable
-    private final TemplateItem canComplete;
+    private TemplateItem canComplete;
     @Nullable
-    private final TemplateItem completed;
+    private TemplateItem completed;
     private final int resetAmount;
 
     MissionData(Mission<?> mission, String missionCategoryName, ConfigurationSection section) {
@@ -59,6 +59,12 @@ public class MissionData {
         this.notCompleted = MenuParserImpl.getInstance().getItemStack(missionFilePath, section.getConfigurationSection("icons.not-completed"));
         this.canComplete = MenuParserImpl.getInstance().getItemStack(missionFilePath, section.getConfigurationSection("icons.can-complete"));
         this.completed = MenuParserImpl.getInstance().getItemStack(missionFilePath, section.getConfigurationSection("icons.completed"));
+    }
+
+    public void reloadData(ConfigurationSection section) {
+        this.notCompleted = MenuParser.getItemStack("config.yml", section.getConfigurationSection("icons.not-completed"));
+        this.canComplete = MenuParser.getItemStack("config.yml", section.getConfigurationSection("icons.can-complete"));
+        this.completed = MenuParser.getItemStack("config.yml", section.getConfigurationSection("icons.completed"));
     }
 
     public boolean isAutoReward() {

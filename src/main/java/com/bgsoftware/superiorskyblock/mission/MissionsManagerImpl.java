@@ -12,6 +12,7 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.Either;
 import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.Manager;
+import com.bgsoftware.superiorskyblock.core.errors.ManagerLoadException;
 import com.bgsoftware.superiorskyblock.core.events.EventResult;
 import com.bgsoftware.superiorskyblock.core.events.EventsBus;
 import com.bgsoftware.superiorskyblock.core.io.FileClassLoader;
@@ -535,6 +536,24 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         }
 
         return newMission;
+    }
+
+    public void reloadMission(Mission<?> mission, String missionName, ConfigurationSection missionSection) {
+        try {
+            MissionData data = missionsContainer.getMissionData(mission);
+            if (data == null) {
+                throw new Exception("Couldn't get previous mission data for " + missionName);
+            }
+            data.reloadData(missionSection);
+
+            Log.info("Reloaded mission " + missionName);
+        } catch (Exception ex) {
+            Log.warn("Couldn't reload mission " + missionName + ": ");
+            ManagerLoadException handlerError = new ManagerLoadException(ex, "Couldn't reload mission " + missionName + ".",
+                    ManagerLoadException.ErrorLevel.CONTINUE);
+            Log.error(handlerError);
+            handlerError.printStackTrace();
+        }
     }
 
     public Optional<MissionData> getMissionData(Mission<?> mission) {
