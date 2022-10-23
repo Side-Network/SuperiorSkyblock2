@@ -44,20 +44,20 @@ public class MissionsModule extends BuiltinModule {
     }
 
     private void generateDefaultFiles() {
-        Resources.copyResource("modules/missions/BlocksMissions");
-        Resources.copyResource("modules/missions/BrewingMissions");
-        Resources.copyResource("modules/missions/CraftingMissions");
-        Resources.copyResource("modules/missions/EnchantingMissions");
-        Resources.copyResource("modules/missions/FarmingMissions");
-        Resources.copyResource("modules/missions/FishingMissions");
-        Resources.copyResource("modules/missions/IslandMissions");
-        Resources.copyResource("modules/missions/ItemsMissions");
-        Resources.copyResource("modules/missions/KillsMissions");
-        Resources.copyResource("modules/missions/StatisticsMissions");
-
         File categoriesFolder = new File(getModuleFolder(), "categories");
 
         if ((!categoriesFolder.exists() || !categoriesFolder.isDirectory()) && categoriesFolder.mkdirs()) {
+            Resources.copyResource("modules/missions/BlocksMissions");
+            Resources.copyResource("modules/missions/BrewingMissions");
+            Resources.copyResource("modules/missions/CraftingMissions");
+            Resources.copyResource("modules/missions/EnchantingMissions");
+            Resources.copyResource("modules/missions/FarmingMissions");
+            Resources.copyResource("modules/missions/FishingMissions");
+            Resources.copyResource("modules/missions/IslandMissions");
+            Resources.copyResource("modules/missions/ItemsMissions");
+            Resources.copyResource("modules/missions/KillsMissions");
+            Resources.copyResource("modules/missions/StatisticsMissions");
+
             Resources.saveResource("modules/missions/categories/farmer/farmer_1.yml");
             Resources.saveResource("modules/missions/categories/farmer/farmer_2.yml");
             Resources.saveResource("modules/missions/categories/farmer/farmer_3.yml");
