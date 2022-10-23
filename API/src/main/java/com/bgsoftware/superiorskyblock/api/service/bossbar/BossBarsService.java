@@ -15,4 +15,14 @@ public interface BossBarsService {
      */
     BossBar createBossBar(Player player, String message, BossBar.Color color, double ticksToRun);
 
+    /**
+     * Create a new static boss-bar.
+     *
+     * @param player     The player to create the boss-bar for.
+     * @param message    The message to display in the boss-bar.
+     * @param color      The color of the boss-bar.
+     * @param progress The progress of the boss-bar.
+     * @param ticksToRun The time to run the boss-bar.
+     */
+    BossBar createStaticBossBar(Player player, String message, BossBar.Color color, double progress, double ticksToRun);
 }

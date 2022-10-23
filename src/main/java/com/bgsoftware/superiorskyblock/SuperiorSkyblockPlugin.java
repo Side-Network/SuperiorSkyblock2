@@ -230,6 +230,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
             modulesHandler.loadData();
 
+            nmsPlayers.onLoad();
             loadingStage = PluginLoadingStage.MODULES_INITIALIZED;
 
             commandsHandler.loadData();
