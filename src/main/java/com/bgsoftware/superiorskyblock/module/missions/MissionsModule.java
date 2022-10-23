@@ -104,6 +104,7 @@ public class MissionsModule extends BuiltinModule {
     }
 
     public void onPluginReload(SuperiorSkyblockPlugin plugin) {
+        plugin.getMissions().setCompletePrevious(MenuParser.getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
         ConfigurationSection categoriesSection = config.getConfigurationSection("categories");
 
         if (categoriesSection != null) {
@@ -123,6 +124,7 @@ public class MissionsModule extends BuiltinModule {
         if (!enabled)
             return;
 
+        plugin.getMissions().setCompletePrevious(MenuParser.getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
         ConfigurationSection categoriesSection = config.getConfigurationSection("categories");
 
         if (categoriesSection != null) {
