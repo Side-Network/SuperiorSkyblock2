@@ -79,6 +79,13 @@ public class DefaultMissionsContainer implements MissionsContainer {
         this.missionCategoryMap.clear();
     }
 
+    @Override
+    public List<MissionCategory> getSortedMissionCategories() {
+        return new SequentialListBuilder<MissionCategory>()
+                .sorted(Comparator.comparingInt(MissionCategory::getSlot))
+                .build(missionCategoryMap.values());
+    }
+
     private List<Mission<?>> getFilteredMissions(Predicate<MissionData> predicate) {
         return new SequentialListBuilder<MissionData>()
                 .filter(predicate)

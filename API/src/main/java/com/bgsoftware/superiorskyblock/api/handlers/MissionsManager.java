@@ -47,6 +47,11 @@ public interface MissionsManager {
     List<MissionCategory> getMissionCategories();
 
     /**
+     * Get all the mission categories sorted by slot.
+     */
+    List<MissionCategory> getSortedMissionCategories();
+
+    /**
      * Check whether or not the player has already completed the mission.
      *
      * @param superiorPlayer The player to check.

@@ -23,6 +23,7 @@ import com.bgsoftware.superiorskyblock.core.io.loader.FilesLookup;
 import com.bgsoftware.superiorskyblock.core.itemstack.ItemBuilder;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
+import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
 import com.bgsoftware.superiorskyblock.mission.container.MissionsContainer;
@@ -62,6 +63,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
     private final Map<String, FileClassLoader> missionTypesClassLoaders = new HashMap<>();
 
     private final MissionsContainer missionsContainer;
+    private TemplateItem completePrevious;
 
     public MissionsManagerImpl(SuperiorSkyblockPlugin plugin, MissionsContainer missionsContainer) {
         super(plugin);
@@ -131,6 +133,11 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
     @Override
     public List<MissionCategory> getMissionCategories() {
         return this.missionsContainer.getMissionCategories();
+    }
+
+    @Override
+    public List<MissionCategory> getSortedMissionCategories() {
+        return this.missionsContainer.getSortedMissionCategories();
     }
 
     @Override
@@ -635,4 +642,11 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         return config;
     }
 
+    public TemplateItem getCompletePrevious() {
+        return completePrevious;
+    }
+
+    public void setCompletePrevious(TemplateItem completePrevious) {
+        this.completePrevious = completePrevious;
+    }
 }

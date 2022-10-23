@@ -34,4 +34,5 @@ public interface MissionsContainer {
 
     void clearMissionsData();
 
+    List<MissionCategory> getSortedMissionCategories();
 }
