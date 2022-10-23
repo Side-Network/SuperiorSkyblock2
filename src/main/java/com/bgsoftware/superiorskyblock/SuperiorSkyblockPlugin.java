@@ -233,6 +233,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
             modulesHandler.loadData();
 
+            nmsPlayers.onLoad();
             EventsBus.PluginInitializeResult eventResult = eventsBus.callPluginInitializeEvent(this);
             this.playersHandler.setPlayersContainer(Optional.ofNullable(eventResult.getPlayersContainer()).orElse(new DefaultPlayersContainer()));
             this.gridHandler.setIslandsContainer(Optional.ofNullable(eventResult.getIslandsContainer()).orElse(new DefaultIslandsContainer(this)));

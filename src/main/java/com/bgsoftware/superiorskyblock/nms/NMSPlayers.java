@@ -22,6 +22,8 @@ public interface NMSPlayers {
 
     BossBar createBossBar(Player player, String message, BossBar.Color color, double ticksToRun);
 
+    BossBar createStaticBossBar(Player player, String message, BossBar.Color color, double progress, double ticksToRun);
+
     void sendTitle(Player player, String title, String subtitle, int fadeIn, int duration, int fadeOut);
 
     boolean wasThrownByPlayer(Item item, Player player);
@@ -29,4 +31,5 @@ public interface NMSPlayers {
     @Nullable
     Locale getPlayerLocale(Player player);
 
+    void onLoad();
 }

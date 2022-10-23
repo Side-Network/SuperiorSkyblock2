@@ -93,6 +93,11 @@ public class NMSPlayersImpl implements NMSPlayers {
     }
 
     @Override
+    public BossBar createStaticBossBar(Player player, String message, BossBar.Color color, double progress, double ticksToRun) {
+        return EmptyBossBar.getInstance();
+    }
+
+    @Override
     public void sendTitle(Player player, String title, String subtitle, int fadeIn, int duration, int fadeOut) {
         PlayerConnection playerConnection = ((CraftPlayer) player).getHandle().playerConnection;
 
@@ -125,6 +130,11 @@ public class NMSPlayersImpl implements NMSPlayers {
         } catch (IllegalArgumentException error) {
             return null;
         }
+    }
+
+    @Override
+    public void onLoad() {
+
     }
 
 }

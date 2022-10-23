@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorskyblock.api.missions;
 
+import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
+
 import java.util.List;
 
 public interface MissionCategory {
@@ -19,4 +21,8 @@ public interface MissionCategory {
      */
     List<Mission<?>> getMissions();
 
+    /**
+     * Send a mission boss bar to a player.
+     */
+    void sendBossBar(SuperiorPlayer superiorPlayer, Mission<?> mission, String action, int progress, int total, double totalProgress);
 }

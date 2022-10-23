@@ -323,6 +323,13 @@ public abstract class Mission<V> {
         // Should be overridden by missions.
     }
 
+    /**
+     * Send boss bar progress
+     */
+    public void sendBossBar(SuperiorPlayer superiorPlayer, String action, double progress, double total, double totalProgress) {
+        missionCategory.sendBossBar(superiorPlayer, this, action, (int) progress, (int) total, totalProgress);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(name);
