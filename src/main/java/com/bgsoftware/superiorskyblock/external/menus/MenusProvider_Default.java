@@ -286,6 +286,12 @@ public class MenusProvider_Default implements MenusProvider {
         Menus.MENU_MISSIONS_CATEGORY.createView(targetPlayer, new MenuMissionsCategory.Args(missionCategory), previousMenu);
     }
 
+    public void openMissionsCategory(SuperiorPlayer targetPlayer, SuperiorPlayer target, @Nullable ISuperiorMenu previousMenu, MissionCategory missionCategory) {
+        Preconditions.checkNotNull(targetPlayer, "targetPlayer parameter cannot be null.");
+        Preconditions.checkNotNull(missionCategory, "missionCategory parameter cannot be null.");
+        Menus.MENU_MISSIONS_CATEGORY.createMissionView(targetPlayer, target, new MenuMissionsCategory.Args(missionCategory), previousMenu);
+    }
+
     @Override
     public void refreshMissionsCategory(MissionCategory missionCategory) {
         Preconditions.checkNotNull(missionCategory, "missionCategory parameter cannot be null.");

@@ -32,10 +32,7 @@ import com.bgsoftware.superiorskyblock.core.menu.layout.RegularMenuLayoutImpl;
 import com.bgsoftware.superiorskyblock.core.menu.view.MenuViewWrapper;
 import com.google.common.base.Preconditions;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class MenusManagerImpl extends Manager implements MenusManager {
 
@@ -257,17 +254,35 @@ public class MenusManagerImpl extends Manager implements MenusManager {
 
     @Override
     public void openMissions(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu) {
+        missionMenuTargets.remove(targetPlayer.getUniqueId());
         plugin.getProviders().getMenusProvider().openMissions(targetPlayer, previousMenu);
     }
 
     @Override
     public void openIslandMainMissionsMenu(SuperiorPlayer superiorPlayer) {
+        missionMenuTargets.remove(superiorPlayer.getUniqueId());
         openMissions(superiorPlayer, null);
     }
 
+    public void openIslandMainMissionsMenu(SuperiorPlayer superiorPlayer, SuperiorPlayer target) {
+        missionMenuTargets.put(superiorPlayer.getUniqueId(), target);
+        plugin.getProviders().getMenusProvider().openMissions(superiorPlayer, null);
+    }
+
+    // The menu system is way too complex to understand how to achieve this otherwise...
+    public static Map<UUID, SuperiorPlayer> missionMenuTargets = new HashMap<>();
+
     @Override
     public void openMissionsCategory(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, MissionCategory missionCategory) {
-        plugin.getProviders().getMenusProvider().openMissionsCategory(targetPlayer, previousMenu, missionCategory);
+        if (missionMenuTargets.containsKey(targetPlayer.getUniqueId())) {
+            openMissionsCategory(targetPlayer, missionMenuTargets.get(targetPlayer.getUniqueId()), previousMenu, missionCategory);
+        } else {
+            plugin.getProviders().getMenusProvider().openMissionsCategory(targetPlayer, previousMenu, missionCategory);
+        }
+    }
+
+    public void openMissionsCategory(SuperiorPlayer targetPlayer, SuperiorPlayer target, @Nullable ISuperiorMenu previousMenu, MissionCategory missionCategory) {
+        plugin.getProviders().getMenusProvider().openMissionsCategory(targetPlayer, target, previousMenu, missionCategory);
     }
 
     @Override

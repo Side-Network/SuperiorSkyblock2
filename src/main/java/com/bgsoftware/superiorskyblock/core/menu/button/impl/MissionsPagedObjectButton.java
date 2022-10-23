@@ -33,7 +33,7 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
 
     @Override
     public void onButtonClick(InventoryClickEvent clickEvent) {
-        SuperiorPlayer clickedPlayer = menuView.getInventoryViewer();
+        SuperiorPlayer clickedPlayer = menuView.getTarget();
         Island island = clickedPlayer.getIsland();
 
         if (island == null)
@@ -62,24 +62,24 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
         if (!missionDataOptional.isPresent())
             return buttonItem;
 
-        SuperiorPlayer inventoryViewer = menuView.getInventoryViewer();
+        SuperiorPlayer target = menuView.getTarget();
 
         MissionData missionData = missionDataOptional.get();
-        IMissionsHolder missionsHolder = pagedObject.getIslandMission() ? inventoryViewer.getIsland() : inventoryViewer;
+        IMissionsHolder missionsHolder = pagedObject.getIslandMission() ? target.getIsland() : target;
 
         if (missionsHolder == null)
             return new ItemStack(Material.AIR);
 
         boolean completed = !missionsHolder.canCompleteMissionAgain(pagedObject);
-        int percentage = calculatePercentage(pagedObject.getProgress(inventoryViewer));
-        int progressValue = pagedObject.getProgressValue(inventoryViewer);
+        int percentage = calculatePercentage(pagedObject.getProgress(target));
+        int progressValue = pagedObject.getProgressValue(target);
         int amountCompleted = missionsHolder.getAmountMissionCompleted(pagedObject);
 
         ItemStack itemStack;
-        if (!plugin.getMissions().hasAllRequiredMissions(inventoryViewer, missionData.getMission())) {
+        if (!plugin.getMissions().hasAllRequiredMissions(target, missionData.getMission())) {
             for (String requiredMission : missionData.getMission().getRequiredMissions()) {
                 Mission<?> required = plugin.getMissions().getMission(requiredMission);
-                if (required != null && !plugin.getMissions().hasAllRequiredMissions(inventoryViewer, required)) {
+                if (required != null && !plugin.getMissions().hasAllRequiredMissions(target, required)) {
                     itemStack = plugin.getMissions().getCompletePrevious().build();
                     return itemStack;
                 }
@@ -88,20 +88,20 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
             return itemStack;
         }
 
-        itemStack = completed ? missionData.getCompleted().build(inventoryViewer) :
-                plugin.getMissions().canComplete(inventoryViewer, pagedObject) ?
+        itemStack = completed ? missionData.getCompleted().build(target) :
+                plugin.getMissions().canComplete(target, pagedObject) ?
                         missionData.getCanComplete()
                                 .replaceAll("{0}", percentage + "")
                                 .replaceAll("{1}", progressValue + "")
                                 .replaceAll("{2}", amountCompleted + "")
-                                .build(inventoryViewer) :
+                                .build(target) :
                         missionData.getNotCompleted()
                                 .replaceAll("{0}", percentage + "")
                                 .replaceAll("{1}", progressValue + "")
                                 .replaceAll("{2}", amountCompleted + "")
-                                .build(inventoryViewer);
+                                .build(target);
 
-        pagedObject.formatItem(inventoryViewer, itemStack);
+        pagedObject.formatItem(target, itemStack);
 
         return itemStack;
     }

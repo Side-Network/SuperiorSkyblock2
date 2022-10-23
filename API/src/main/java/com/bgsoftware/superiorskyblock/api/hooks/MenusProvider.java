@@ -292,6 +292,8 @@ public interface MenusProvider {
      */
     void openMissionsCategory(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, MissionCategory missionCategory);
 
+    void openMissionsCategory(SuperiorPlayer targetPlayer, SuperiorPlayer target, @Nullable ISuperiorMenu previousMenu, MissionCategory missionCategory);
+
     /**
      * Refresh the missions-menu for a specific category.
      *
