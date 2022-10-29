@@ -5,6 +5,7 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.Locale;
@@ -55,6 +56,11 @@ public class IslandNames {
 
         if (plugin.getGrid().getIsland(islandName) != null) {
             Message.ISLAND_ALREADY_EXIST.send(sender);
+            return false;
+        }
+
+        if(!StringUtils.isAlphanumeric(islandName)){
+            Message.NAME_BLACKLISTED.send(sender);
             return false;
         }
 
