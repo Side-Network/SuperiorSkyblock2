@@ -59,7 +59,7 @@ public class IslandNames {
             return false;
         }
 
-        if(!StringUtils.isAlphanumeric(islandName)){
+        if(!isAlphaNumeric(islandName)){
             Message.NAME_BLACKLISTED.send(sender);
             return false;
         }
@@ -67,4 +67,7 @@ public class IslandNames {
         return true;
     }
 
+    public static boolean isAlphaNumeric(String s) {
+        return s != null && s.matches("^[a-zA-Z0-9]*$");
+    }
 }
