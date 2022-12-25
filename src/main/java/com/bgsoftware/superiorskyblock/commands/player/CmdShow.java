@@ -89,10 +89,10 @@ public class CmdShow implements ISuperiorCommand {
             infoMessage.append(Message.ISLAND_INFO_RATE.getMessage(locale, Formatters.RATING_FORMATTER.format(rating, locale),
                     Formatters.NUMBER_FORMATTER.format(rating), island.getRatingAmount())).append("\n");
         }
-        if (BuiltinModules.BANK.isEnabled()) {
-            if (!Message.ISLAND_INFO_BANK.isEmpty(locale))
-                infoMessage.append(Message.ISLAND_INFO_BANK.getMessage(locale, island.getIslandBank().getBalance())).append("\n");
-        }
+//        if (BuiltinModules.BANK.isEnabled()) {
+//            if (!Message.ISLAND_INFO_BANK.isEmpty(locale))
+//                infoMessage.append(Message.ISLAND_INFO_BANK.getMessage(locale, island.getIslandBank().getBalance())).append("\n");
+//        }
         if (!Message.ISLAND_INFO_WORTH.isEmpty(locale))
             infoMessage.append(Message.ISLAND_INFO_WORTH.getMessage(locale, island.getWorth())).append("\n");
         if (!Message.ISLAND_INFO_LEVEL.isEmpty(locale))

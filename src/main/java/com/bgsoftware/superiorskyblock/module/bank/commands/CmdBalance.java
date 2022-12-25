@@ -69,9 +69,9 @@ public class CmdBalance implements ISuperiorCommand {
         if (island == superiorPlayer.getIsland())
             Message.ISLAND_BANK_SHOW.send(sender, island.getIslandBank().getBalance());
         else if (targetPlayer == null)
-            Message.ISLAND_BANK_SHOW_OTHER_NAME.send(sender, island.getName(), island.getIslandBank().getBalance());
+            Message.CREATE_ISLAND.send(sender);
         else
-            Message.ISLAND_BANK_SHOW_OTHER.send(sender, targetPlayer.getName(), island.getIslandBank().getBalance());
+            Message.ISLAND_BANK_SHOW.send(sender, island.getIslandBank().getBalance());
     }
 
     @Override
