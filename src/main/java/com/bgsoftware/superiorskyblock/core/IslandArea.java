@@ -4,10 +4,10 @@ import com.bgsoftware.superiorskyblock.api.wrappers.BlockPosition;
 
 public class IslandArea {
 
-    private int minX;
-    private int minZ;
-    private int maxX;
-    private int maxZ;
+    protected int minX;
+    protected int minZ;
+    protected int maxX;
+    protected int maxZ;
 
     public IslandArea(BlockPosition center, int size) {
         this(center.getX() - size, center.getZ() - size, center.getX() + size, center.getZ() + size);

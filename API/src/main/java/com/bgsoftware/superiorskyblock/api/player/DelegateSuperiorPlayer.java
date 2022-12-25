@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.api.player;
 
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.HitActionResult;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
 
 public class DelegateSuperiorPlayer implements SuperiorPlayer {
 
-    private final SuperiorPlayer handle;
+    protected final SuperiorPlayer handle;
 
     protected DelegateSuperiorPlayer(SuperiorPlayer handle) {
         this.handle = handle;
@@ -167,7 +168,7 @@ public class DelegateSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void teleport(Island island, World.Environment environment) {
+    public void teleport(Island island, Environment environment) {
         this.handle.teleport(island, environment);
     }
 
@@ -177,7 +178,7 @@ public class DelegateSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void teleport(Island island, World.Environment environment, @Nullable Consumer<Boolean> teleportResult) {
+    public void teleport(Island island, Environment environment, @Nullable Consumer<Boolean> teleportResult) {
         this.handle.teleport(island, environment, teleportResult);
     }
 

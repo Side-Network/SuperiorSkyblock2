@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.config;
 
 import com.bgsoftware.common.config.CommentedConfiguration;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.TopIslandMembersSorting;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
@@ -94,7 +95,7 @@ public class SettingsContainer {
     public final String visitorsSignLine;
     public final String visitorsSignActive;
     public final String visitorsSignInactive;
-    public final World.Environment defaultWorldEnvironment;
+    public final Environment defaultWorldEnvironment;
     public final String defaultWorldName;
     public final String islandWorldName;
     public final boolean normalWorldEnabled;
@@ -113,6 +114,18 @@ public class SettingsContainer {
     public final String endBiome;
     public final boolean endDragonFightEnabled;
     public final BlockOffset endDragonFightPortalOffset;
+
+    public final boolean citadelWorldEnabled;
+    public final boolean citadelWorldUnlocked;
+    public final String citadelWorldName;
+    public final String citadelBiome;
+    public final int citadelPortalMinXOffset;
+    public final int citadelPortalMinYOffset;
+    public final int citadelPortalMinZOffset;
+    public final int citadelPortalMaxXOffset;
+    public final int citadelPortalMaxYOffset;
+    public final int citadelPortalMaxZOffset;
+
     public final String worldsDifficulty;
     public final String spawnLocation;
     public final boolean spawnProtection;
@@ -334,15 +347,28 @@ public class SettingsContainer {
             }
         }
         this.endDragonFightPortalOffset = endDragonFightPortalOffset == null ? SBlockOffset.ZERO : endDragonFightPortalOffset;
+
+        citadelWorldEnabled = config.getBoolean("worlds.citadel.enabled", false);
+        citadelWorldUnlocked = config.getBoolean("worlds.citadel.unlock", false);
+        String citadelWorldName = config.getString("worlds.citadel.name", "");
+        this.citadelWorldName = citadelWorldName.isEmpty() ? islandWorldName + "_citadel" : citadelWorldName;
+        citadelBiome = config.getString("worlds.citadel.biome", "THE_END");
+        citadelPortalMinXOffset = config.getInt("worlds.citadel.portal-area.min.x", 1);
+        citadelPortalMinYOffset = config.getInt("worlds.citadel.portal-area.min.y", 1);
+        citadelPortalMinZOffset = config.getInt("worlds.citadel.portal-area.min.z", 1);
+        citadelPortalMaxXOffset = config.getInt("worlds.citadel.portal-area.max.x", 1);
+        citadelPortalMaxYOffset = config.getInt("worlds.citadel.portal-area.max.y", 1);
+        citadelPortalMaxZOffset = config.getInt("worlds.citadel.portal-area.max.z", 1);
+
         String defaultWorldEnvironment = config.getString("worlds.default-world");
         if (defaultWorldEnvironment.equalsIgnoreCase("normal") && normalWorldEnabled) {
-            this.defaultWorldEnvironment = World.Environment.NORMAL;
+            this.defaultWorldEnvironment = Environment.NORMAL;
             this.defaultWorldName = this.islandWorldName;
         } else if (defaultWorldEnvironment.equalsIgnoreCase("nether") && netherWorldEnabled) {
-            this.defaultWorldEnvironment = World.Environment.NETHER;
+            this.defaultWorldEnvironment = Environment.NETHER;
             this.defaultWorldName = this.netherWorldName;
         } else if (defaultWorldEnvironment.equalsIgnoreCase("the_end") && endWorldEnabled) {
-            this.defaultWorldEnvironment = World.Environment.THE_END;
+            this.defaultWorldEnvironment = Environment.THE_END;
             this.defaultWorldName = this.endWorldName;
         } else {
             throw new ManagerLoadException("Cannot find a default islands world.", ManagerLoadException.ErrorLevel.SERVER_SHUTDOWN);
@@ -391,11 +417,11 @@ public class SettingsContainer {
         rateOwnIsland = config.getBoolean("rate-own-island", false);
         defaultSettings = config.getStringList("default-settings")
                 .stream().map(str -> str.toUpperCase(Locale.ENGLISH)).collect(Collectors.toList());
-        defaultGenerator = new KeyMap[World.Environment.values().length];
+        defaultGenerator = new KeyMap[Environment.values().length];
         if (config.isConfigurationSection("default-values.generator")) {
             for (String env : config.getConfigurationSection("default-values.generator").getKeys(false)) {
                 try {
-                    World.Environment environment = World.Environment.valueOf(env.toUpperCase(Locale.ENGLISH));
+                    Environment environment = Environment.valueOf(env.toUpperCase(Locale.ENGLISH));
                     loadGenerator(config.getStringList("default-values.generator." + env), environment.ordinal());
                 } catch (Exception error) {
                     Log.error(error, "An unexpected error occurred while loading default generator values for ", env + ":");

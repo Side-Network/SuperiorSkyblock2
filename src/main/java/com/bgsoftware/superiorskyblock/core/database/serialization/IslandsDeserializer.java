@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.core.database.serialization;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
@@ -490,7 +491,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<Integer> environment = generators.getEnum("environment", World.Environment.class)
+            Optional<Integer> environment = generators.getEnum("environment", Environment.class)
                     .map(Enum::ordinal);
             if (!environment.isPresent()) {
                 Log.warnFromFile("Cannot load generator rates with invalid environment for ", uuid.get(), ", skipping...");
@@ -510,7 +511,7 @@ public class IslandsDeserializer {
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
-            builder.setGeneratorRate(block.get(), rate.get(), World.Environment.values()[environment.get()]);
+            builder.setGeneratorRate(block.get(), rate.get(), Environment.values()[environment.get()]);
         });
     }
 
@@ -524,7 +525,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<Integer> environment = islandHomes.getEnum("environment", World.Environment.class)
+            Optional<Integer> environment = islandHomes.getEnum("environment", Environment.class)
                     .map(Enum::ordinal);
             if (!environment.isPresent()) {
                 Log.warnFromFile("Cannot load island homes with invalid environment for ", uuid.get(), ", skipping...");
@@ -538,7 +539,7 @@ public class IslandsDeserializer {
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
-            builder.setIslandHome(location.get(), World.Environment.values()[environment.get()]);
+            builder.setIslandHome(location.get(), Environment.values()[environment.get()]);
         });
     }
 
@@ -552,7 +553,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<Integer> environment = islandVisitorHomes.getEnum("environment", World.Environment.class)
+            Optional<Integer> environment = islandVisitorHomes.getEnum("environment", Environment.class)
                     .map(Enum::ordinal);
             if (!environment.isPresent()) {
                 Log.warnFromFile("Cannot load island homes with invalid environment for ", uuid.get(), ", skipping...");
@@ -566,7 +567,7 @@ public class IslandsDeserializer {
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
-            builder.setVisitorHome(location.get(), World.Environment.values()[environment.get()]);
+            builder.setVisitorHome(location.get(), Environment.values()[environment.get()]);
         });
     }
 

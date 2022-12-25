@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.events.IslandChangeLevelBonusEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandChangeWorthBonusEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -115,21 +116,21 @@ public class CmdAdminSyncBonus implements IAdminIslandCommand {
 
         String generatedSchematic = island.getSchematicName();
 
-        if (island.wasSchematicGenerated(World.Environment.NORMAL)) {
+        if (island.wasSchematicGenerated(Environment.NORMAL)) {
             Schematic schematic = plugin.getSchematics().getSchematic(generatedSchematic);
             if (schematic != null) {
                 value = value.add(_calculateValues(schematic.getBlockCounts(), calculateWorth));
             }
         }
 
-        if (island.wasSchematicGenerated(World.Environment.NETHER)) {
+        if (island.wasSchematicGenerated(Environment.NETHER)) {
             Schematic schematic = plugin.getSchematics().getSchematic(generatedSchematic + "_nether");
             if (schematic != null) {
                 value = value.add(_calculateValues(schematic.getBlockCounts(), calculateWorth));
             }
         }
 
-        if (island.wasSchematicGenerated(World.Environment.THE_END)) {
+        if (island.wasSchematicGenerated(Environment.THE_END)) {
             Schematic schematic = plugin.getSchematics().getSchematic(generatedSchematic + "_the_end");
             if (schematic != null) {
                 value = value.add(_calculateValues(schematic.getBlockCounts(), calculateWorth));

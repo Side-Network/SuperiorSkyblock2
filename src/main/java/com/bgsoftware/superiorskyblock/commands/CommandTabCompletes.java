@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.commands;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
@@ -134,7 +135,7 @@ public class CommandTabCompletes {
     public static List<String> getSchematics(SuperiorSkyblockPlugin plugin, String argument) {
         String lowerArgument = argument.toLowerCase(Locale.ENGLISH);
         return new SequentialListBuilder<String>()
-                .filter(schematic -> !schematic.endsWith("_nether") && !schematic.endsWith("_the_end") &&
+                .filter(schematic -> !schematic.endsWith("_nether") && !schematic.endsWith("_the_end") && !schematic.endsWith("_citadel") &&
                         schematic.toLowerCase(Locale.ENGLISH).contains(lowerArgument))
                 .build(plugin.getSchematics().getSchematics());
     }
@@ -240,7 +241,7 @@ public class CommandTabCompletes {
     }
 
     public static List<String> getEnvironments(String argument) {
-        return getFromEnum(Arrays.asList(World.Environment.values()), argument.toLowerCase(Locale.ENGLISH));
+        return getFromEnum(Arrays.asList(Environment.values()), argument.toLowerCase(Locale.ENGLISH));
     }
 
     public static List<String> getBorderColors(String argument) {

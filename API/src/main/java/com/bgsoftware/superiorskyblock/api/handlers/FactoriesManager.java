@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.api.handlers;
 
 import com.bgsoftware.superiorskyblock.api.enums.BankAction;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.factory.BanksFactory;
 import com.bgsoftware.superiorskyblock.api.factory.DatabaseBridgeFactory;
 import com.bgsoftware.superiorskyblock.api.factory.IslandsFactory;
@@ -149,6 +150,6 @@ public interface FactoriesManager {
      * @param worldName   The name of the world.
      * @param environment The environment of the world.
      */
-    WorldInfo createWorldInfo(String worldName, World.Environment environment);
+    WorldInfo createWorldInfo(String worldName, Environment environment);
 
 }

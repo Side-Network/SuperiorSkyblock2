@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.commands.arguments;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
@@ -352,11 +353,11 @@ public class CommandArguments {
         return islandFlag;
     }
 
-    public static World.Environment getEnvironment(CommandSender sender, String argument) {
-        World.Environment environment = null;
+    public static Environment getEnvironment(CommandSender sender, String argument) {
+        Environment environment = null;
 
         try {
-            environment = World.Environment.valueOf(argument.toUpperCase(Locale.ENGLISH));
+            environment = Environment.valueOf(argument.toUpperCase(Locale.ENGLISH));
         } catch (Exception ignored) {
         }
 

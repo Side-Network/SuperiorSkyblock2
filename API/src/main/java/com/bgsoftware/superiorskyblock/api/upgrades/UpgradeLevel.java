@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.api.upgrades;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCost;
@@ -130,14 +131,14 @@ public interface UpgradeLevel {
      * @param key         The block to check.
      * @param environment The world environment
      */
-    int getGeneratorAmount(Key key, World.Environment environment);
+    int getGeneratorAmount(Key key, Environment environment);
 
     /**
      * Get all the generator rates for this level in a specific world.
      *
      * @param environment The world environment
      */
-    Map<String, Integer> getGeneratorAmounts(World.Environment environment);
+    Map<String, Integer> getGeneratorAmounts(Environment environment);
 
     /**
      * Get the potion effect for this level.

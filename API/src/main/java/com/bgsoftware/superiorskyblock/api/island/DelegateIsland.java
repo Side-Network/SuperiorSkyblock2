@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.api.island;
 
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandCalculationAlgorithm;
@@ -37,7 +38,7 @@ import java.util.function.Consumer;
 
 public class DelegateIsland implements Island {
 
-    private final Island handle;
+    protected final Island handle;
 
     protected DelegateIsland(Island handle) {
         this.handle = handle;
@@ -209,7 +210,7 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public Location getCenter(World.Environment environment) {
+    public Location getCenter(Environment environment) {
         return this.handle.getCenter(environment);
     }
 
@@ -220,12 +221,12 @@ public class DelegateIsland implements Island {
 
     @Nullable
     @Override
-    public Location getTeleportLocation(World.Environment environment) {
+    public Location getTeleportLocation(Environment environment) {
         return this.handle.getTeleportLocation(environment);
     }
 
     @Override
-    public Map<World.Environment, Location> getTeleportLocations() {
+    public Map<Environment, Location> getTeleportLocations() {
         return this.handle.getTeleportLocations();
     }
 
@@ -235,18 +236,18 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public void setTeleportLocation(World.Environment environment, @Nullable Location teleportLocation) {
+    public void setTeleportLocation(Environment environment, @Nullable Location teleportLocation) {
         this.handle.setTeleportLocation(environment, teleportLocation);
     }
 
     @Nullable
     @Override
-    public Location getIslandHome(World.Environment environment) {
+    public Location getIslandHome(Environment environment) {
         return this.handle.getIslandHome(environment);
     }
 
     @Override
-    public Map<World.Environment, Location> getIslandHomes() {
+    public Map<Environment, Location> getIslandHomes() {
         return this.handle.getIslandHomes();
     }
 
@@ -256,7 +257,7 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public void setIslandHome(World.Environment environment, @Nullable Location homeLocation) {
+    public void setIslandHome(Environment environment, @Nullable Location homeLocation) {
         this.handle.setIslandHome(environment, homeLocation);
     }
 
@@ -269,7 +270,7 @@ public class DelegateIsland implements Island {
 
     @Nullable
     @Override
-    public Location getVisitorsLocation(World.Environment environment) {
+    public Location getVisitorsLocation(Environment environment) {
         return this.handle.getVisitorsLocation(environment);
     }
 
@@ -329,17 +330,17 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment) {
+    public List<Chunk> getAllChunks(Environment environment) {
         return this.handle.getAllChunks(environment);
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected) {
         return this.handle.getAllChunks(environment, onlyProtected);
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         return this.handle.getAllChunks(environment, onlyProtected, noEmptyChunks);
     }
 
@@ -349,27 +350,27 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    public List<Chunk> getLoadedChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         return this.handle.getLoadedChunks(environment, onlyProtected, noEmptyChunks);
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected, @Nullable Consumer<Chunk> onChunkLoad) {
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, @Nullable Consumer<Chunk> onChunkLoad) {
         return this.handle.getAllChunksAsync(environment, onlyProtected, onChunkLoad);
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks, @Nullable Consumer<Chunk> onChunkLoad) {
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, boolean noEmptyChunks, @Nullable Consumer<Chunk> onChunkLoad) {
         return this.handle.getAllChunksAsync(environment, onlyProtected, noEmptyChunks, onChunkLoad);
     }
 
     @Override
-    public void resetChunks(World.Environment environment, boolean onlyProtected) {
+    public void resetChunks(Environment environment, boolean onlyProtected) {
         this.handle.resetChunks(environment, onlyProtected);
     }
 
     @Override
-    public void resetChunks(World.Environment environment, boolean onlyProtected, @Nullable Runnable onFinish) {
+    public void resetChunks(Environment environment, boolean onlyProtected, @Nullable Runnable onFinish) {
         this.handle.resetChunks(environment, onlyProtected, onFinish);
     }
 
@@ -436,6 +437,21 @@ public class DelegateIsland implements Island {
     @Override
     public void setEndEnabled(boolean enabled) {
         this.handle.setEndEnabled(enabled);
+    }
+
+    @Override
+    public boolean isCitadelEnabled() {
+        return this.handle.isCitadelEnabled();
+    }
+
+    @Override
+    public void setCitadelEnabled(boolean enabled) {
+        this.handle.setCitadelEnabled(enabled);
+    }
+
+    @Override
+    public boolean getCitadelUnlockedFlag() {
+        return this.handle.getCitadelUnlockedFlag();
     }
 
     @Override
@@ -1309,57 +1325,57 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public void setGeneratorPercentage(Key key, int percentage, World.Environment environment) {
+    public void setGeneratorPercentage(Key key, int percentage, Environment environment) {
         this.handle.setGeneratorPercentage(key, percentage, environment);
     }
 
     @Override
-    public boolean setGeneratorPercentage(Key key, int percentage, World.Environment environment, @Nullable SuperiorPlayer caller, boolean callEvent) {
+    public boolean setGeneratorPercentage(Key key, int percentage, Environment environment, @Nullable SuperiorPlayer caller, boolean callEvent) {
         return this.handle.setGeneratorPercentage(key, percentage, environment, caller, callEvent);
     }
 
     @Override
-    public int getGeneratorPercentage(Key key, World.Environment environment) {
+    public int getGeneratorPercentage(Key key, Environment environment) {
         return this.handle.getGeneratorPercentage(key, environment);
     }
 
     @Override
-    public Map<String, Integer> getGeneratorPercentages(World.Environment environment) {
+    public Map<String, Integer> getGeneratorPercentages(Environment environment) {
         return this.handle.getGeneratorPercentages(environment);
     }
 
     @Override
-    public void setGeneratorAmount(Key key, int amount, World.Environment environment) {
+    public void setGeneratorAmount(Key key, int amount, Environment environment) {
         this.handle.setGeneratorAmount(key, amount, environment);
     }
 
     @Override
-    public void removeGeneratorAmount(Key key, World.Environment environment) {
+    public void removeGeneratorAmount(Key key, Environment environment) {
         this.handle.removeGeneratorAmount(key, environment);
     }
 
     @Override
-    public int getGeneratorAmount(Key key, World.Environment environment) {
+    public int getGeneratorAmount(Key key, Environment environment) {
         return this.handle.getGeneratorAmount(key, environment);
     }
 
     @Override
-    public int getGeneratorTotalAmount(World.Environment environment) {
+    public int getGeneratorTotalAmount(Environment environment) {
         return this.handle.getGeneratorTotalAmount(environment);
     }
 
     @Override
-    public Map<String, Integer> getGeneratorAmounts(World.Environment environment) {
+    public Map<String, Integer> getGeneratorAmounts(Environment environment) {
         return this.handle.getGeneratorAmounts(environment);
     }
 
     @Override
-    public Map<Key, Integer> getCustomGeneratorAmounts(World.Environment environment) {
+    public Map<Key, Integer> getCustomGeneratorAmounts(Environment environment) {
         return this.handle.getCustomGeneratorAmounts(environment);
     }
 
     @Override
-    public void clearGeneratorAmounts(World.Environment environment) {
+    public void clearGeneratorAmounts(Environment environment) {
         this.handle.clearGeneratorAmounts(environment);
     }
 
@@ -1371,28 +1387,33 @@ public class DelegateIsland implements Island {
 
     @Nullable
     @Override
-    public Key generateBlock(Location location, World.Environment environment, boolean optimizeCobblestone) {
-        return this.handle.generateBlock(location, environment, optimizeCobblestone);
+    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed) {
+        return this.handle.generateBlock(location, environment, optimizeCobblestone, netherAllowed);
     }
 
     @Override
-    public boolean wasSchematicGenerated(World.Environment environment) {
+    public boolean wasSchematicGenerated(Environment environment) {
         return this.handle.wasSchematicGenerated(environment);
     }
 
     @Override
-    public void setSchematicGenerate(World.Environment environment) {
+    public void setSchematicGenerate(Environment environment) {
         this.handle.setSchematicGenerate(environment);
     }
 
     @Override
-    public void setSchematicGenerate(World.Environment environment, boolean generated) {
+    public void setSchematicGenerate(Environment environment, boolean generated) {
         this.handle.setSchematicGenerate(environment, generated);
     }
 
     @Override
     public int getGeneratedSchematicsFlag() {
         return this.handle.getGeneratedSchematicsFlag();
+    }
+
+    @Override
+    public boolean getGeneratedCitadelFlag() {
+        return this.handle.getGeneratedCitadelFlag();
     }
 
     @Override

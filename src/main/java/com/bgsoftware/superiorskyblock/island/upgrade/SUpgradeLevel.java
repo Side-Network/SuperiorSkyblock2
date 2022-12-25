@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.island.upgrade;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
@@ -47,7 +48,7 @@ public class SUpgradeLevel implements UpgradeLevel {
     private final Value<Integer> borderSize;
     private final KeyMap<Integer> blockLimits;
     private final KeyMap<Integer> entityLimits;
-    private final Map<World.Environment, Map<Key, Integer>> generatorRates;
+    private final Map<Environment, Map<Key, Integer>> generatorRates;
     private final Map<PotionEffectType, Integer> islandEffects;
     private final Value<BigDecimal> bankLimit;
     private final Map<Integer, Integer> roleLimits;
@@ -58,7 +59,7 @@ public class SUpgradeLevel implements UpgradeLevel {
                          Value<Double> cropGrowth, Value<Double> spawnerRates, Value<Double> mobDrops,
                          Value<Integer> teamLimit, Value<Integer> warpsLimit, Value<Integer> coopLimit,
                          Value<Integer> borderSize, KeyMap<Integer> blockLimits,
-                         KeyMap<Integer> entityLimits, Map<World.Environment, Map<Key, Integer>> generatorRates,
+                         KeyMap<Integer> entityLimits, Map<Environment, Map<Key, Integer>> generatorRates,
                          Map<PotionEffectType, Integer> islandEffects, Value<BigDecimal> bankLimit,
                          Map<Integer, Integer> roleLimits) {
         this.level = level;
@@ -199,7 +200,7 @@ public class SUpgradeLevel implements UpgradeLevel {
     }
 
     @Override
-    public int getGeneratorAmount(Key key, World.Environment environment) {
+    public int getGeneratorAmount(Key key, Environment environment) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         Map<Key, Integer> generatorRates = this.generatorRates.get(environment);
@@ -207,7 +208,7 @@ public class SUpgradeLevel implements UpgradeLevel {
     }
 
     @Override
-    public Map<String, Integer> getGeneratorAmounts(World.Environment environment) {
+    public Map<String, Integer> getGeneratorAmounts(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         Map<Key, Integer> generatorRates = this.generatorRates.get(environment);
         return generatorRates == null ? Collections.emptyMap() : generatorRates.entrySet().stream().collect(Collectors.toMap(
@@ -289,8 +290,8 @@ public class SUpgradeLevel implements UpgradeLevel {
         return borderSize;
     }
 
-    public Map<World.Environment, Map<Key, Value<Integer>>> getGeneratorUpgradeValue() {
-        EnumMap<World.Environment, Map<Key, Value<Integer>>> generatorRates = new EnumMap<>(World.Environment.class);
+    public Map<Environment, Map<Key, Value<Integer>>> getGeneratorUpgradeValue() {
+        EnumMap<Environment, Map<Key, Value<Integer>>> generatorRates = new EnumMap<>(Environment.class);
 
         this.generatorRates.forEach(((environment, worldGeneratorRates) -> {
             Map<Key, Value<Integer>> result = worldGeneratorRates.entrySet().stream().collect(Collectors.toMap(

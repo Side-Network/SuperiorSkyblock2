@@ -656,6 +656,10 @@ public class SettingsManagerImpl extends Manager implements SettingsManager {
             cfg.set("worlds.end.enabled", cfg.getBoolean("worlds.end-world"));
             cfg.set("worlds.end.unlock", cfg.getBoolean("worlds.end-unlock"));
         }
+        if (!cfg.contains("worlds.citadel")) {
+            cfg.set("worlds.citadel.enabled", cfg.getBoolean("worlds.citadel-world"));
+            cfg.set("worlds.citadel.unlock", cfg.getBoolean("worlds.citadel-unlock"));
+        }
         if (cfg.contains("worlds.normal-world")) {
             cfg.set("worlds.world-name", cfg.getString("worlds.normal-world"));
             cfg.set("worlds.normal-world", null);

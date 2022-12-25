@@ -8,12 +8,13 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.CommandTabCompletes;
 import com.bgsoftware.superiorskyblock.commands.IPermissibleCommand;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
+import com.bgsoftware.superiorskyblock.core.ChunkPosition;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.inventory.ItemStack;
+import com.bgsoftware.superiorskyblock.island.warp.SignWarp;
+import com.bgsoftware.superiorskyblock.world.chunk.ChunkLoadReason;
+import com.bgsoftware.superiorskyblock.world.chunk.ChunksProvider;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +68,8 @@ public class CmdDelWarp implements IPermissibleCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, SuperiorPlayer superiorPlayer, Island island, String[] args) {
-        IslandWarp islandWarp = CommandArguments.getWarp(superiorPlayer.asPlayer(), island, args, 1);
+        Player player = superiorPlayer.asPlayer();
+        IslandWarp islandWarp = CommandArguments.getWarp(player, island, args, 1);
 
         if (islandWarp == null)
             return;
@@ -75,23 +77,12 @@ public class CmdDelWarp implements IPermissibleCommand {
         if (!plugin.getEventsBus().callIslandDeleteWarpEvent(superiorPlayer, island, islandWarp))
             return;
 
-        boolean breakSign = false;
-
-        Block signBlock = islandWarp.getLocation().getBlock();
-
-        if (signBlock.getState() instanceof Sign) {
-            signBlock.setType(Material.AIR);
-            signBlock.getWorld().dropItemNaturally(signBlock.getLocation(), new ItemStack(Material.SIGN));
-            breakSign = true;
-        }
-
         island.deleteWarp(islandWarp.getName());
-
         Message.DELETE_WARP.send(superiorPlayer, islandWarp.getName());
 
-        if (breakSign) {
-            Message.DELETE_WARP_SIGN_BROKE.send(superiorPlayer);
-        }
+        ChunksProvider.loadChunk(ChunkPosition.of(islandWarp.getLocation()), ChunkLoadReason.WARP_SIGN_BREAK, chunk -> {
+            SignWarp.trySignWarpBreak(islandWarp, player);
+        });
     }
 
     @Override

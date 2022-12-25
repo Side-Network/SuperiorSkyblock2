@@ -214,6 +214,8 @@ public class DataManager extends Manager {
                     .setDescription(databaseResult.getString("description").orElse(""))
                     .setGeneratedSchematics(databaseResult.getInt("generated_schematics").orElse(0))
                     .setUnlockedWorlds(databaseResult.getInt("unlocked_worlds").orElse(0))
+                    .setGeneratedCitadel(databaseResult.getBoolean("generated_citadel").orElse(false))
+                    .setUnlockedCitadel(databaseResult.getBoolean("unlocked_citadel").orElse(false))
                     .setLastTimeUpdated(databaseResult.getLong("last_time_updated").orElse(System.currentTimeMillis() / 1000L));
 
             databaseResult.getString("dirty_chunks").ifPresent(dirtyChunks -> {

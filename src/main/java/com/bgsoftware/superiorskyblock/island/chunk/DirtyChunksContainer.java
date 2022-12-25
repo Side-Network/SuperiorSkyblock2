@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.island.chunk;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockPosition;
@@ -18,7 +19,7 @@ public class DirtyChunksContainer {
 
     private static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
 
-    private final EnumMap<World.Environment, BitSet> dirtyChunks = new EnumMap<>(World.Environment.class);
+    private final EnumMap<Environment, BitSet> dirtyChunks = new EnumMap<>(Environment.class);
 
     private final Island island;
     private final int minChunkX;

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.island.upgrade;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.island.container.value.Value;
 import com.bgsoftware.superiorskyblock.island.upgrade.cost.EmptyUpgradeCost;
@@ -37,13 +38,13 @@ public class DefaultUpgradeLevel extends SUpgradeLevel {
         return INSTANCE;
     }
 
-    private static <V> Map<World.Environment, V> convertFromArray(V[] arr) {
-        EnumMap<World.Environment, V> result = new EnumMap<>(World.Environment.class);
+    private static <V> Map<Environment, V> convertFromArray(V[] arr) {
+        EnumMap<Environment, V> result = new EnumMap<>(Environment.class);
 
-        int environmentLength = World.Environment.values().length;
+        int environmentLength = Environment.values().length;
         for (int i = 0; i < arr.length && i < environmentLength; ++i) {
             if (arr[i] != null) {
-                World.Environment environment = World.Environment.values()[i];
+                Environment environment = Environment.values()[i];
                 result.put(environment, arr[i]);
             }
         }

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.island;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.handlers.GridManager;
 import com.bgsoftware.superiorskyblock.api.hooks.LazyWorldsProvider;
 import com.bgsoftware.superiorskyblock.api.hooks.WorldsProvider;
@@ -262,7 +263,7 @@ public class GridManagerImpl extends Manager implements GridManager {
                                 if (result) {
                                     if (affectedChunks != null)
                                         BukkitExecutor.sync(() -> IslandUtils.resetChunksExcludedFromList(island, affectedChunks), 10L);
-                                    if (plugin.getSettings().getWorlds().getDefaultWorld() == World.Environment.THE_END) {
+                                    if (plugin.getSettings().getWorlds().getDefaultWorld() == Environment.THE_END) {
                                         plugin.getNMSDragonFight().awardTheEndAchievement(player);
                                         plugin.getServices().getDragonBattleService().resetEnderDragonBattle(island);
                                     }
@@ -507,14 +508,14 @@ public class GridManagerImpl extends Manager implements GridManager {
     }
 
     @Override
-    public World getIslandsWorld(Island island, World.Environment environment) {
+    public World getIslandsWorld(Island island, Environment environment) {
         Preconditions.checkNotNull(island, "island parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         return plugin.getProviders().getWorldsProvider().getIslandsWorld(island, environment);
     }
 
     @Override
-    public WorldInfo getIslandsWorldInfo(Island island, World.Environment environment) {
+    public WorldInfo getIslandsWorldInfo(Island island, Environment environment) {
         Preconditions.checkNotNull(island, "island parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 

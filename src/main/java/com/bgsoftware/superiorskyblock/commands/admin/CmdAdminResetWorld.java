@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -38,7 +39,7 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
         return "admin resetworld <" +
                 Message.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + "/" +
                 Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "/" +
-                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <normal/nether/the_end>";
+                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <normal/nether/the_end/citadel>";
     }
 
     @Override
@@ -68,7 +69,7 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, List<Island> islands, String[] args) {
-        World.Environment environment = CommandArguments.getEnvironment(sender, args[3]);
+        Environment environment = CommandArguments.getEnvironment(sender, args[3]);
 
         if (environment == null)
             return;
@@ -130,7 +131,7 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
 
         List<String> environments = new ArrayList<>();
 
-        for (World.Environment environment : World.Environment.values()) {
+        for (Environment environment : Environment.values()) {
             if (environment != plugin.getSettings().getWorlds().getDefaultWorld()) {
                 boolean addEnvironment = false;
                 switch (environment) {
@@ -142,6 +143,9 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
                         break;
                     case THE_END:
                         addEnvironment = plugin.getProviders().getWorldsProvider().isEndEnabled();
+                        break;
+                    case CITADEL:
+                        addEnvironment = plugin.getProviders().getWorldsProvider().isCitadelEnabled();
                         break;
                 }
                 if (addEnvironment)

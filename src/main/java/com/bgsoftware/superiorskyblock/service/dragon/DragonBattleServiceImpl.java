@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.service.dragon;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.service.dragon.DragonBattleResetResult;
 import com.bgsoftware.superiorskyblock.api.service.dragon.DragonBattleService;
@@ -21,7 +22,7 @@ public class DragonBattleServiceImpl implements DragonBattleService {
 
     @Override
     public void prepareEndWorld(World bukkitWorld) {
-        Preconditions.checkState(bukkitWorld.getEnvironment() == World.Environment.THE_END, "world must be the_end environment.");
+        Preconditions.checkState(Environment.of(bukkitWorld.getEnvironment()) == Environment.THE_END, "world must be the_end environment.");
         plugin.getNMSDragonFight().prepareEndWorld(bukkitWorld);
     }
 
@@ -44,12 +45,12 @@ public class DragonBattleServiceImpl implements DragonBattleService {
         if (!island.isEndEnabled())
             return DragonBattleResetResult.WORLD_NOT_UNLOCKED;
 
-        if (!island.wasSchematicGenerated(World.Environment.THE_END))
+        if (!island.wasSchematicGenerated(Environment.THE_END))
             return DragonBattleResetResult.WORLD_NOT_GENERATED;
 
         stopEnderDragonBattle(island);
 
-        Location islandCenter = island.getCenter(World.Environment.THE_END);
+        Location islandCenter = island.getCenter(Environment.THE_END);
 
         plugin.getNMSDragonFight().startDragonBattle(island, plugin.getSettings().getWorlds().getEnd()
                 .getPortalOffset().applyToLocation(islandCenter));

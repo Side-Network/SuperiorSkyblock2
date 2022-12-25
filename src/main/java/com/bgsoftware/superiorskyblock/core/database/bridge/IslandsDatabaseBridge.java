@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.core.database.bridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseFilter;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.*;
 import com.bgsoftware.superiorskyblock.api.island.bank.BankTransaction;
@@ -86,7 +87,7 @@ public class IslandsDatabaseBridge {
         ));
     }
 
-    public static void saveIslandHome(Island island, World.Environment environment, Location location) {
+    public static void saveIslandHome(Island island, Environment environment, Location location) {
         if (location == null) {
             runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_homes",
                     createFilter("island", island, new Pair<>("environment", environment.name()))
@@ -100,7 +101,7 @@ public class IslandsDatabaseBridge {
         }
     }
 
-    public static void saveVisitorLocation(Island island, World.Environment environment, Location location) {
+    public static void saveVisitorLocation(Island island, Environment environment, Location location) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.insertObject("islands_visitor_homes",
                 new Pair<>("island", island.getUniqueId().toString()),
                 new Pair<>("environment", environment.name()),
@@ -108,17 +109,23 @@ public class IslandsDatabaseBridge {
         ));
     }
 
-    public static void removeVisitorLocation(Island island, World.Environment environment) {
+    public static void removeVisitorLocation(Island island, Environment environment) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_visitor_homes",
                 createFilter("island", island, new Pair<>("environment", environment.name()))
         ));
     }
 
     public static void saveUnlockedWorlds(Island island) {
-        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.updateObject("islands",
-                createFilter("uuid", island),
-                new Pair<>("unlocked_worlds", island.getUnlockedWorldsFlag())
-        ));
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> {
+            databaseBridge.updateObject("islands",
+                    createFilter("uuid", island),
+                    new Pair<>("unlocked_worlds", island.getUnlockedWorldsFlag())
+            );
+            databaseBridge.updateObject("islands",
+                    createFilter("uuid", island),
+                    new Pair<>("unlocked_citadel", island.getCitadelUnlockedFlag())
+            );
+        });
     }
 
     public static void savePlayerPermission(Island island, SuperiorPlayer superiorPlayer, IslandPrivilege privilege,
@@ -426,7 +433,7 @@ public class IslandsDatabaseBridge {
         ));
     }
 
-    public static void saveGeneratorRate(Island island, World.Environment environment, Key blockKey, int rate) {
+    public static void saveGeneratorRate(Island island, Environment environment, Key blockKey, int rate) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.insertObject("islands_generators",
                 new Pair<>("island", island.getUniqueId().toString()),
                 new Pair<>("environment", environment.name()),
@@ -435,7 +442,7 @@ public class IslandsDatabaseBridge {
         ));
     }
 
-    public static void removeGeneratorRate(Island island, World.Environment environment, Key blockKey) {
+    public static void removeGeneratorRate(Island island, Environment environment, Key blockKey) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_generators",
                 createFilter("island", island,
                         new Pair<>("environment", environment.name()),
@@ -443,17 +450,23 @@ public class IslandsDatabaseBridge {
         ));
     }
 
-    public static void clearGeneratorRates(Island island, World.Environment environment) {
+    public static void clearGeneratorRates(Island island, Environment environment) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_generators",
                 createFilter("island", island, new Pair<>("environment", environment.name()))
         ));
     }
 
     public static void saveGeneratedSchematics(Island island) {
-        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.updateObject("islands",
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> {
+            databaseBridge.updateObject("islands",
                 createFilter("uuid", island),
                 new Pair<>("generated_schematics", island.getGeneratedSchematicsFlag())
-        ));
+            );
+            databaseBridge.updateObject("islands",
+                    createFilter("uuid", island),
+                    new Pair<>("generated_citadel", island.getGeneratedCitadelFlag())
+            );
+        });
     }
 
     public static void saveDirtyChunks(DirtyChunksContainer dirtyChunksContainer) {
@@ -580,7 +593,7 @@ public class IslandsDatabaseBridge {
             databaseBridge.insertObject("islands",
                     new Pair<>("uuid", island.getUniqueId().toString()),
                     new Pair<>("owner", island.getOwner().getUniqueId().toString()),
-                    new Pair<>("center", Serializers.LOCATION_SERIALIZER.serialize(island.getCenter(World.Environment.NORMAL))),
+                    new Pair<>("center", Serializers.LOCATION_SERIALIZER.serialize(island.getCenter(Environment.NORMAL))),
                     new Pair<>("creation_time", island.getCreationTime()),
                     new Pair<>("island_type", island.getSchematicName()),
                     new Pair<>("discord", island.getDiscord()),

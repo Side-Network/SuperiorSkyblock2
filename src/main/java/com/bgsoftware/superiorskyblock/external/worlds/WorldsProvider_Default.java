@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.external.worlds;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.hooks.WorldsProvider;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockPosition;
@@ -22,7 +23,7 @@ import java.util.UUID;
 public class WorldsProvider_Default implements WorldsProvider {
 
     private final Set<BlockPosition> servedPositions = Sets.newHashSet();
-    private final EnumMap<World.Environment, World> islandWorlds = new EnumMap<>(World.Environment.class);
+    private final EnumMap<Environment, World> islandWorlds = new EnumMap<>(Environment.class);
     private final SuperiorSkyblockPlugin plugin;
 
     public WorldsProvider_Default(SuperiorSkyblockPlugin plugin) {
@@ -33,18 +34,20 @@ public class WorldsProvider_Default implements WorldsProvider {
     public void prepareWorlds() {
         Difficulty difficulty = Difficulty.valueOf(plugin.getSettings().getWorlds().getDifficulty());
         if (plugin.getSettings().getWorlds().getNormal().isEnabled())
-            loadWorld(plugin.getSettings().getWorlds().getWorldName(), difficulty, World.Environment.NORMAL);
+            loadWorld(plugin.getSettings().getWorlds().getWorldName(), difficulty, Environment.NORMAL);
         if (plugin.getSettings().getWorlds().getNether().isEnabled())
-            loadWorld(plugin.getSettings().getWorlds().getNether().getName(), difficulty, World.Environment.NETHER);
+            loadWorld(plugin.getSettings().getWorlds().getNether().getName(), difficulty, Environment.NETHER);
         if (plugin.getSettings().getWorlds().getEnd().isEnabled()) {
-            World endWorld = loadWorld(plugin.getSettings().getWorlds().getEnd().getName(), difficulty, World.Environment.THE_END);
+            World endWorld = loadWorld(plugin.getSettings().getWorlds().getEnd().getName(), difficulty, Environment.THE_END);
             if (plugin.getSettings().getWorlds().getEnd().isDragonFight())
                 plugin.getServices().getDragonBattleService().prepareEndWorld(endWorld);
         }
+        if (plugin.getSettings().getWorlds().getCitadel().isEnabled())
+            loadWorld(plugin.getSettings().getWorlds().getCitadel().getName(), difficulty, Environment.CITADEL);
     }
 
     @Override
-    public World getIslandsWorld(Island island, World.Environment environment) {
+    public World getIslandsWorld(Island island, Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         return islandWorlds.get(environment);
     }
@@ -52,8 +55,7 @@ public class WorldsProvider_Default implements WorldsProvider {
     @Override
     public boolean isIslandsWorld(World world) {
         Preconditions.checkNotNull(world, "world parameter cannot be null.");
-        World islandsWorld = getIslandsWorld(null, world.getEnvironment());
-        return islandsWorld != null && world.getUID().equals(islandsWorld.getUID());
+        return islandWorlds.values().stream().anyMatch(w -> w.getUID().equals(world.getUID()));
     }
 
     @Override
@@ -139,6 +141,16 @@ public class WorldsProvider_Default implements WorldsProvider {
         return isEndEnabled() && plugin.getSettings().getWorlds().getEnd().isUnlocked();
     }
 
+    @Override
+    public boolean isCitadelEnabled() {
+        return plugin.getSettings().getWorlds().getCitadel().isEnabled();
+    }
+
+    @Override
+    public boolean isCitadelUnlocked() {
+        return isCitadelEnabled() && plugin.getSettings().getWorlds().getCitadel().isUnlocked();
+    }
+
     private BlockFace getIslandFace(Location location) {
         //Possibilities: North / East
         if (location.getX() >= location.getZ()) {
@@ -150,7 +162,7 @@ public class WorldsProvider_Default implements WorldsProvider {
         }
     }
 
-    private World loadWorld(String worldName, Difficulty difficulty, World.Environment environment) {
+    private World loadWorld(String worldName, Difficulty difficulty, Environment environment) {
         if (Bukkit.getWorld(worldName) != null) {
             throw new RuntimeException("The world " + worldName + " is already loaded. This can occur by one of the following reasons:\n" +
                     "- Another plugin loaded it manually before SuperiorSkyblock.\n" +
@@ -159,7 +171,7 @@ public class WorldsProvider_Default implements WorldsProvider {
 
         World world = WorldCreator.name(worldName)
                 .type(WorldType.NORMAL)
-                .environment(environment)
+                .environment(environment != Environment.CITADEL ? World.Environment.valueOf(environment.name()) : World.Environment.THE_END)
                 .generator(plugin.getGenerator())
                 .createWorld();
 

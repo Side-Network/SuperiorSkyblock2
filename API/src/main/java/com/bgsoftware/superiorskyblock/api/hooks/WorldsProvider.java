@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.api.hooks;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,7 +23,7 @@ public interface WorldsProvider {
      * @param island      The island to check.
      */
     @Nullable
-    World getIslandsWorld(Island island, World.Environment environment);
+    World getIslandsWorld(Island island, Environment environment);
 
     /**
      * Checks if the given world is an islands world.
@@ -89,5 +90,15 @@ public interface WorldsProvider {
      * Check whether or not end worlds are unlocked for islands by default.
      */
     boolean isEndUnlocked();
+
+    /**
+     * Check whether or not citadel worlds are enabled.
+     */
+    boolean isCitadelEnabled();
+
+    /**
+     * Check whether or not citadel worlds are unlocked for islands by default.
+     */
+    boolean isCitadelUnlocked();
 
 }

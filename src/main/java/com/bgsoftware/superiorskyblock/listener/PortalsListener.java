@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.listener;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.events.IslandChangeLevelBonusEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandChangeWorthBonusEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandEnterEvent;
@@ -78,9 +79,9 @@ public class PortalsListener implements Listener {
         World world = e.getLocation().getWorld();
 
         // Simulate end portal
-        if (world.getEnvironment() == World.Environment.THE_END && plugin.getGrid().isIslandsWorld(world)) {
+        if (Environment.of(world.getEnvironment()) == Environment.THE_END && plugin.getGrid().isIslandsWorld(world)) {
             Island island = plugin.getGrid().getIslandAt(e.getEntity().getLocation());
-            if (island != null && island.wasSchematicGenerated(World.Environment.NORMAL)) {
+            if (island != null && island.wasSchematicGenerated(Environment.NORMAL)) {
                 /* We teleport the player to his island instead of cancelling the event.
                 Therefore, we must prevent the player from acting like he entered another island or left his island.*/
 
@@ -91,7 +92,7 @@ public class PortalsListener implements Listener {
                     teleportedPlayer.setLeavingFlag(true);
 
                 BukkitExecutor.sync(() -> {
-                    EntityTeleports.teleportUntilSuccess(e.getEntity(), island.getIslandHome(World.Environment.NORMAL), 5, () -> {
+                    EntityTeleports.teleportUntilSuccess(e.getEntity(), island.getIslandHome(Environment.NORMAL), 5, () -> {
                         if (teleportedPlayer != null)
                             teleportedPlayer.setLeavingFlag(false);
                     });
@@ -143,7 +144,7 @@ public class PortalsListener implements Listener {
         if (island == null || !plugin.getGrid().isIslandsWorld(portalLocation.getWorld()))
             return false;
 
-        World.Environment originalDestination = getTargetWorld(portalLocation, teleportCause);
+        Environment originalDestination = getTargetWorld(portalLocation, teleportCause);
 
         if (plugin.getGrid().getIslandsWorld(island, originalDestination) == null)
             return true;
@@ -178,7 +179,7 @@ public class PortalsListener implements Listener {
             if (eventResult.isCancelled())
                 return true;
 
-            World.Environment destination = eventResult.getResult().getDestination();
+            Environment destination = eventResult.getResult().getDestination();
             Schematic schematic = eventResult.getResult().getSchematic();
             boolean ignoreInvalidSchematic = eventResult.getResult().isIgnoreInvalidSchematic();
 
@@ -230,7 +231,7 @@ public class PortalsListener implements Listener {
 
                 Location destinationLocation = island.getIslandHome(destination);
 
-                if (destination == World.Environment.THE_END) {
+                if (destination == Environment.THE_END) {
                     plugin.getNMSDragonFight().awardTheEndAchievement(player);
                     plugin.getServices().getDragonBattleService().resetEnderDragonBattle(island);
                 }
@@ -248,7 +249,7 @@ public class PortalsListener implements Listener {
         return true;
     }
 
-    private boolean shouldOffsetSchematic(World.Environment environment) {
+    private boolean shouldOffsetSchematic(Environment environment) {
         switch (environment) {
             case NORMAL:
                 return plugin.getSettings().getWorlds().getNormal().isSchematicOffset();
@@ -261,26 +262,32 @@ public class PortalsListener implements Listener {
         }
     }
 
-    private static World.Environment getTargetWorld(Location portalLocation, PlayerTeleportEvent.TeleportCause teleportCause) {
-        World.Environment portalEnvironment = portalLocation.getWorld().getEnvironment();
-        World.Environment environment;
+    private static Environment getTargetWorld(Location portalLocation, PlayerTeleportEvent.TeleportCause teleportCause) {
+        Environment portalEnvironment = Environment.of(portalLocation.getWorld().getEnvironment());
+        Environment environment;
 
         switch (teleportCause) {
             case END_PORTAL:
-                environment = World.Environment.THE_END;
+                if (portalLocation.getWorld().getEnvironment() == World.Environment.NORMAL)
+                    environment = Environment.CITADEL;
+                else
+                    environment = Environment.THE_END;
                 break;
             case NETHER_PORTAL:
-                environment = World.Environment.NETHER;
+                environment = Environment.NETHER;
+                break;
+            case COMMAND:
+                environment = Environment.CITADEL;
                 break;
             default:
-                environment = World.Environment.NORMAL;
+                environment = Environment.NORMAL;
                 break;
         }
 
-        return environment == portalEnvironment ? World.Environment.NORMAL : environment;
+        return environment == portalEnvironment ? Environment.NORMAL : environment;
     }
 
-    private static boolean isIslandWorldEnabled(World.Environment environment, Island island) {
+    private static boolean isIslandWorldEnabled(Environment environment, Island island) {
         switch (environment) {
             case NORMAL:
                 return island.isNormalEnabled();
@@ -288,6 +295,8 @@ public class PortalsListener implements Listener {
                 return island.isNetherEnabled();
             case THE_END:
                 return island.isEndEnabled();
+            case CITADEL:
+                return island.isCitadelEnabled();
             default:
                 return true;
         }

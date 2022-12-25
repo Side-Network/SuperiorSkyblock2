@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.key.Key;
@@ -96,7 +97,7 @@ public class CmdAdminShow implements IAdminIslandCommand {
         // Island location
         if (!Message.ISLAND_INFO_LOCATION.isEmpty(locale))
             infoMessage.append(Message.ISLAND_INFO_LOCATION.getMessage(locale, Formatters.LOCATION_FORMATTER.format(
-                    island.getCenter(World.Environment.NORMAL)))).append("\n");
+                    island.getCenter(Environment.NORMAL)))).append("\n");
 
         // Island last time updated
         if (lastTime != -1) {
@@ -268,7 +269,7 @@ public class CmdAdminShow implements IAdminIslandCommand {
         if (BuiltinModules.GENERATORS.isEnabled()) {
             // Island generator rates
             if (!Message.ISLAND_INFO_ADMIN_GENERATOR_RATES.isEmpty(locale) && !Message.ISLAND_INFO_ADMIN_GENERATOR_RATES_LINE.isEmpty(locale)) {
-                for (World.Environment environment : World.Environment.values()) {
+                for (Environment environment : Environment.values()) {
                     Map<Key, Integer> customGeneratorValues = island.getCustomGeneratorAmounts(environment);
                     StringBuilder generatorString = new StringBuilder();
                     for (Map.Entry<String, Integer> entry : island.getGeneratorPercentages(environment).entrySet()) {

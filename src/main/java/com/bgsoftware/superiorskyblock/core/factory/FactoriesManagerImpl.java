@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.core.factory;
 
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.enums.BankAction;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.factory.BanksFactory;
 import com.bgsoftware.superiorskyblock.api.factory.DatabaseBridgeFactory;
 import com.bgsoftware.superiorskyblock.api.factory.IslandsFactory;
@@ -170,7 +171,7 @@ public class FactoriesManagerImpl implements FactoriesManager {
     }
 
     @Override
-    public WorldInfo createWorldInfo(String worldName, World.Environment environment) {
+    public WorldInfo createWorldInfo(String worldName, Environment environment) {
         Preconditions.checkNotNull(worldName, "worldName parameter cannot be null");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null");
         return new WorldInfoImpl(worldName, environment);

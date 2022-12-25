@@ -78,11 +78,6 @@ public class CmdExpel implements IPermissibleCommand {
             return;
         }
 
-        if(target.hasPermission("superior.admin.*") || targetPlayer.hasBypassModeEnabled()) {
-            Message.PLAYER_NOT_INSIDE_ISLAND.send(sender);
-            return;
-        }
-
         Island targetIsland = plugin.getGrid().getIslandAt(target.getLocation());
 
         if (targetIsland == null) {

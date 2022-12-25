@@ -1,12 +1,12 @@
 package com.bgsoftware.superiorskyblock.api.config;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.TopIslandMembersSorting;
 import com.bgsoftware.superiorskyblock.api.handlers.BlockValuesManager;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockOffset;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.math.BigDecimal;
@@ -752,7 +752,7 @@ public interface SettingsManager {
         /**
          * The default generator-rates for new islands.
          * Represented by an array of maps with keys as the blocks, and values as the rates.
-         * The maps are sorted by the {@link World.Environment} they belong to.
+         * The maps are sorted by the {@link Environment} they belong to.
          * Config-path: default-values.generator
          */
         Map<Key, Integer>[] getGenerators();
@@ -874,7 +874,7 @@ public interface SettingsManager {
          * The default world environment.
          * Config-path: worlds.default-world
          */
-        World.Environment getDefaultWorld();
+        Environment getDefaultWorld();
 
         /**
          * The name of the overworld world.
@@ -904,6 +904,12 @@ public interface SettingsManager {
          * Config-path: worlds.end
          */
         End getEnd();
+
+        /**
+         * All settings related to the citadel world.
+         * Config-path: worlds.citadel
+         */
+        Citadel getCitadel();
 
         /**
          * The difficulty of the islands worlds.
@@ -1014,6 +1020,42 @@ public interface SettingsManager {
              */
             BlockOffset getPortalOffset();
 
+        }
+
+        interface Citadel {
+
+            /**
+             * Whether the Citadel world is enabled or not.
+             * Config-path: worlds.citadel.enabled
+             */
+            boolean isEnabled();
+
+            /**
+             * Whether the Citadel world is unlocked by default or not.
+             * Config-path: worlds.citadel.unlock
+             */
+            boolean isUnlocked();
+
+            /**
+             * Custom name for the Citadel world.
+             * Config-path: worlds.citadel.name
+             */
+            String getName();
+
+            /**
+             * Get the default biome for the world.
+             */
+            String getBiome();
+
+            /**
+             * Get the portal area details (offset from the center)
+             */
+            int getPortalAreaMinX();
+            int getPortalAreaMinY();
+            int getPortalAreaMinZ();
+            int getPortalAreaMaxX();
+            int getPortalAreaMaxY();
+            int getPortalAreaMaxZ();
         }
 
     }

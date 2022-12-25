@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.api.hooks;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import org.bukkit.World;
@@ -17,7 +18,7 @@ public interface LazyWorldsProvider extends WorldsProvider {
      * @return The world info for the given environment, or null if this environment is not enabled.
      */
     @Nullable
-    WorldInfo getIslandsWorldInfo(Island island, World.Environment environment);
+    WorldInfo getIslandsWorldInfo(Island island, Environment environment);
 
     /**
      * Get the {@link WorldInfo} of the world of an island by its name.

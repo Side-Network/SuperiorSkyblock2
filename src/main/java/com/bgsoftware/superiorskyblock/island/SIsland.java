@@ -1,8 +1,10 @@
 package com.bgsoftware.superiorskyblock.island;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.config.SettingsManager;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.*;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
@@ -16,18 +18,14 @@ import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.api.persistence.PersistentDataContainer;
+import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
 import com.bgsoftware.superiorskyblock.api.service.message.IMessageComponent;
 import com.bgsoftware.superiorskyblock.api.upgrades.Upgrade;
 import com.bgsoftware.superiorskyblock.api.upgrades.UpgradeLevel;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockPosition;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.core.ChunkPosition;
-import com.bgsoftware.superiorskyblock.core.IslandArea;
-import com.bgsoftware.superiorskyblock.core.LazyWorldLocation;
-import com.bgsoftware.superiorskyblock.core.LocationKey;
-import com.bgsoftware.superiorskyblock.core.SBlockPosition;
-import com.bgsoftware.superiorskyblock.core.SequentialListBuilder;
+import com.bgsoftware.superiorskyblock.core.*;
 import com.bgsoftware.superiorskyblock.core.database.bridge.IslandsDatabaseBridge;
 import com.bgsoftware.superiorskyblock.core.events.EventResult;
 import com.bgsoftware.superiorskyblock.core.events.EventsBus;
@@ -58,6 +56,7 @@ import com.bgsoftware.superiorskyblock.island.warp.SIslandWarp;
 import com.bgsoftware.superiorskyblock.island.warp.SWarpCategory;
 import com.bgsoftware.superiorskyblock.mission.MissionData;
 import com.bgsoftware.superiorskyblock.module.BuiltinModules;
+import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeCitadel;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeCropGrowth;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeIslandEffects;
 import com.bgsoftware.superiorskyblock.world.WorldBlocks;
@@ -109,6 +108,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -136,6 +136,7 @@ public class SIsland implements Island {
     private final long creationTime;
     @Nullable
     private final String schemName;
+    private final IslandArea3 citadelPortalArea;
     /*
      * Island Upgrade Values
      */
@@ -148,7 +149,7 @@ public class SIsland implements Island {
     private final Synchronized<Value<Double>> mobDrops = Synchronized.of(Value.syncedFixed(-1D));
     private final Synchronized<Value<BigDecimal>> bankLimit = Synchronized.of(Value.syncedFixed(SYNCED_BANK_LIMIT_VALUE));
     private final Map<PlayerRole, Value<Integer>> roleLimits = new ConcurrentHashMap<>();
-    private final Synchronized<EnumMap<World.Environment, KeyMap<Value<Integer>>>> cobbleGeneratorValues = Synchronized.of(new EnumMap<>(World.Environment.class));
+    private final Synchronized<EnumMap<Environment, KeyMap<Value<Integer>>>> cobbleGeneratorValues = Synchronized.of(new EnumMap<>(Environment.class));
     private final Map<PotionEffectType, Value<Integer>> islandEffects = new ConcurrentHashMap<>();
     private final KeyMap<Value<Integer>> blockLimits = KeyMapImpl.createConcurrentHashMap();
     private final KeyMap<Value<Integer>> entityLimits = KeyMapImpl.createConcurrentHashMap();
@@ -172,8 +173,8 @@ public class SIsland implements Island {
     /*
      * General Settings
      */
-    private final Synchronized<EnumMap<World.Environment, Location>> islandHomes = Synchronized.of(new EnumMap<>(World.Environment.class));
-    private final Synchronized<EnumMap<World.Environment, Location>> visitorHomes = Synchronized.of(new EnumMap<>(World.Environment.class));
+    private final Synchronized<EnumMap<Environment, Location>> islandHomes = Synchronized.of(new EnumMap<>(Environment.class));
+    private final Synchronized<EnumMap<Environment, Location>> visitorHomes = Synchronized.of(new EnumMap<>(Environment.class));
     private final Map<IslandPrivilege, PlayerRole> rolePermissions = new ConcurrentHashMap<>();
     private final Map<IslandFlag, Byte> islandFlags = new ConcurrentHashMap<>();
     private final Map<String, Integer> upgrades = new ConcurrentHashMap<>();
@@ -186,6 +187,8 @@ public class SIsland implements Island {
     private final Synchronized<CompletableFuture<Biome>> biomeGetterTask = Synchronized.of(null);
     private final AtomicInteger generatedSchematics = new AtomicInteger(0);
     private final AtomicInteger unlockedWorlds = new AtomicInteger(0);
+    private final AtomicBoolean citadelGenerated = new AtomicBoolean(false);
+    private final AtomicBoolean unlockedCitadel = new AtomicBoolean(false);
     private final List<IslandStrike> strikes = new ArrayList<>();
     @Nullable
     private PersistentDataContainer persistentDataContainer;
@@ -234,6 +237,8 @@ public class SIsland implements Island {
         this.description = builder.description;
         this.generatedSchematics.set(builder.generatedSchematicsMask);
         this.unlockedWorlds.set(builder.unlockedWorldsMask);
+        this.citadelGenerated.set(builder.generatedCitadel);
+        this.unlockedCitadel.set(builder.unlockedCitadel);
         this.lastTimeUpdate = builder.lastTimeUpdated;
         this.islandHomes.write(islandHomes -> islandHomes.putAll(builder.islandHomes));
         this.members.write(members -> {
@@ -328,13 +333,19 @@ public class SIsland implements Island {
         }
 
         this.databaseBridge.setDatabaseBridgeMode(DatabaseBridgeMode.SAVE_DATA);
+
+        SettingsManager.Worlds.Citadel c = plugin.getSettings().getWorlds().getCitadel();
+        this.citadelPortalArea = new IslandArea3(
+                center.getX() + c.getPortalAreaMinX(), c.getPortalAreaMinY(), center.getZ() + c.getPortalAreaMinZ(),
+                center.getX() + c.getPortalAreaMaxX(), c.getPortalAreaMaxY(), center.getZ() + c.getPortalAreaMaxZ()
+        );
     }
 
     /*
      *  General methods
      */
 
-    private static int getGeneratedSchematicBitMask(World.Environment environment) {
+    private static int getGeneratedSchematicBitMask(Environment environment) {
         switch (environment) {
             case NORMAL:
                 return 8;
@@ -751,7 +762,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public Location getCenter(World.Environment environment) {
+    public Location getCenter(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         World world = plugin.getGrid().getIslandsWorld(this, environment);
@@ -768,12 +779,12 @@ public class SIsland implements Island {
     }
 
     @Override
-    public Location getTeleportLocation(World.Environment environment) {
+    public Location getTeleportLocation(Environment environment) {
         return this.getIslandHome(environment);
     }
 
     @Override
-    public Map<World.Environment, Location> getTeleportLocations() {
+    public Map<Environment, Location> getTeleportLocations() {
         return this.getIslandHomes();
     }
 
@@ -783,12 +794,12 @@ public class SIsland implements Island {
     }
 
     @Override
-    public void setTeleportLocation(World.Environment environment, @Nullable Location teleportLocation) {
+    public void setTeleportLocation(Environment environment, @Nullable Location teleportLocation) {
         this.setIslandHome(environment, teleportLocation);
     }
 
     @Override
-    public Location getIslandHome(World.Environment environment) {
+    public Location getIslandHome(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         Location teleportLocation = islandHomes.readAndGet(teleportLocations -> teleportLocations.get(environment));
@@ -808,7 +819,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public Map<World.Environment, Location> getIslandHomes() {
+    public Map<Environment, Location> getIslandHomes() {
         return islandHomes.readAndGet(Collections::unmodifiableMap);
     }
 
@@ -816,11 +827,11 @@ public class SIsland implements Island {
     public void setIslandHome(Location homeLocation) {
         Preconditions.checkNotNull(homeLocation, "homeLocation parameter cannot be null.");
         Preconditions.checkNotNull(homeLocation.getWorld(), "homeLocation's world cannot be null.");
-        setIslandHome(homeLocation.getWorld().getEnvironment(), homeLocation);
+        setIslandHome(Environment.of(homeLocation.getWorld().getEnvironment()), homeLocation);
     }
 
     @Override
-    public void setIslandHome(World.Environment environment, @Nullable Location homeLocation) {
+    public void setIslandHome(Environment environment, @Nullable Location homeLocation) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         Log.debug(Debug.SET_ISLAND_HOME, "SIsland", "setIslandHome", owner.getName(), environment, homeLocation);
@@ -838,7 +849,7 @@ public class SIsland implements Island {
 
     @Nullable
     @Override
-    public Location getVisitorsLocation(World.Environment unused) {
+    public Location getVisitorsLocation(Environment unused) {
         Location visitorsLocation = this.visitorHomes.readAndGet(visitorsLocations ->
                 visitorsLocations.get(plugin.getSettings().getWorlds().getDefaultWorld()));
 
@@ -935,7 +946,7 @@ public class SIsland implements Island {
     public List<Chunk> getAllChunks(boolean onlyProtected) {
         List<Chunk> chunks = new LinkedList<>();
 
-        for (World.Environment environment : World.Environment.values()) {
+        for (Environment environment : Environment.values()) {
             try {
                 chunks.addAll(getAllChunks(environment, onlyProtected));
             } catch (NullPointerException ignored) {
@@ -946,17 +957,17 @@ public class SIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment) {
+    public List<Chunk> getAllChunks(Environment environment) {
         return getAllChunks(environment, false);
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected) {
         return getAllChunks(environment, onlyProtected, false);
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         World world = getCenter(environment).getWorld();
         return new SequentialListBuilder<Chunk>().build(IslandUtils.getChunkCoords(
                         this, WorldInfo.of(world), onlyProtected, noEmptyChunks),
@@ -967,7 +978,7 @@ public class SIsland implements Island {
     public List<Chunk> getLoadedChunks(boolean onlyProtected, boolean noEmptyChunks) {
         List<Chunk> chunks = new LinkedList<>();
 
-        for (World.Environment environment : World.Environment.values()) {
+        for (Environment environment : Environment.values()) {
             try {
                 chunks.addAll(getLoadedChunks(environment, onlyProtected, noEmptyChunks));
             } catch (NullPointerException ignored) {
@@ -978,7 +989,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    public List<Chunk> getLoadedChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         World world = getCenter(environment).getWorld();
         return new SequentialListBuilder<Chunk>().filter(Objects::nonNull)
                 .build(IslandUtils.getChunkCoords(this, WorldInfo.of(world), onlyProtected, noEmptyChunks),
@@ -986,25 +997,25 @@ public class SIsland implements Island {
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected,
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected,
                                                             @Nullable Consumer<Chunk> onChunkLoad) {
         return getAllChunksAsync(environment, onlyProtected, false, onChunkLoad);
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected,
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected,
                                                             boolean noEmptyChunks, @Nullable Consumer<Chunk> onChunkLoad) {
         World world = getCenter(environment).getWorld();
         return IslandUtils.getAllChunksAsync(this, world, onlyProtected, noEmptyChunks, ChunkLoadReason.API_REQUEST, onChunkLoad);
     }
 
     @Override
-    public void resetChunks(World.Environment environment, boolean onlyProtected) {
+    public void resetChunks(Environment environment, boolean onlyProtected) {
         resetChunks(environment, onlyProtected, null);
     }
 
     @Override
-    public void resetChunks(World.Environment environment, boolean onlyProtected, @Nullable Runnable onFinish) {
+    public void resetChunks(Environment environment, boolean onlyProtected, @Nullable Runnable onFinish) {
         World world = getCenter(environment).getWorld();
         List<ChunkPosition> chunkPositions = IslandUtils.getChunkCoords(this, WorldInfo.of(world), onlyProtected, true);
 
@@ -1140,10 +1151,6 @@ public class SIsland implements Island {
         return plugin.getProviders().getWorldsProvider().isEndUnlocked() || (unlockedWorlds.get() & 2) == 2;
     }
 
-    /*
-     *  Permissions related methods
-     */
-
     @Override
     public void setEndEnabled(boolean enabled) {
         Log.debug(Debug.SET_END_ENABLED, "SIsland", "setEndEnabled", owner.getName(), enabled);
@@ -1154,9 +1161,37 @@ public class SIsland implements Island {
     }
 
     @Override
+    public boolean isCitadelEnabled() {
+        return plugin.getProviders().getWorldsProvider().isCitadelUnlocked() || unlockedCitadel.get();
+    }
+
+    @Override
+    public void setCitadelEnabled(boolean enabled) {
+        Log.debug(Debug.SET_END_ENABLED, "SIsland", "setCitadelEnabled", owner.getName(), enabled);
+
+        this.unlockedCitadel.set(enabled);
+        if (enabled) {
+            Schematic portal = plugin.getSchematics().getSchematic("citadel_portal");
+            if (portal != null)
+                portal.pasteSchematic(this, getCenter(plugin.getSettings().getWorlds().getDefaultWorld()), () -> {}, Throwable::printStackTrace);
+        }
+
+        IslandsDatabaseBridge.saveUnlockedWorlds(this);
+    }
+
+    @Override
+    public boolean getCitadelUnlockedFlag() {
+        return this.unlockedCitadel.get();
+    }
+
+    @Override
     public int getUnlockedWorldsFlag() {
         return this.unlockedWorlds.get();
     }
+
+    /*
+     *  Permissions related methods
+     */
 
     @Override
     public boolean hasPermission(CommandSender sender, IslandPrivilege islandPrivilege) {
@@ -1603,16 +1638,16 @@ public class SIsland implements Island {
             plugin.getNMSChunks().setBiome(chunkPositions, biome, playersToUpdate);
         }
 
-        if (plugin.getProviders().getWorldsProvider().isNetherEnabled() && wasSchematicGenerated(World.Environment.NETHER)) {
-            World netherWorld = getCenter(World.Environment.NETHER).getWorld();
-            Biome netherBiome = IslandUtils.getDefaultWorldBiome(World.Environment.NETHER);
+        if (plugin.getProviders().getWorldsProvider().isNetherEnabled() && wasSchematicGenerated(Environment.NETHER)) {
+            World netherWorld = getCenter(Environment.NETHER).getWorld();
+            Biome netherBiome = IslandUtils.getDefaultWorldBiome(Environment.NETHER);
             List<ChunkPosition> chunkPositions = IslandUtils.getChunkCoords(this, WorldInfo.of(netherWorld), false, false);
             plugin.getNMSChunks().setBiome(chunkPositions, netherBiome, playersToUpdate);
         }
 
-        if (plugin.getProviders().getWorldsProvider().isEndEnabled() && wasSchematicGenerated(World.Environment.THE_END)) {
-            World endWorld = getCenter(World.Environment.THE_END).getWorld();
-            Biome endBiome = IslandUtils.getDefaultWorldBiome(World.Environment.THE_END);
+        if (plugin.getProviders().getWorldsProvider().isEndEnabled() && wasSchematicGenerated(Environment.THE_END)) {
+            World endWorld = getCenter(Environment.THE_END).getWorld();
+            Biome endBiome = IslandUtils.getDefaultWorldBiome(Environment.THE_END);
             List<ChunkPosition> chunkPositions = IslandUtils.getChunkCoords(this, WorldInfo.of(endWorld), false, false);
             plugin.getNMSChunks().setBiome(chunkPositions, endBiome, playersToUpdate);
         }
@@ -2184,6 +2219,9 @@ public class SIsland implements Island {
 
         if (upgradeLevel.getBorderSize() != -1)
             updateBorder();
+
+        if (upgrade.getName().equalsIgnoreCase("citadel"))
+            BuiltinModules.UPGRADES.getEnabledUpgradeType(UpgradeTypeCitadel.class).upgradeLevel(this, upgradeLevel.getLevel());
 
         plugin.getMenus().refreshUpgrades(this);
     }
@@ -3074,12 +3112,12 @@ public class SIsland implements Island {
     }
 
     @Override
-    public void setGeneratorPercentage(Key key, int percentage, World.Environment environment) {
+    public void setGeneratorPercentage(Key key, int percentage, Environment environment) {
         setGeneratorPercentage(key, percentage, environment, null, false);
     }
 
     @Override
-    public boolean setGeneratorPercentage(Key key, int percentage, World.Environment environment,
+    public boolean setGeneratorPercentage(Key key, int percentage, Environment environment,
                                           @Nullable SuperiorPlayer caller, boolean callEvent) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
@@ -3146,7 +3184,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public int getGeneratorPercentage(Key key, World.Environment environment) {
+    public int getGeneratorPercentage(Key key, Environment environment) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
@@ -3155,14 +3193,14 @@ public class SIsland implements Island {
     }
 
     @Override
-    public Map<String, Integer> getGeneratorPercentages(World.Environment environment) {
+    public Map<String, Integer> getGeneratorPercentages(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         return getGeneratorAmounts(environment).keySet().stream().collect(Collectors.toMap(key -> key,
                 key -> getGeneratorAmount(KeyImpl.of(key), environment)));
     }
 
     @Override
-    public void setGeneratorAmount(Key key, int amount, World.Environment environment) {
+    public void setGeneratorAmount(Key key, int amount, Environment environment) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
@@ -3180,7 +3218,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public void removeGeneratorAmount(Key key, World.Environment environment) {
+    public void removeGeneratorAmount(Key key, Environment environment) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
@@ -3202,7 +3240,7 @@ public class SIsland implements Island {
      */
 
     @Override
-    public int getGeneratorAmount(Key key, World.Environment environment) {
+    public int getGeneratorAmount(Key key, Environment environment) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
@@ -3217,7 +3255,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public int getGeneratorTotalAmount(World.Environment environment) {
+    public int getGeneratorTotalAmount(Environment environment) {
         int totalAmount = 0;
         for (int amt : getGeneratorAmounts(environment).values())
             totalAmount += amt;
@@ -3225,7 +3263,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public Map<String, Integer> getGeneratorAmounts(World.Environment environment) {
+    public Map<String, Integer> getGeneratorAmounts(Environment environment) {
         KeyMap<Value<Integer>> worldGeneratorRates = this.cobbleGeneratorValues.readAndGet(
                 cobbleGeneratorValues -> cobbleGeneratorValues.get(environment));
 
@@ -3238,7 +3276,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public Map<Key, Integer> getCustomGeneratorAmounts(World.Environment environment) {
+    public Map<Key, Integer> getCustomGeneratorAmounts(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         KeyMap<Value<Integer>> worldGeneratorRates = this.cobbleGeneratorValues.readAndGet(
@@ -3253,7 +3291,7 @@ public class SIsland implements Island {
     }
 
     @Override
-    public void clearGeneratorAmounts(World.Environment environment) {
+    public void clearGeneratorAmounts(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         Log.debug(Debug.CLEAR_GENERATOR_RATES, "SIsland", "clearGeneratorAmounts", owner.getName(), environment);
@@ -3271,11 +3309,11 @@ public class SIsland implements Island {
     public Key generateBlock(Location location, boolean optimizeCobblestone) {
         Preconditions.checkNotNull(location, "location parameter cannot be null.");
         Preconditions.checkNotNull(location.getWorld(), "location's world cannot be null.");
-        return generateBlock(location, location.getWorld().getEnvironment(), optimizeCobblestone);
+        return generateBlock(location, Environment.of(location.getWorld().getEnvironment()), optimizeCobblestone, false);
     }
 
     @Override
-    public Key generateBlock(Location location, World.Environment environment, boolean optimizeCobblestone) {
+    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed) {
         Preconditions.checkNotNull(location, "location parameter cannot be null.");
         Preconditions.checkNotNull(location.getWorld(), "location's world cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
@@ -3288,6 +3326,12 @@ public class SIsland implements Island {
         if (totalGeneratorAmounts == 0) {
             Log.debugResult(Debug.GENERATE_BLOCK, "SIsland", "generateBlock",
                     "Return No Generator Rates", "null");
+            return null;
+        }
+
+        if (environment == Environment.NETHER && !netherAllowed) {
+            Log.debugResult(Debug.GENERATE_BLOCK, "SIsland", "generateBlock",
+                    "Nether generator not allowed for this island", "null");
             return null;
         }
 
@@ -3355,8 +3399,11 @@ public class SIsland implements Island {
     }
 
     @Override
-    public boolean wasSchematicGenerated(World.Environment environment) {
+    public boolean wasSchematicGenerated(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
+
+        if (environment == Environment.CITADEL)
+            return citadelGenerated.get();
 
         int generateBitChange = getGeneratedSchematicBitMask(environment);
 
@@ -3367,16 +3414,22 @@ public class SIsland implements Island {
     }
 
     @Override
-    public void setSchematicGenerate(World.Environment environment) {
+    public void setSchematicGenerate(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         setSchematicGenerate(environment, true);
     }
 
     @Override
-    public void setSchematicGenerate(World.Environment environment, boolean generated) {
+    public void setSchematicGenerate(Environment environment, boolean generated) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         Log.debug(Debug.SET_SCHEMATIC, "SIsland", "setSchematicGenerate", environment, generated);
+
+        if (environment == Environment.CITADEL) {
+            citadelGenerated.set(generated);
+            IslandsDatabaseBridge.saveGeneratedSchematics(this);
+            return;
+        }
 
         int generateBitChange = getGeneratedSchematicBitMask(environment);
 
@@ -3397,6 +3450,11 @@ public class SIsland implements Island {
     @Override
     public int getGeneratedSchematicsFlag() {
         return this.generatedSchematics.get();
+    }
+
+    @Override
+    public boolean getGeneratedCitadelFlag() {
+        return this.citadelGenerated.get();
     }
 
     @Override
@@ -3844,7 +3902,7 @@ public class SIsland implements Island {
         });
 
         this.cobbleGeneratorValues.write(cobbleGeneratorValues -> {
-            for (World.Environment environment : World.Environment.values()) {
+            for (Environment environment : Environment.values()) {
                 Map<Key, Integer> defaultGenerator = plugin.getSettings().getDefaultValues().getGenerators()[environment.ordinal()];
                 if (defaultGenerator != null) {
                     KeyMap<Value<Integer>> worldGeneratorRates = cobbleGeneratorValues.get(environment);
@@ -4043,10 +4101,10 @@ public class SIsland implements Island {
                 entityLimits.put(entry.getKey(), entry.getValue());
         }
 
-        Map<World.Environment, Map<Key, Value<Integer>>> upgradeGeneratorRates = upgradeLevel.getGeneratorUpgradeValue();
+        Map<Environment, Map<Key, Value<Integer>>> upgradeGeneratorRates = upgradeLevel.getGeneratorUpgradeValue();
         if (!upgradeGeneratorRates.isEmpty()) {
             this.cobbleGeneratorValues.write(cobbleGeneratorValues -> {
-                for (World.Environment environment : World.Environment.values()) {
+                for (Environment environment : Environment.values()) {
                     Map<Key, Value<Integer>> upgradeLevelGeneratorRates = upgradeGeneratorRates.get(environment);
 
                     if (upgradeLevelGeneratorRates == null)
@@ -4121,6 +4179,10 @@ public class SIsland implements Island {
                 islandMemberConsumer.accept(islandMember);
             }
         }
+    }
+
+    public IslandArea3 getCitadelPortalArea() {
+        return citadelPortalArea;
     }
 
     public static class UniqueVisitor {

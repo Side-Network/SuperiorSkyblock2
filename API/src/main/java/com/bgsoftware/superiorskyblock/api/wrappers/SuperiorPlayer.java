@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.api.wrappers;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.data.IDatabaseBridgeHolder;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.HitActionResult;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -208,7 +209,7 @@ public interface SuperiorPlayer extends IMissionsHolder, IPersistentDataHolder, 
      * @param island      The island to teleport the player to.
      * @param environment The environment to teleport the player to.
      */
-    void teleport(Island island, World.Environment environment);
+    void teleport(Island island, Environment environment);
 
     /**
      * Teleport the player to an island.
@@ -225,7 +226,7 @@ public interface SuperiorPlayer extends IMissionsHolder, IPersistentDataHolder, 
      * @param environment    The environment to teleport the player to.
      * @param teleportResult Consumer that will be ran when task is finished.
      */
-    void teleport(Island island, World.Environment environment, @Nullable Consumer<Boolean> teleportResult);
+    void teleport(Island island, Environment environment, @Nullable Consumer<Boolean> teleportResult);
 
     /**
      * Check whether or not the player is inside their island.

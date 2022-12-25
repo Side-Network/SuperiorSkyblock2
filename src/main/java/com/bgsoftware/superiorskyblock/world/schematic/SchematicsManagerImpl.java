@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.world.schematic;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.handlers.SchematicManager;
 import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
 import com.bgsoftware.superiorskyblock.api.schematic.parser.SchematicParseException;
@@ -95,7 +96,6 @@ public class SchematicsManagerImpl extends Manager implements SchematicManager {
     private void loadDefaultSchematicParsers() {
         if (Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
             try {
-                Class.forName("com.boydti.fawe.object.schematic.Schematic");
                 SchematicParser schematicParser = (SchematicParser) Class.forName("com.bgsoftware.superiorskyblock.world.schematic.parser.FAWESchematicParser").newInstance();
                 this.schematicsContainer.addSchematicParser(schematicParser);
             } catch (Exception ignored) {
@@ -254,8 +254,13 @@ public class SchematicsManagerImpl extends Manager implements SchematicManager {
             runnable.run();
     }
 
-    public String getDefaultSchematic(World.Environment environment) {
-        String suffix = environment == World.Environment.NETHER ? "_nether" : "_the_end";
+    public String getDefaultSchematic(Environment environment) {
+        String suffix = "";
+        switch (environment) {
+            case NETHER -> suffix = "_nether";
+            case THE_END -> suffix = "_the_end";
+            case CITADEL -> suffix = "citadel";
+        }
         for (String schematicName : this.schematicsContainer.getSchematicNames()) {
             if (getSchematic(schematicName + suffix) != null)
                 return schematicName;

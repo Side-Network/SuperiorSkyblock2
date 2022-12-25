@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.player;
 
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.HitActionResult;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -170,7 +171,7 @@ public class SuperiorNPCPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void teleport(Island island, World.Environment environment) {
+    public void teleport(Island island, Environment environment) {
         this.teleport(island, environment, null);
     }
 
@@ -181,7 +182,7 @@ public class SuperiorNPCPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void teleport(Island island, World.Environment environment, @Nullable Consumer<Boolean> teleportResult) {
+    public void teleport(Island island, Environment environment, @Nullable Consumer<Boolean> teleportResult) {
         if (teleportResult != null)
             teleportResult.accept(false);
     }

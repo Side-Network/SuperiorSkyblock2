@@ -7,22 +7,20 @@ import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.CommandTabCompletes;
 import com.bgsoftware.superiorskyblock.commands.IAdminIslandCommand;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
+import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
-import com.bgsoftware.superiorskyblock.listener.PortalsListener;
-import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CmdAdminTeleport implements IAdminIslandCommand {
+public class CmdAdminTeleportCenter implements IAdminIslandCommand {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("tp", "teleport", "go", "visit");
+        return Arrays.asList("center");
     }
 
     @Override
@@ -32,7 +30,7 @@ public class CmdAdminTeleport implements IAdminIslandCommand {
 
     @Override
     public String getUsage(java.util.Locale locale) {
-        return "admin teleport <" +
+        return "admin center <" +
                 Message.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + "/" +
                 Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "> [normal/nether/the_end/citadel]";
     }
@@ -83,29 +81,20 @@ public class CmdAdminTeleport implements IAdminIslandCommand {
 
         if (environment != plugin.getSettings().getWorlds().getDefaultWorld()) {
             if (!island.wasSchematicGenerated(environment)) {
-                PlayerTeleportEvent.TeleportCause teleportCause;
-                switch (environment) {
-                    case NETHER -> teleportCause = PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
-                    case THE_END -> teleportCause = PlayerTeleportEvent.TeleportCause.END_PORTAL;
-                    case CITADEL -> teleportCause = PlayerTeleportEvent.TeleportCause.COMMAND;
-                    default -> teleportCause = PlayerTeleportEvent.TeleportCause.PLUGIN;
-                }
-                plugin.getListener(PortalsListener.class).get()
-                        .onPlayerPortal((Player) sender, ((Player) sender).getLocation(), teleportCause, true);
+                Message.WORLD_NOT_UNLOCKED.send(sender, Formatters.CAPITALIZED_FORMATTER.format(environment.name()));
                 return;
             }
         }
 
-        superiorPlayer.teleport(island, environment, result -> {
-            if (!result) {
-                superiorPlayer.teleport(island.getIslandHome(environment));
-            }
-        });
+        Location center = island.getCenter(environment);
+        if (center != null)
+            superiorPlayer.asPlayer().teleport(center);
+        else
+            superiorPlayer.asPlayer().sendMessage("Couldn't find center!");
     }
 
     @Override
     public List<String> adminTabComplete(SuperiorSkyblockPlugin plugin, CommandSender sender, Island island, String[] args) {
         return args.length == 4 ? CommandTabCompletes.getEnvironments(args[3]) : Collections.emptyList();
     }
-
 }

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.api.handlers;
 
 import com.bgsoftware.superiorskyblock.api.data.IDatabaseBridgeHolder;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPreview;
 import com.bgsoftware.superiorskyblock.api.island.SortingType;
@@ -243,7 +244,7 @@ public interface GridManager extends IDatabaseBridgeHolder {
      * @param island      The island to check.
      */
     @Nullable
-    World getIslandsWorld(Island island, World.Environment environment);
+    World getIslandsWorld(Island island, Environment environment);
 
     /**
      * Get the {@link WorldInfo} of the world of an island by the environment.
@@ -254,7 +255,7 @@ public interface GridManager extends IDatabaseBridgeHolder {
      * @return The world info for the given environment, or null if this environment is not enabled.
      */
     @Nullable
-    WorldInfo getIslandsWorldInfo(Island island, World.Environment environment);
+    WorldInfo getIslandsWorldInfo(Island island, Environment environment);
 
     /**
      * Get the {@link WorldInfo} of the world of an island by its name.

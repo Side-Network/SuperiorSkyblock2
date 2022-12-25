@@ -5,7 +5,6 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 
 import java.util.Locale;
@@ -59,15 +58,7 @@ public class IslandNames {
             return false;
         }
 
-        if(!isAlphaNumeric(islandName)){
-            Message.NAME_BLACKLISTED.send(sender);
-            return false;
-        }
-
         return true;
     }
 
-    public static boolean isAlphaNumeric(String s) {
-        return s != null && s.matches("^[a-zA-Z0-9]*$");
-    }
 }

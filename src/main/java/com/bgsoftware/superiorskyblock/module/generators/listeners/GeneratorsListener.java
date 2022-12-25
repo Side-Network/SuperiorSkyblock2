@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.module.generators.listeners;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.core.Materials;
@@ -52,11 +53,11 @@ public class GeneratorsListener implements Listener {
         if (e.getBlock().getType() != LAVA_MATERIAL || e.getNewState().getType() != BASALT_MATERIAL)
             return;
 
-        World.Environment worldEnvironment = module.isMatchGeneratorWorld() &&
-                e.getNewState().getType() == BASALT_MATERIAL ? World.Environment.NETHER :
-                blockLocation.getWorld().getEnvironment();
+        Environment worldEnvironment = module.isMatchGeneratorWorld() &&
+                e.getNewState().getType() == BASALT_MATERIAL ? Environment.NETHER :
+                Environment.of(blockLocation.getWorld().getEnvironment());
 
-        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true);
+        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true, module.getBonusGenerators().contains(island));
 
         if (generatedBlock != null && !generatedBlock.equals(ConstantKeys.COBBLESTONE))
             e.setCancelled(true);
@@ -89,11 +90,11 @@ public class GeneratorsListener implements Listener {
         if (generatorType == GeneratorType.NONE)
             return;
 
-        World.Environment worldEnvironment = module.isMatchGeneratorWorld() &&
-                generatorType == GeneratorType.BASALT ? World.Environment.NETHER :
-                blockLocation.getWorld().getEnvironment();
+        Environment worldEnvironment = module.isMatchGeneratorWorld() &&
+                generatorType == GeneratorType.BASALT ? Environment.NETHER :
+                Environment.of(blockLocation.getWorld().getEnvironment());
 
-        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true);
+        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true, module.getBonusGenerators().contains(island));
 
         if (generatedBlock != null && !generatedBlock.equals(ConstantKeys.COBBLESTONE))
             e.setCancelled(true);
@@ -101,7 +102,7 @@ public class GeneratorsListener implements Listener {
 
     private GeneratorType findGenerator(Block block) {
         if (ServerVersion.isAtLeast(ServerVersion.v1_16) &&
-                block.getWorld().getEnvironment() == World.Environment.NETHER) {
+                Environment.of(block.getWorld().getEnvironment()) == Environment.NETHER) {
             for (BlockFace blockFace : nearbyFaces) {
                 if (block.getRelative(blockFace).getType() == BLUE_ICE_MATERIAL &&
                         block.getRelative(BlockFace.DOWN).getType() == SOUL_SOIL_MATERIAL)

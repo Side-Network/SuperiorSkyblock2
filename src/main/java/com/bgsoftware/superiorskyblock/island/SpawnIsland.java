@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.island;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.*;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
@@ -105,7 +106,7 @@ public class SpawnIsland implements Island {
 
         this.center = new SBlockPosition(worldName, smartCenter.getBlockX(), smartCenter.getBlockY(), smartCenter.getBlockZ());
         this.islandArea = new IslandArea(this.center, this.islandSize);
-        this.spawnWorldInfo = new WorldInfoImpl(this.spawnWorld.getName(), this.spawnWorld.getEnvironment());
+        this.spawnWorldInfo = new WorldInfoImpl(this.spawnWorld.getName(), Environment.of(this.spawnWorld.getEnvironment()));
 
         this.dirtyChunksContainer = new DirtyChunksContainer(this);
 
@@ -276,7 +277,7 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public Location getCenter(World.Environment environment) {
+    public Location getCenter(Environment environment) {
         return center.parse(this.spawnWorld).add(0.5, 0, 0.5);
     }
 
@@ -286,12 +287,12 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public Location getTeleportLocation(World.Environment environment) {
+    public Location getTeleportLocation(Environment environment) {
         return this.getIslandHome(environment);
     }
 
     @Override
-    public Map<World.Environment, Location> getTeleportLocations() {
+    public Map<Environment, Location> getTeleportLocations() {
         return this.getIslandHomes();
     }
 
@@ -301,18 +302,18 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public void setTeleportLocation(World.Environment environment, @Nullable Location teleportLocation) {
+    public void setTeleportLocation(Environment environment, @Nullable Location teleportLocation) {
         this.setIslandHome(environment, teleportLocation);
     }
 
     @Override
-    public Location getIslandHome(World.Environment environment) {
+    public Location getIslandHome(Environment environment) {
         return getCenter(environment);
     }
 
     @Override
-    public Map<World.Environment, Location> getIslandHomes() {
-        Map<World.Environment, Location> map = new HashMap<>();
+    public Map<Environment, Location> getIslandHomes() {
+        Map<Environment, Location> map = new HashMap<>();
         map.put(plugin.getSettings().getWorlds().getDefaultWorld(), getCenter(null /*unused*/));
         return map;
     }
@@ -323,7 +324,7 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public void setIslandHome(World.Environment environment, @Nullable Location homeLocation) {
+    public void setIslandHome(Environment environment, @Nullable Location homeLocation) {
         // Do nothing.
     }
 
@@ -334,7 +335,7 @@ public class SpawnIsland implements Island {
 
     @Nullable
     @Override
-    public Location getVisitorsLocation(World.Environment unused) {
+    public Location getVisitorsLocation(Environment unused) {
         return getCenter(plugin.getSettings().getWorlds().getDefaultWorld());
     }
 
@@ -394,17 +395,17 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment) {
+    public List<Chunk> getAllChunks(Environment environment) {
         return getAllChunks(environment, false);
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected) {
         return getAllChunks(environment, onlyProtected, false);
     }
 
     @Override
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         Location min = onlyProtected ? getMinimumProtected() : getMinimum();
         Location max = onlyProtected ? getMaximumProtected() : getMaximum();
         Chunk minChunk = min.getChunk();
@@ -429,7 +430,7 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    public List<Chunk> getLoadedChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         Location min = onlyProtected ? getMinimumProtected() : getMinimum();
         Location max = onlyProtected ? getMaximumProtected() : getMaximum();
 
@@ -448,22 +449,22 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected, Consumer<Chunk> onChunkLoad) {
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, Consumer<Chunk> onChunkLoad) {
         return getAllChunksAsync(environment, onlyProtected, false, onChunkLoad);
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks, Consumer<Chunk> onChunkLoad) {
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, boolean noEmptyChunks, Consumer<Chunk> onChunkLoad) {
         return IslandUtils.getAllChunksAsync(this, center.getWorld(), onlyProtected, noEmptyChunks, ChunkLoadReason.API_REQUEST, onChunkLoad);
     }
 
     @Override
-    public void resetChunks(World.Environment environment, boolean onlyProtected) {
+    public void resetChunks(Environment environment, boolean onlyProtected) {
         // Do nothing.
     }
 
     @Override
-    public void resetChunks(World.Environment environment, boolean onlyProtected, Runnable onFinish) {
+    public void resetChunks(Environment environment, boolean onlyProtected, Runnable onFinish) {
         // Do nothing.
     }
 
@@ -542,6 +543,21 @@ public class SpawnIsland implements Island {
     @Override
     public void setEndEnabled(boolean enabled) {
         // Do nothing.
+    }
+
+    @Override
+    public boolean isCitadelEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setCitadelEnabled(boolean enabled) {
+        // Do nothing.
+    }
+
+    @Override
+    public boolean getCitadelUnlockedFlag() {
+        return false;
     }
 
     @Override
@@ -1423,58 +1439,58 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public void setGeneratorPercentage(Key key, int percentage, World.Environment environment) {
+    public void setGeneratorPercentage(Key key, int percentage, Environment environment) {
         // Do nothing.
     }
 
     @Override
-    public boolean setGeneratorPercentage(Key key, int percentage, World.Environment environment,
+    public boolean setGeneratorPercentage(Key key, int percentage, Environment environment,
                                           @Nullable SuperiorPlayer caller, boolean callEvent) {
         return true;
     }
 
     @Override
-    public int getGeneratorPercentage(Key key, World.Environment environment) {
+    public int getGeneratorPercentage(Key key, Environment environment) {
         return 0;
     }
 
     @Override
-    public Map<String, Integer> getGeneratorPercentages(World.Environment environment) {
+    public Map<String, Integer> getGeneratorPercentages(Environment environment) {
         return Collections.emptyMap();
     }
 
     @Override
-    public void setGeneratorAmount(Key key, int amount, World.Environment environment) {
+    public void setGeneratorAmount(Key key, int amount, Environment environment) {
         // Do nothing.
     }
 
     @Override
-    public void removeGeneratorAmount(Key key, World.Environment environment) {
+    public void removeGeneratorAmount(Key key, Environment environment) {
         // Do nothing.
     }
 
     @Override
-    public int getGeneratorAmount(Key key, World.Environment environment) {
+    public int getGeneratorAmount(Key key, Environment environment) {
         return 0;
     }
 
     @Override
-    public int getGeneratorTotalAmount(World.Environment environment) {
+    public int getGeneratorTotalAmount(Environment environment) {
         return 0;
     }
 
     @Override
-    public Map<String, Integer> getGeneratorAmounts(World.Environment environment) {
+    public Map<String, Integer> getGeneratorAmounts(Environment environment) {
         return Collections.emptyMap();
     }
 
     @Override
-    public Map<Key, Integer> getCustomGeneratorAmounts(World.Environment environment) {
+    public Map<Key, Integer> getCustomGeneratorAmounts(Environment environment) {
         return Collections.emptyMap();
     }
 
     @Override
-    public void clearGeneratorAmounts(World.Environment environment) {
+    public void clearGeneratorAmounts(Environment environment) {
         // Do nothing.
     }
 
@@ -1486,28 +1502,33 @@ public class SpawnIsland implements Island {
 
     @Nullable
     @Override
-    public Key generateBlock(Location location, World.Environment environment, boolean optimizeCobblestone) {
+    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed) {
         return null;
     }
 
     @Override
-    public boolean wasSchematicGenerated(World.Environment environment) {
+    public boolean wasSchematicGenerated(Environment environment) {
         return true;
     }
 
     @Override
-    public void setSchematicGenerate(World.Environment environment) {
+    public void setSchematicGenerate(Environment environment) {
         // Do nothing.
     }
 
     @Override
-    public void setSchematicGenerate(World.Environment environment, boolean generated) {
+    public void setSchematicGenerate(Environment environment, boolean generated) {
         // Do nothing.
     }
 
     @Override
     public int getGeneratedSchematicsFlag() {
         return 0;
+    }
+
+    @Override
+    public boolean getGeneratedCitadelFlag() {
+        return false;
     }
 
     @Override

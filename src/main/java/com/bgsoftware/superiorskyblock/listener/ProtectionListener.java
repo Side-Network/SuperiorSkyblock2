@@ -10,6 +10,7 @@ import com.bgsoftware.superiorskyblock.core.ServerVersion;
 import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
+import com.bgsoftware.superiorskyblock.island.SIsland;
 import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
 import com.bgsoftware.superiorskyblock.nms.ICachedBlock;
 import com.bgsoftware.superiorskyblock.world.BukkitEntities;
@@ -106,7 +107,8 @@ public class ProtectionListener implements Listener {
     public enum Flag {
 
         SEND_MESSAGES,
-        PREVENT_OUTSIDE_ISLANDS
+        PREVENT_OUTSIDE_ISLANDS,
+        PORTAL_AREA_BLOCK
 
     }
 
@@ -186,7 +188,7 @@ public class ProtectionListener implements Listener {
             islandPrivilege = IslandPrivileges.INTERACT;
         }
 
-        if (preventInteraction(island, blockLocation, superiorPlayer, islandPrivilege, Flag.SEND_MESSAGES))
+        if (preventInteraction(island, blockLocation, superiorPlayer, islandPrivilege, Flag.SEND_MESSAGES, Flag.PORTAL_AREA_BLOCK))
             e.setCancelled(true);
     }
 
@@ -216,6 +218,7 @@ public class ProtectionListener implements Listener {
         Island island = plugin.getGrid().getIslandAt(blockLocation);
 
         EnumSet<Flag> flagsSet = flags.length == 0 ? EnumSet.noneOf(Flag.class) : EnumSet.copyOf(Arrays.asList(flags));
+        flagsSet.add(Flag.PORTAL_AREA_BLOCK);
 
         if (preventInteraction(island, blockLocation, superiorPlayer, IslandPrivileges.BUILD, flagsSet))
             return true;
@@ -234,6 +237,7 @@ public class ProtectionListener implements Listener {
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(player);
 
         EnumSet<Flag> flagsSet = flags.length == 0 ? EnumSet.noneOf(Flag.class) : EnumSet.copyOf(Arrays.asList(flags));
+        flagsSet.add(Flag.PORTAL_AREA_BLOCK);
 
         Material blockType = block.getType();
         IslandPrivilege islandPrivilege = blockType == Materials.SPAWNER.toBukkitType() ?
@@ -328,7 +332,7 @@ public class ProtectionListener implements Listener {
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
         Island island = plugin.getGrid().getIslandAt(entityLocation);
         if (preventInteraction(island, entityLocation, superiorPlayer, islandPrivilege,
-                Flag.PREVENT_OUTSIDE_ISLANDS, Flag.SEND_MESSAGES))
+                Flag.PREVENT_OUTSIDE_ISLANDS, Flag.SEND_MESSAGES, Flag.PORTAL_AREA_BLOCK))
             e.setCancelled(true);
     }
 
@@ -471,7 +475,7 @@ public class ProtectionListener implements Listener {
             Island island = plugin.getGrid().getIslandAt(blockLocation);
             SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
             if (preventInteraction(island, blockLocation, superiorPlayer, IslandPrivileges.MINECART_PLACE,
-                    Flag.SEND_MESSAGES, Flag.PREVENT_OUTSIDE_ISLANDS))
+                    Flag.SEND_MESSAGES, Flag.PREVENT_OUTSIDE_ISLANDS, Flag.PORTAL_AREA_BLOCK))
                 e.setCancelled(true);
         }
     }
@@ -646,6 +650,13 @@ public class ProtectionListener implements Listener {
         if (flagsSet.contains(Flag.PREVENT_OUTSIDE_ISLANDS) &&
                 preventInteraction(island, location, superiorPlayer, flagsSet))
             return true;
+
+        if (island instanceof SIsland sIsland &&
+                flagsSet.contains(Flag.PORTAL_AREA_BLOCK) &&
+                island.isInside(location)) {
+            return sIsland.getCitadelPortalArea().intercepts(location.getBlockX(), location.getBlockY(), location.getBlockZ()) ||
+                    sIsland.getGeneratedCitadelFlag() && location.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getCitadel().getName());
+        }
 
         boolean sendMessages = flagsSet.contains(Flag.SEND_MESSAGES);
 

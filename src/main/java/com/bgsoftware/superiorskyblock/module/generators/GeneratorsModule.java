@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.module.generators;
 import com.bgsoftware.common.config.CommentedConfiguration;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
+import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.module.generators.commands.CmdAdminAddGenerator;
 import com.bgsoftware.superiorskyblock.module.generators.commands.CmdAdminClearGenerator;
@@ -12,11 +13,14 @@ import com.bgsoftware.superiorskyblock.module.generators.listeners.GeneratorsLis
 import org.bukkit.event.Listener;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeneratorsModule extends BuiltinModule {
 
     private boolean enabled = true;
     private boolean matchGeneratorWorld = true;
+    private final List<Island> bonusGenerators = new ArrayList<>();
 
     public GeneratorsModule() {
         super("generators");
@@ -91,4 +95,7 @@ public class GeneratorsModule extends BuiltinModule {
         return matchGeneratorWorld;
     }
 
+    public List<Island> getBonusGenerators() {
+        return bonusGenerators;
+    }
 }

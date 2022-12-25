@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.api;
 
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.config.SettingsManager;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.handlers.BlockValuesManager;
 import com.bgsoftware.superiorskyblock.api.handlers.CommandsManager;
 import com.bgsoftware.superiorskyblock.api.handlers.FactoriesManager;
@@ -70,7 +71,7 @@ public class SuperiorSkyblockAPI {
      * Everytime a change is made to the API, the version of it changes.
      */
     public static int getAPIVersion() {
-        return 5;
+        return 6;
     }
 
     /*
@@ -182,7 +183,7 @@ public class SuperiorSkyblockAPI {
      * Get the world of an island by the world's environment.
      */
     @Nullable
-    public static World getIslandsWorld(Island island, World.Environment environment) {
+    public static World getIslandsWorld(Island island, Environment environment) {
         return plugin.getGrid().getIslandsWorld(island, environment);
     }
 

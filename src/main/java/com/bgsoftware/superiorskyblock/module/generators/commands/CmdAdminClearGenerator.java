@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.module.generators.commands;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.IAdminIslandCommand;
@@ -60,7 +61,7 @@ public class CmdAdminClearGenerator implements IAdminIslandCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, List<Island> islands, String[] args) {
-        World.Environment environment = args.length == 3 ? plugin.getSettings().getWorlds().getDefaultWorld() :
+        Environment environment = args.length == 3 ? plugin.getSettings().getWorlds().getDefaultWorld() :
                 CommandArguments.getEnvironment(sender, args[3]);
 
         if (environment == null)

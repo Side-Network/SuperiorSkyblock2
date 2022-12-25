@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.api.island;
 
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.data.IDatabaseBridgeHolder;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.enums.SyncStatus;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
@@ -266,7 +267,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      *
      * @param environment The environment.
      */
-    Location getCenter(World.Environment environment);
+    Location getCenter(Environment environment);
 
     /**
      * Get the center position of the island.
@@ -275,18 +276,18 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
     /**
      * Get the members' teleport location of the island, depends on the world environment.
-     * Similar to {@link #getIslandHome(World.Environment)}
+     * Similar to {@link #getIslandHome(Environment)}
      *
      * @param environment The environment.
      */
     @Nullable
-    Location getTeleportLocation(World.Environment environment);
+    Location getTeleportLocation(Environment environment);
 
     /**
      * Get all the teleport locations of the island.
      * Similar to {@link #getIslandHomes()}
      */
-    Map<World.Environment, Location> getTeleportLocations();
+    Map<Environment, Location> getTeleportLocations();
 
     /**
      * Set the members' teleport location of the island.
@@ -298,12 +299,12 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
     /**
      * Set the members' teleport location of the island.
-     * Similar to {@link #setIslandHome(org.bukkit.World.Environment, Location)}
+     * Similar to {@link #setIslandHome(Environment, Location)}
      *
      * @param environment      The environment to change teleport location for.
      * @param teleportLocation The new teleport location.
      */
-    void setTeleportLocation(World.Environment environment, @Nullable Location teleportLocation);
+    void setTeleportLocation(Environment environment, @Nullable Location teleportLocation);
 
     /**
      * Get the members' home location of the island, depends on the world environment.
@@ -311,12 +312,12 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param environment The environment.
      */
     @Nullable
-    Location getIslandHome(World.Environment environment);
+    Location getIslandHome(Environment environment);
 
     /**
      * Get all the home locations of the island.
      */
-    Map<World.Environment, Location> getIslandHomes();
+    Map<Environment, Location> getIslandHomes();
 
     /**
      * Set the members' teleport location of the island.
@@ -331,12 +332,12 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param environment  The environment to change teleport location for.
      * @param homeLocation The new home location.
      */
-    void setIslandHome(World.Environment environment, @Nullable Location homeLocation);
+    void setIslandHome(Environment environment, @Nullable Location homeLocation);
 
     /**
      * Get the visitors' teleport location of the island.
      *
-     * @deprecated See {@link #getVisitorsLocation(World.Environment)}
+     * @deprecated See {@link #getVisitorsLocation(Environment)}
      */
     @Nullable
     @Deprecated
@@ -349,7 +350,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      *                    Currently unused, it has no effect.
      */
     @Nullable
-    Location getVisitorsLocation(World.Environment environment);
+    Location getVisitorsLocation(Environment environment);
 
     /**
      * Set the visitors' teleport location of the island.
@@ -415,7 +416,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      *
      * @param environment The environment to get the chunks from.
      */
-    List<Chunk> getAllChunks(World.Environment environment);
+    List<Chunk> getAllChunks(Environment environment);
 
     /**
      * Get all the chunks of the island, including empty ones.
@@ -423,7 +424,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param environment   The environment to get the chunks from.
      * @param onlyProtected Whether only chunks inside the protected area should be returned.
      */
-    List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected);
+    List<Chunk> getAllChunks(Environment environment, boolean onlyProtected);
 
     /**
      * Get all the chunks of the island.
@@ -432,7 +433,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param onlyProtected Whether only chunks inside the protected area should be returned.
      * @param noEmptyChunks Should empty chunks be loaded or not?
      */
-    List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks);
+    List<Chunk> getAllChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks);
 
     /**
      * Get all the loaded chunks of the island.
@@ -449,7 +450,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param onlyProtected Whether only chunks inside the protected area should be returned.
      * @param noEmptyChunks Should empty chunks be loaded or not?
      */
-    List<Chunk> getLoadedChunks(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks);
+    List<Chunk> getLoadedChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks);
 
     /**
      * Get all the chunks of the island asynchronized, including empty chunks.
@@ -458,7 +459,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param onlyProtected Whether only chunks inside the protected area should be returned.
      * @param onChunkLoad   A consumer that will be ran when the chunk is loaded. Can be null.
      */
-    List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected, @Nullable Consumer<Chunk> onChunkLoad);
+    List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, @Nullable Consumer<Chunk> onChunkLoad);
 
     /**
      * Get all the chunks of the island asynchronized.
@@ -468,7 +469,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param noEmptyChunks Should empty chunks be loaded or not?
      * @param onChunkLoad   A consumer that will be ran when the chunk is loaded. Can be null.
      */
-    List<CompletableFuture<Chunk>> getAllChunksAsync(World.Environment environment, boolean onlyProtected, boolean noEmptyChunks, @Nullable Consumer<Chunk> onChunkLoad);
+    List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, boolean noEmptyChunks, @Nullable Consumer<Chunk> onChunkLoad);
 
     /**
      * Reset all the chunks of the island (will make all chunks empty).
@@ -476,7 +477,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param environment   The environment to reset chunks in.
      * @param onlyProtected Whether only chunks inside the protected area should be reset.
      */
-    void resetChunks(World.Environment environment, boolean onlyProtected);
+    void resetChunks(Environment environment, boolean onlyProtected);
 
     /**
      * Reset all the chunks of the island (will make all chunks empty).
@@ -485,7 +486,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param onlyProtected Whether only chunks inside the protected area should be reset.
      * @param onFinish      Callback runnable.
      */
-    void resetChunks(World.Environment environment, boolean onlyProtected, @Nullable Runnable onFinish);
+    void resetChunks(Environment environment, boolean onlyProtected, @Nullable Runnable onFinish);
 
     /**
      * Reset all the chunks of the island from all the worlds (will make all chunks empty).
@@ -569,6 +570,21 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * Enable/disable the end world for the island.
      */
     void setEndEnabled(boolean enabled);
+
+    /**
+     * Is the citade world enabled for the island?
+     */
+    boolean isCitadelEnabled();
+
+    /**
+     * Enable/disable the citadel world for the island.
+     */
+    void setCitadelEnabled(boolean enabled);
+
+    /**
+     * Get the unlocked citadel flag.
+     */
+    boolean getCitadelUnlockedFlag();
 
     /**
      * Get the unlocked worlds flag.
@@ -1774,7 +1790,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param percentage  The percentage to set the new rate.
      * @param environment The world to change the rates in.
      */
-    void setGeneratorPercentage(Key key, int percentage, World.Environment environment);
+    void setGeneratorPercentage(Key key, int percentage, Environment environment);
 
     /**
      * Set a percentage for a specific key in a specific world.
@@ -1797,7 +1813,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @return Whether the operation succeed.
      * The operation may fail if callEvent is true and the event was cancelled.
      */
-    boolean setGeneratorPercentage(Key key, int percentage, World.Environment environment,
+    boolean setGeneratorPercentage(Key key, int percentage, Environment environment,
                                    @Nullable SuperiorPlayer caller, boolean callEvent);
 
     /**
@@ -1807,51 +1823,51 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param key         The material key
      * @param environment The world environment.
      */
-    int getGeneratorPercentage(Key key, World.Environment environment);
+    int getGeneratorPercentage(Key key, Environment environment);
 
     /**
      * Get the percentages of the materials for the cobblestone generator in the island for a specific world.
      */
-    Map<String, Integer> getGeneratorPercentages(World.Environment environment);
+    Map<String, Integer> getGeneratorPercentages(Environment environment);
 
     /**
      * Set an amount for a specific key in a specific world.
      */
-    void setGeneratorAmount(Key key, int amount, World.Environment environment);
+    void setGeneratorAmount(Key key, int amount, Environment environment);
 
     /**
      * Remove a rate for a specific key in a specific world.
      */
-    void removeGeneratorAmount(Key key, World.Environment environment);
+    void removeGeneratorAmount(Key key, Environment environment);
 
     /**
      * Get the amount of a specific key in a specific world.
      */
-    int getGeneratorAmount(Key key, World.Environment environment);
+    int getGeneratorAmount(Key key, Environment environment);
 
     /**
      * Get the total amount of all the generator keys together.
      */
-    int getGeneratorTotalAmount(World.Environment environment);
+    int getGeneratorTotalAmount(Environment environment);
 
     /**
      * Get the amounts of the materials for the cobblestone generator in the island.
      */
-    Map<String, Integer> getGeneratorAmounts(World.Environment environment);
+    Map<String, Integer> getGeneratorAmounts(Environment environment);
 
     /**
      * Get the custom amounts of the materials for the cobblestone generator in the island.
      */
-    Map<Key, Integer> getCustomGeneratorAmounts(World.Environment environment);
+    Map<Key, Integer> getCustomGeneratorAmounts(Environment environment);
 
     /**
      * Clear all the custom generator amounts for this island.
      */
-    void clearGeneratorAmounts(World.Environment environment);
+    void clearGeneratorAmounts(Environment environment);
 
     /**
      * Generate a block at a specified location.
-     * The method calculates a block to generate from {@link #getGeneratorAmounts(World.Environment)}.
+     * The method calculates a block to generate from {@link #getGeneratorAmounts(Environment)}.
      * It doesn't look for any conditions for generating it - lava, water, etc are not required.
      * The method will fail if there are no valid generator rates for the environment.
      *
@@ -1868,7 +1884,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
     /**
      * Generate a block at a specified location.
-     * The method calculates a block to generate from {@link #getGeneratorAmounts(World.Environment)}.
+     * The method calculates a block to generate from {@link #getGeneratorAmounts(Environment)}.
      * It doesn't look for any conditions for generating it - lava, water, etc are not required.
      * The method will fail if there are no valid generator rates for the environment.
      *
@@ -1881,7 +1897,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @return The block type that was generated, null if failed.
      */
     @Nullable
-    Key generateBlock(Location location, World.Environment environment, boolean optimizeCobblestone);
+    Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed);
 
     /*
      *  Schematic methods
@@ -1892,14 +1908,14 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      *
      * @param environment The environment to check.
      */
-    boolean wasSchematicGenerated(World.Environment environment);
+    boolean wasSchematicGenerated(Environment environment);
 
     /**
      * Set schematic generated flag to true.
      *
      * @param environment The environment to set.
      */
-    void setSchematicGenerate(World.Environment environment);
+    void setSchematicGenerate(Environment environment);
 
     /**
      * Set schematic generated flag.
@@ -1907,12 +1923,17 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param environment The environment to set.
      * @param generated   The flag to set.
      */
-    void setSchematicGenerate(World.Environment environment, boolean generated);
+    void setSchematicGenerate(Environment environment, boolean generated);
 
     /**
      * Get the generated schematics flag.
      */
     int getGeneratedSchematicsFlag();
+
+    /**
+     * Get the generated citadel flag.
+     */
+    boolean getGeneratedCitadelFlag();
 
     /**
      * Get the schematic that was used to create the island.
@@ -2037,6 +2058,10 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
         Builder setUnlockedWorlds(int unlockedWorldsMask);
 
+        Builder setGeneratedCitadel(boolean generatedCitadel);
+
+        Builder setUnlockedCitadel(boolean unlockedCitadel);
+
         int getUnlockedWorldsMask();
 
         Builder setLastTimeUpdated(long lastTimeUpdated);
@@ -2051,9 +2076,9 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
         KeyMap<BigInteger> getBlockCounts();
 
-        Builder setIslandHome(Location location, World.Environment environment);
+        Builder setIslandHome(Location location, Environment environment);
 
-        Map<World.Environment, Location> getIslandHomes();
+        Map<Environment, Location> getIslandHomes();
 
         Builder addIslandMember(SuperiorPlayer superiorPlayer);
 
@@ -2091,9 +2116,9 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
         Map<IslandFlag, SyncStatus> getIslandFlags();
 
-        Builder setGeneratorRate(Key block, int rate, World.Environment environment);
+        Builder setGeneratorRate(Key block, int rate, Environment environment);
 
-        Map<World.Environment, KeyMap<Integer>> getGeneratorRates();
+        Map<Environment, KeyMap<Integer>> getGeneratorRates();
 
         Builder addUniqueVisitor(SuperiorPlayer superiorPlayer, long visitTime);
 
@@ -2115,9 +2140,9 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
 
         Map<PlayerRole, Integer> getRoleLimits();
 
-        Builder setVisitorHome(Location location, World.Environment environment);
+        Builder setVisitorHome(Location location, Environment environment);
 
-        Map<World.Environment, Location> getVisitorHomes();
+        Map<Environment, Location> getVisitorHomes();
 
         Builder setIslandSize(int islandSize);
 

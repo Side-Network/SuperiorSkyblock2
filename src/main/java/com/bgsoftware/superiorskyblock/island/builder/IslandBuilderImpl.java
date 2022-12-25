@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.island.builder;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.enums.SyncStatus;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -21,7 +22,6 @@ import com.bgsoftware.superiorskyblock.island.container.value.Value;
 import com.bgsoftware.superiorskyblock.island.privilege.PlayerPrivilegeNode;
 import com.google.common.base.Preconditions;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
@@ -62,10 +62,12 @@ public class IslandBuilderImpl implements Island.Builder {
     public String description = "";
     public int generatedSchematicsMask = 0;
     public int unlockedWorldsMask = 0;
+    public boolean generatedCitadel = false;
+    public boolean unlockedCitadel = false;
     public long lastTimeUpdated = System.currentTimeMillis() / 1000;
     public final Set<DirtyChunk> dirtyChunks = new LinkedHashSet<>();
     public final KeyMap<BigInteger> blockCounts = KeyMapImpl.createHashMap();
-    public final EnumMap<World.Environment, Location> islandHomes = new EnumMap<>(World.Environment.class);
+    public final EnumMap<Environment, Location> islandHomes = new EnumMap<>(Environment.class);
     public final List<SuperiorPlayer> members = new LinkedList<>();
     public final List<SuperiorPlayer> bannedPlayers = new LinkedList<>();
     public final Map<SuperiorPlayer, PlayerPrivilegeNode> playerPermissions = new LinkedHashMap<>();
@@ -75,13 +77,13 @@ public class IslandBuilderImpl implements Island.Builder {
     public final Map<UUID, Rating> ratings = new LinkedHashMap<>();
     public final Map<Mission<?>, Integer> completedMissions = new LinkedHashMap<>();
     public final Map<IslandFlag, Byte> islandFlags = new LinkedHashMap<>();
-    public final EnumMap<World.Environment, KeyMap<Value<Integer>>> cobbleGeneratorValues = new EnumMap<>(World.Environment.class);
+    public final EnumMap<Environment, KeyMap<Value<Integer>>> cobbleGeneratorValues = new EnumMap<>(Environment.class);
     public final List<SIsland.UniqueVisitor> uniqueVisitors = new LinkedList<>();
     public final KeyMap<Value<Integer>> entityLimits = KeyMapImpl.createHashMap();
     public final Map<PotionEffectType, Value<Integer>> islandEffects = new LinkedHashMap<>();
     public final List<ItemStack[]> islandChests = new ArrayList<>(plugin.getSettings().getIslandChests().getDefaultPages());
     public final Map<PlayerRole, Value<Integer>> roleLimits = new LinkedHashMap<>();
-    public final EnumMap<World.Environment, Location> visitorHomes = new EnumMap<>(World.Environment.class);
+    public final EnumMap<Environment, Location> visitorHomes = new EnumMap<>(Environment.class);
     public Value<Integer> islandSize = Value.syncedFixed(-1);
     public Value<Integer> warpsLimit = Value.syncedFixed(-1);
     public Value<Integer> teamLimit = Value.syncedFixed(-1);
@@ -276,6 +278,18 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
+    public Island.Builder setGeneratedCitadel(boolean generatedCitadel) {
+        this.generatedCitadel = generatedCitadel;
+        return this;
+    }
+
+    @Override
+    public Island.Builder setUnlockedCitadel(boolean unlockedCitadel) {
+        this.unlockedCitadel = unlockedCitadel;
+        return this;
+    }
+
+    @Override
     public int getUnlockedWorldsMask() {
         return this.unlockedWorldsMask;
     }
@@ -317,7 +331,7 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
-    public Island.Builder setIslandHome(Location location, World.Environment environment) {
+    public Island.Builder setIslandHome(Location location, Environment environment) {
         Preconditions.checkNotNull(location, "location parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         this.islandHomes.put(environment, location);
@@ -325,7 +339,7 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
-    public Map<World.Environment, Location> getIslandHomes() {
+    public Map<Environment, Location> getIslandHomes() {
         return Collections.unmodifiableMap(this.islandHomes);
     }
 
@@ -451,7 +465,7 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
-    public Island.Builder setGeneratorRate(Key block, int rate, World.Environment environment) {
+    public Island.Builder setGeneratorRate(Key block, int rate, Environment environment) {
         Preconditions.checkNotNull(block, "block parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         this.cobbleGeneratorValues.computeIfAbsent(environment, e -> KeyMapImpl.createHashMap())
@@ -460,8 +474,8 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
-    public Map<World.Environment, KeyMap<Integer>> getGeneratorRates() {
-        Map<World.Environment, KeyMap<Integer>> result = new EnumMap<>(World.Environment.class);
+    public Map<Environment, KeyMap<Integer>> getGeneratorRates() {
+        Map<Environment, KeyMap<Integer>> result = new EnumMap<>(Environment.class);
 
         this.cobbleGeneratorValues.forEach(((environment, generatorRates) ->
                 result.put(environment, KeyMap.createKeyMap(convertFromValuesToRaw(generatorRates)))));
@@ -543,7 +557,7 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
-    public Island.Builder setVisitorHome(Location location, World.Environment environment) {
+    public Island.Builder setVisitorHome(Location location, Environment environment) {
         Preconditions.checkNotNull(location, "location parameter cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
         this.visitorHomes.put(environment, location);
@@ -551,7 +565,7 @@ public class IslandBuilderImpl implements Island.Builder {
     }
 
     @Override
-    public Map<World.Environment, Location> getVisitorHomes() {
+    public Map<Environment, Location> getVisitorHomes() {
         return Collections.unmodifiableMap(visitorHomes);
     }
 

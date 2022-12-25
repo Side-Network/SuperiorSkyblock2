@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.module.upgrades;
 import com.bgsoftware.common.config.CommentedConfiguration;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCost;
@@ -17,19 +18,8 @@ import com.bgsoftware.superiorskyblock.island.upgrade.SUpgrade;
 import com.bgsoftware.superiorskyblock.island.upgrade.SUpgradeLevel;
 import com.bgsoftware.superiorskyblock.island.upgrade.UpgradeRequirement;
 import com.bgsoftware.superiorskyblock.module.BuiltinModule;
-import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdAdminRankup;
-import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdAdminSetUpgrade;
-import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdAdminSyncUpgrades;
-import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdRankup;
-import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdUpgrade;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.IUpgradeType;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeBlockLimits;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeCropGrowth;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeEntityLimits;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeIslandEffects;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeMobDrops;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeSpawnerRates;
-import org.bukkit.World;
+import com.bgsoftware.superiorskyblock.module.upgrades.commands.*;
+import com.bgsoftware.superiorskyblock.module.upgrades.type.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffectType;
@@ -37,15 +27,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UpgradesModule extends BuiltinModule {
@@ -135,6 +117,8 @@ public class UpgradesModule extends BuiltinModule {
             enabledUpgrades.add(new UpgradeTypeBlockLimits(plugin));
         if (config.getBoolean("entity-limits", true))
             enabledUpgrades.add(new UpgradeTypeEntityLimits(plugin));
+        if (config.getBoolean("citadel", true))
+            enabledUpgrades.add(new UpgradeTypeCitadel(plugin));
 
         if (enabledUpgrades.isEmpty())
             return;
@@ -223,11 +207,11 @@ public class UpgradesModule extends BuiltinModule {
             for (String entity : levelSection.getConfigurationSection("entity-limits").getKeys(false))
                 entityLimits.put(KeyImpl.of(entity), levelSection.getInt("entity-limits." + entity));
         }
-        EnumMap<World.Environment, Map<Key, Integer>> generatorRates = new EnumMap<>(World.Environment.class);
+        EnumMap<Environment, Map<Key, Integer>> generatorRates = new EnumMap<>(Environment.class);
         if (levelSection.contains("generator-rates")) {
             for (String blockOrEnv : levelSection.getConfigurationSection("generator-rates").getKeys(false)) {
                 try {
-                    World.Environment environment = World.Environment.valueOf(blockOrEnv.toUpperCase(Locale.ENGLISH));
+                    Environment environment = Environment.valueOf(blockOrEnv.toUpperCase(Locale.ENGLISH));
                     for (String block : levelSection.getConfigurationSection("generator-rates." + blockOrEnv).getKeys(false)) {
                         generatorRates.computeIfAbsent(environment, e -> KeyMapImpl.createHashMap()).put(
                                 KeyImpl.of(block), levelSection.getInt("generator-rates." + blockOrEnv + "." + block));

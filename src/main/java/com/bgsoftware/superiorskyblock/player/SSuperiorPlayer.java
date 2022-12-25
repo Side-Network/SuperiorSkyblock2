@@ -4,6 +4,7 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.HitActionResult;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -346,7 +347,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void teleport(Island island, World.Environment environment) {
+    public void teleport(Island island, Environment environment) {
         this.teleport(island, environment, null);
     }
 
@@ -356,7 +357,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void teleport(Island island, World.Environment environment, @Nullable Consumer<Boolean> teleportResult) {
+    public void teleport(Island island, Environment environment, @Nullable Consumer<Boolean> teleportResult) {
         Player player = asPlayer();
         if (player != null) {
             playerTeleportAlgorithm.teleport(player, island, environment).whenComplete((result, error) -> {
@@ -750,6 +751,12 @@ public class SSuperiorPlayer implements SuperiorPlayer {
         this.disbands = otherPlayer.getDisbands();
         this.borderColor = otherPlayer.getBorderColor();
         this.lastTimeStatus = otherPlayer.getLastTimeStatus();
+        this.completedMissions.putAll(otherPlayer.getCompletedMissionsWithAmounts());
+
+        if (!otherPlayer.isPersistentDataContainerEmpty()) {
+            byte[] data = otherPlayer.getPersistentDataContainer().serialize();
+            getPersistentDataContainer().load(data);
+        }
 
         // Convert data for missions
         plugin.getMissions().convertPlayerData(otherPlayer, this);

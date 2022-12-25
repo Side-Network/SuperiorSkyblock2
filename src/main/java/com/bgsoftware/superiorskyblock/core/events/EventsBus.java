@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.core.events;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblock;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.events.*;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -133,12 +134,12 @@ public class EventsBus {
     }
 
     public EventResult<Integer> callIslandChangeGeneratorRateEvent(CommandSender commandSender, Island island, Key block,
-                                                                   World.Environment environment, int generatorRate) {
+                                                                   Environment environment, int generatorRate) {
         return callIslandChangeGeneratorRateEvent(getSuperiorPlayer(commandSender), island, block, environment, generatorRate);
     }
 
     public EventResult<Integer> callIslandChangeGeneratorRateEvent(@Nullable SuperiorPlayer superiorPlayer, Island island, Key block,
-                                                                   World.Environment environment, int generatorRate) {
+                                                                   Environment environment, int generatorRate) {
         return callEvent(() -> new IslandChangeGeneratorRateEvent(superiorPlayer, island, block, environment, generatorRate),
                 "islandchangegeneratorrateevent", generatorRate, IslandChangeGeneratorRateEvent::getGeneratorRate);
     }
@@ -237,7 +238,7 @@ public class EventsBus {
         }
     }
 
-    public boolean callIslandClearGeneratorRatesEvent(CommandSender commandSender, Island island, World.Environment environment) {
+    public boolean callIslandClearGeneratorRatesEvent(CommandSender commandSender, Island island, Environment environment) {
         return callEvent(() -> new IslandClearGeneratorRatesEvent(getSuperiorPlayer(commandSender), island, environment),
                 "islandcleargeneratorratesevent");
     }
@@ -335,7 +336,7 @@ public class EventsBus {
     }
 
     public EventResult<PortalEventResult> callIslandEnterPortalEvent(SuperiorPlayer superiorPlayer, Island island,
-                                                                     PortalType portalType, World.Environment destination,
+                                                                     PortalType portalType, Environment destination,
                                                                      @Nullable Schematic schematic, boolean ignoreInvalidSchematic) {
         return callEvent(() -> new IslandEnterPortalEvent(island, superiorPlayer, portalType, destination, schematic, ignoreInvalidSchematic),
                 "islandenterportalevent", new PortalEventResult(destination, schematic, ignoreInvalidSchematic), PortalEventResult::new);
@@ -384,7 +385,7 @@ public class EventsBus {
                 "islandleaveprotectedevent");
     }
 
-    public boolean callIslandLockWorldEvent(Island island, World.Environment environment) {
+    public boolean callIslandLockWorldEvent(Island island, Environment environment) {
         return callEvent(() -> new IslandLockWorldEvent(island, environment), "islandlockworldevent");
     }
 
@@ -423,12 +424,12 @@ public class EventsBus {
     }
 
     public boolean callIslandRemoveGeneratorRateEvent(CommandSender commandSender, Island island, Key block,
-                                                      World.Environment environment) {
+                                                      Environment environment) {
         return callIslandRemoveGeneratorRateEvent(getSuperiorPlayer(commandSender), island, block, environment);
     }
 
     public boolean callIslandRemoveGeneratorRateEvent(@Nullable SuperiorPlayer superiorPlayer, Island island, Key block,
-                                                      World.Environment environment) {
+                                                      Environment environment) {
         return callEvent(() -> new IslandRemoveGeneratorRateEvent(superiorPlayer, island, block, environment),
                 "islandremovegeneratorrateevent");
     }
@@ -509,7 +510,7 @@ public class EventsBus {
         return callEvent(() -> new IslandUncoopPlayerEvent(island, player, target, uncoopReason), "islanduncoopplayerevent");
     }
 
-    public boolean callIslandUnlockWorldEvent(Island island, World.Environment environment) {
+    public boolean callIslandUnlockWorldEvent(Island island, Environment environment) {
         return callEvent(() -> new IslandUnlockWorldEvent(island, environment), "islandunlockworldevent");
     }
 
@@ -531,7 +532,7 @@ public class EventsBus {
                 "islandupgradeevent", new UpgradeResult(commands, upgradeCost), UpgradeResult::new);
     }
 
-    public boolean callIslandWorldResetEvent(CommandSender sender, Island island, World.Environment environment) {
+    public boolean callIslandWorldResetEvent(CommandSender sender, Island island, Environment environment) {
         return callEvent(() -> new IslandWorldResetEvent(getSuperiorPlayer(sender), island, environment),
                 "islandworldresetevent");
     }
@@ -783,7 +784,7 @@ public class EventsBus {
 
     public static class PortalEventResult {
 
-        private final World.Environment destination;
+        private final Environment destination;
         @Nullable
         private final Schematic schematic;
         private final boolean isIgnoreInvalidSchematic;
@@ -792,13 +793,13 @@ public class EventsBus {
             this(event.getDestination(), event.getSchematic(), event.isIgnoreInvalidSchematic());
         }
 
-        public PortalEventResult(World.Environment destination, @Nullable Schematic schematic, boolean isIgnoreInvalidSchematic) {
+        public PortalEventResult(Environment destination, @Nullable Schematic schematic, boolean isIgnoreInvalidSchematic) {
             this.destination = destination;
             this.schematic = schematic;
             this.isIgnoreInvalidSchematic = isIgnoreInvalidSchematic;
         }
 
-        public World.Environment getDestination() {
+        public Environment getDestination() {
             return destination;
         }
 

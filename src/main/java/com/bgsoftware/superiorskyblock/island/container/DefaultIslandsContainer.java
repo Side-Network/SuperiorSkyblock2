@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.island.container;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.SortingType;
 import com.bgsoftware.superiorskyblock.api.island.container.IslandsContainer;
@@ -53,15 +54,19 @@ public class DefaultIslandsContainer implements IslandsContainer {
             // We don't know the logic of the custom worlds support, therefore we add a position
             // for every possible world, so there won't be issues with detecting islands later.
             if (plugin.getProviders().getWorldsProvider().isNormalEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, World.Environment.NORMAL,
+                runWithCustomWorld(defaultWorld, center, island, Environment.NORMAL,
                         islandPosition -> this.islandsByPositions.put(islandPosition, island));
             }
             if (plugin.getProviders().getWorldsProvider().isNetherEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, World.Environment.NETHER,
+                runWithCustomWorld(defaultWorld, center, island, Environment.NETHER,
                         islandPosition -> this.islandsByPositions.put(islandPosition, island));
             }
             if (plugin.getProviders().getWorldsProvider().isEndEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, World.Environment.THE_END,
+                runWithCustomWorld(defaultWorld, center, island, Environment.THE_END,
+                        islandPosition -> this.islandsByPositions.put(islandPosition, island));
+            }
+            if (plugin.getProviders().getWorldsProvider().isCitadelEnabled()) {
+                runWithCustomWorld(defaultWorld, center, island, Environment.CITADEL,
                         islandPosition -> this.islandsByPositions.put(islandPosition, island));
             }
         }
@@ -84,15 +89,19 @@ public class DefaultIslandsContainer implements IslandsContainer {
 
         if (plugin.getProviders().hasCustomWorldsSupport()) {
             if (plugin.getProviders().getWorldsProvider().isNormalEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, World.Environment.NORMAL,
+                runWithCustomWorld(defaultWorld, center, island, Environment.NORMAL,
                         islandPosition -> this.islandsByPositions.remove(islandPosition, island));
             }
             if (plugin.getProviders().getWorldsProvider().isNetherEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, World.Environment.NETHER,
+                runWithCustomWorld(defaultWorld, center, island, Environment.NETHER,
                         islandPosition -> this.islandsByPositions.remove(islandPosition, island));
             }
             if (plugin.getProviders().getWorldsProvider().isEndEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, World.Environment.THE_END,
+                runWithCustomWorld(defaultWorld, center, island, Environment.THE_END,
+                        islandPosition -> this.islandsByPositions.remove(islandPosition, island));
+            }
+            if (plugin.getProviders().getWorldsProvider().isCitadelEnabled()) {
+                runWithCustomWorld(defaultWorld, center, island, Environment.CITADEL,
                         islandPosition -> this.islandsByPositions.remove(islandPosition, island));
             }
         }
@@ -203,7 +212,7 @@ public class DefaultIslandsContainer implements IslandsContainer {
     }
 
     private void runWithCustomWorld(WorldInfo defaultWorld, BlockPosition center, Island island,
-                                    World.Environment environment, Consumer<IslandPosition> consumer) {
+                                    Environment environment, Consumer<IslandPosition> consumer) {
         WorldInfo worldInfo = plugin.getGrid().getIslandsWorldInfo(island, environment);
         if (worldInfo != null && !worldInfo.equals(defaultWorld))
             consumer.accept(IslandPosition.of(worldInfo.getName(), center.getX(), center.getZ()));

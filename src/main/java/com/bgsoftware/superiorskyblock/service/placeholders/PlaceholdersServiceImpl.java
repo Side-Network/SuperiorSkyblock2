@@ -176,6 +176,7 @@ public class PlaceholdersServiceImpl implements PlaceholdersService {
                             Formatters.FANCY_NUMBER_FORMATTER.format(plugin.getGrid().getTotalLevel(), superiorPlayer.getUserLocale()))
                     .put("nether_unlocked", (island, superiorPlayer) -> Formatters.BOOLEAN_FORMATTER.format(island.isNetherEnabled(), superiorPlayer.getUserLocale()))
                     .put("end_unlocked", (island, superiorPlayer) -> Formatters.BOOLEAN_FORMATTER.format(island.isEndEnabled(), superiorPlayer.getUserLocale()))
+                    .put("citadel_unlocked", (island, superiorPlayer) -> Formatters.BOOLEAN_FORMATTER.format(island.isCitadelEnabled(), superiorPlayer.getUserLocale()))
                     .put("visitors_count", (island, superiorPlayer) -> {
                         return island.getIslandVisitors(false).size() + "";
                     })

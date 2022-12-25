@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
@@ -34,7 +35,7 @@ public class CmdAdminUnlockWorld implements IAdminIslandCommand {
         return "admin unlockworld <" +
                 Message.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + "/" +
                 Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "/" +
-                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <nether/the_end/normal> <true/false>";
+                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <nether/the_end/normal/citadel> <true/false>";
     }
 
     @Override
@@ -64,7 +65,7 @@ public class CmdAdminUnlockWorld implements IAdminIslandCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, List<Island> islands, String[] args) {
-        World.Environment environment = CommandArguments.getEnvironment(sender, args[3]);
+        Environment environment = CommandArguments.getEnvironment(sender, args[3]);
 
         if (environment == null)
             return;
@@ -95,6 +96,9 @@ public class CmdAdminUnlockWorld implements IAdminIslandCommand {
                 case THE_END:
                     island.setEndEnabled(enable);
                     break;
+                case CITADEL:
+                    island.setCitadelEnabled(enable);
+                    break;
             }
         }
 
@@ -111,7 +115,7 @@ public class CmdAdminUnlockWorld implements IAdminIslandCommand {
             return Collections.emptyList();
 
         List<String> environments = new ArrayList<>();
-        for (World.Environment environment : World.Environment.values()) {
+        for (Environment environment : Environment.values()) {
             environments.add(environment.name().toLowerCase(Locale.ENGLISH));
         }
 

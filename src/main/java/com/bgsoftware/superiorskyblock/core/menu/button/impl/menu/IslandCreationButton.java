@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl.menu;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.GameSound;
@@ -96,9 +97,9 @@ public class IslandCreationButton extends SuperiorMenuButton<MenuIslandCreation>
         if (superiorMenu != null)
             superiorMenu.closePage();
 
-        World.Environment environment = plugin.getSettings().getWorlds().getDefaultWorld();
-        boolean offset = isOffset || (environment == World.Environment.NORMAL ? plugin.getSettings().getWorlds().getNormal().isSchematicOffset() :
-                environment == World.Environment.NETHER ? plugin.getSettings().getWorlds().getNether().isSchematicOffset() :
+        Environment environment = plugin.getSettings().getWorlds().getDefaultWorld();
+        boolean offset = isOffset || (environment == Environment.NORMAL ? plugin.getSettings().getWorlds().getNormal().isSchematicOffset() :
+                environment == Environment.NETHER ? plugin.getSettings().getWorlds().getNether().isSchematicOffset() :
                         plugin.getSettings().getWorlds().getEnd().isSchematicOffset());
 
         plugin.getGrid().createIsland(clickedPlayer, schematic.getName(), bonusWorth, bonusLevel, biome,
