@@ -1,10 +1,10 @@
 package com.bgsoftware.superiorskyblock.api.events;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import org.bukkit.PortalType;
-import org.bukkit.World;
 import org.bukkit.event.Cancellable;
 
 import javax.annotation.Nullable;
@@ -16,7 +16,7 @@ public class IslandEnterPortalEvent extends IslandEvent implements Cancellable {
 
     private final SuperiorPlayer superiorPlayer;
     private final PortalType portalType;
-    private World.Environment destination;
+    private Environment destination;
     private Schematic schematic;
     private boolean ignoreInvalidSchematic;
 
@@ -33,7 +33,7 @@ public class IslandEnterPortalEvent extends IslandEvent implements Cancellable {
      * @param ignoreInvalidSchematic Whether to ignore invalid schematics.
      */
     public IslandEnterPortalEvent(Island island, SuperiorPlayer superiorPlayer, PortalType portalType,
-                                  World.Environment destination, @Nullable Schematic schematic,
+                                  Environment destination, @Nullable Schematic schematic,
                                   boolean ignoreInvalidSchematic) {
         super(island);
         this.superiorPlayer = superiorPlayer;
@@ -60,7 +60,7 @@ public class IslandEnterPortalEvent extends IslandEvent implements Cancellable {
     /**
      * Get the destination world of the portal.
      */
-    public World.Environment getDestination() {
+    public Environment getDestination() {
         return destination;
     }
 
@@ -69,7 +69,7 @@ public class IslandEnterPortalEvent extends IslandEvent implements Cancellable {
      *
      * @param destination The destination to set.
      */
-    public void setDestination(World.Environment destination) {
+    public void setDestination(Environment destination) {
         this.destination = destination;
     }
 

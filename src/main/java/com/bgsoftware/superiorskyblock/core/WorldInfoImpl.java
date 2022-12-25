@@ -1,16 +1,16 @@
 package com.bgsoftware.superiorskyblock.core;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
-import org.bukkit.World;
 
 import java.util.Objects;
 
 public class WorldInfoImpl implements WorldInfo {
 
     private final String worldName;
-    private final World.Environment environment;
+    private final Environment environment;
 
-    public WorldInfoImpl(String worldName, World.Environment environment) {
+    public WorldInfoImpl(String worldName, Environment environment) {
         this.worldName = worldName;
         this.environment = environment;
     }
@@ -21,7 +21,7 @@ public class WorldInfoImpl implements WorldInfo {
     }
 
     @Override
-    public World.Environment getEnvironment() {
+    public Environment getEnvironment() {
         return this.environment;
     }
 

@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v117.generator;
 
 import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.island.IslandUtils;
 import com.bgsoftware.superiorskyblock.world.generator.IslandsGenerator;
 import net.minecraft.core.Registry;
@@ -37,11 +38,11 @@ public class IslandsGeneratorImpl extends IslandsGenerator {
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomeGrid) {
         ChunkData chunkData = createChunkData(world);
 
-        org.bukkit.block.Biome targetBiome = IslandUtils.getDefaultWorldBiome(world.getEnvironment());
+        org.bukkit.block.Biome targetBiome = IslandUtils.getDefaultWorldBiome(Environment.of(world.getEnvironment()));
 
         setBiome(biomeGrid, targetBiome);
 
-        if (chunkX == 0 && chunkZ == 0 && world.getEnvironment() == plugin.getSettings().getWorlds().getDefaultWorld()) {
+        if (chunkX == 0 && chunkZ == 0 && Environment.of(world.getEnvironment()) == plugin.getSettings().getWorlds().getDefaultWorld()) {
             chunkData.setBlock(0, 99, 0, Material.BEDROCK);
         }
 

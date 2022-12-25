@@ -28,6 +28,8 @@ public class IslandAttributes extends AttributesRegistry<IslandAttributes.Field>
         DESCRIPTION,
         GENERATED_SCHEMATICS,
         UNLOCKED_WORLDS,
+        GENERATED_CITADEL,
+        UNLOCKED_CITADEL,
         LAST_TIME_UPDATED,
         DIRTY_CHUNKS,
         BLOCK_COUNTS,

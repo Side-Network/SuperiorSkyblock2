@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorskyblock.api.player.algorithm;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
@@ -35,6 +35,6 @@ public interface PlayerTeleportAlgorithm {
      * @param environment The environment to teleport the player to.
      * @return CompletableFuture with boolean that indicates whether the teleportation was successful.
      */
-    CompletableFuture<Boolean> teleport(Player player, Island island, World.Environment environment);
+    CompletableFuture<Boolean> teleport(Player player, Island island, Environment environment);
 
 }

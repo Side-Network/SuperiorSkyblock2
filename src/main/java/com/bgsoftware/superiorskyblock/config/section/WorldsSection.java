@@ -1,9 +1,9 @@
 package com.bgsoftware.superiorskyblock.config.section;
 
 import com.bgsoftware.superiorskyblock.api.config.SettingsManager;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockOffset;
 import com.bgsoftware.superiorskyblock.config.SettingsContainer;
-import org.bukkit.World;
 
 public class WorldsSection implements SettingsManager.Worlds {
 
@@ -11,13 +11,14 @@ public class WorldsSection implements SettingsManager.Worlds {
     private final Normal normal = new NormalSection();
     private final Nether nether = new NetherSection();
     private final End end = new EndSection();
+    private final Citadel citadel = new CitadelSection();
 
     public WorldsSection(SettingsContainer container) {
         this.container = container;
     }
 
     @Override
-    public World.Environment getDefaultWorld() {
+    public Environment getDefaultWorld() {
         return this.container.defaultWorldEnvironment;
     }
 
@@ -44,6 +45,11 @@ public class WorldsSection implements SettingsManager.Worlds {
     @Override
     public End getEnd() {
         return this.end;
+    }
+
+    @Override
+    public Citadel getCitadel() {
+        return this.citadel;
     }
 
     @Override
@@ -137,6 +143,59 @@ public class WorldsSection implements SettingsManager.Worlds {
         @Override
         public BlockOffset getPortalOffset() {
             return container.endDragonFightPortalOffset;
+        }
+    }
+
+    private class CitadelSection implements Citadel {
+
+        @Override
+        public boolean isEnabled() {
+            return container.citadelWorldEnabled;
+        }
+
+        @Override
+        public boolean isUnlocked() {
+            return container.citadelWorldUnlocked;
+        }
+
+        @Override
+        public String getName() {
+            return container.citadelWorldName;
+        }
+
+        @Override
+        public String getBiome() {
+            return container.citadelBiome;
+        }
+
+        @Override
+        public int getPortalAreaMinX() {
+            return container.citadelPortalMinXOffset;
+        }
+
+        @Override
+        public int getPortalAreaMinY() {
+            return container.citadelPortalMinYOffset;
+        }
+
+        @Override
+        public int getPortalAreaMinZ() {
+            return container.citadelPortalMinZOffset;
+        }
+
+        @Override
+        public int getPortalAreaMaxX() {
+            return container.citadelPortalMaxXOffset;
+        }
+
+        @Override
+        public int getPortalAreaMaxY() {
+            return container.citadelPortalMaxYOffset;
+        }
+
+        @Override
+        public int getPortalAreaMaxZ() {
+            return container.citadelPortalMaxZOffset;
         }
     }
 

@@ -72,6 +72,7 @@ public class AdminCommandsMap extends CommandsMap {
         registerCommand(new CmdAdminStats(), false);
         registerCommand(new CmdAdminSyncBonus(), false);
         registerCommand(new CmdAdminTeleport(), false);
+        registerCommand(new CmdAdminTeleportCenter(), false);
         registerCommand(new CmdAdminTitle(), false);
         registerCommand(new CmdAdminTitleAll(), false);
         registerCommand(new CmdAdminUnignore(), false);

@@ -136,6 +136,8 @@ public class SQLDatabaseLoader extends MachineStateDatabaseLoader {
                 new Pair<>("description", "TEXT"),
                 new Pair<>("generated_schematics", "INTEGER"),
                 new Pair<>("unlocked_worlds", "INTEGER"),
+                new Pair<>("generated_citadel", "BOOLEAN"),
+                new Pair<>("unlocked_citadel", "BOOLEAN"),
                 new Pair<>("last_time_updated", "BIGINT"),
                 new Pair<>("dirty_chunks", "LONGTEXT"),
                 new Pair<>("block_counts", "LONGTEXT")

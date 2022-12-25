@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.api.events;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -17,7 +18,7 @@ public class IslandChangeGeneratorRateEvent extends IslandEvent implements Cance
     @Nullable
     private final SuperiorPlayer superiorPlayer;
     private final Key block;
-    private final World.Environment environment;
+    private final Environment environment;
 
     private int generatorRate;
     private boolean cancelled = false;
@@ -33,7 +34,7 @@ public class IslandChangeGeneratorRateEvent extends IslandEvent implements Cance
      * @param generatorRate  The new generator-rate of the block.
      */
     public IslandChangeGeneratorRateEvent(@Nullable SuperiorPlayer superiorPlayer, Island island, Key block,
-                                          World.Environment environment, int generatorRate) {
+                                          Environment environment, int generatorRate) {
         super(island);
         this.superiorPlayer = superiorPlayer;
         this.block = block;
@@ -60,7 +61,7 @@ public class IslandChangeGeneratorRateEvent extends IslandEvent implements Cance
     /**
      * Get the environment of the world that the rate was changed for.
      */
-    public World.Environment getEnvironment() {
+    public Environment getEnvironment() {
         return environment;
     }
 

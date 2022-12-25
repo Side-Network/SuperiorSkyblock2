@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v117;
 
 import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBar;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.nms.NMSPlayers;
@@ -69,7 +70,7 @@ public class NMSPlayersImpl implements NMSPlayers {
         clearInventory(targetPlayer);
 
         //Setting the entity to the spawn location
-        Location spawnLocation = plugin.getGrid().getSpawnIsland().getCenter(org.bukkit.World.Environment.NORMAL);
+        Location spawnLocation = plugin.getGrid().getSpawnIsland().getCenter(Environment.NORMAL);
 
         if (spawnLocation != null) {
             serverPlayer.setLevel(serverLevel);

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.nms.v117.dragon;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +50,7 @@ public class IslandEntityEnderDragon extends EnderDragon {
             return;
 
         Location middleBlock = plugin.getSettings().getWorlds().getEnd().getPortalOffset()
-                .applyToLocation(island.getCenter(org.bukkit.World.Environment.THE_END));
+                .applyToLocation(island.getCenter(Environment.THE_END));
         this.islandBlockPos = new BlockPos(middleBlock.getX(), middleBlock.getY(), middleBlock.getZ());
 
         IslandEndDragonFight dragonBattle = new IslandEndDragonFight(island, this.serverLevel, this.islandBlockPos, this);

@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -56,13 +57,13 @@ public class JsonDeserializer implements IDeserializer {
     }
 
     public String[] deserializeHomes(String locationParam) {
-        String[] locations = new String[World.Environment.values().length];
+        String[] locations = new String[Environment.values().length];
 
         JsonArray locationsArray = gson.fromJson(locationParam, JsonArray.class);
         locationsArray.forEach(locationElement -> {
             JsonObject locationObject = locationElement.getAsJsonObject();
             try {
-                int i = World.Environment.valueOf(locationObject.get("env").getAsString()).ordinal();
+                int i = Environment.valueOf(locationObject.get("env").getAsString()).ordinal();
                 locations[i] = locationObject.get("location").getAsString();
             } catch (Exception ignored) {
             }
@@ -221,13 +222,13 @@ public class JsonDeserializer implements IDeserializer {
 
     public KeyMap<Integer>[] deserializeGenerators(String generator) {
         // noinspection all
-        KeyMap<Integer>[] cobbleGenerator = new KeyMap[World.Environment.values().length];
+        KeyMap<Integer>[] cobbleGenerator = new KeyMap[Environment.values().length];
 
         JsonArray generatorWorldsArray = gson.fromJson(generator, JsonArray.class);
         generatorWorldsArray.forEach(generatorWorldElement -> {
             JsonObject generatorWorldObject = generatorWorldElement.getAsJsonObject();
             try {
-                int i = World.Environment.valueOf(generatorWorldObject.get("env").getAsString()).ordinal();
+                int i = Environment.valueOf(generatorWorldObject.get("env").getAsString()).ordinal();
                 generatorWorldObject.getAsJsonArray("rates").forEach(generatorElement -> {
                     JsonObject generatorObject = generatorElement.getAsJsonObject();
                     Key blockKey = KeyImpl.of(generatorObject.get("id").getAsString());

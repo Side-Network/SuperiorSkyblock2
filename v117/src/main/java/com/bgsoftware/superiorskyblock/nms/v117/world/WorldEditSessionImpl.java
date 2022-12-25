@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v117.world;
 
 import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
@@ -170,7 +171,7 @@ public class WorldEditSessionImpl implements WorldEditSession {
         if (biomes != null) {
             Registry<Biome> biomesRegistry = serverLevel.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
             Biome biome = CraftBlock.biomeToBiomeBase(biomesRegistry,
-                    IslandUtils.getDefaultWorldBiome(serverLevel.getWorld().getEnvironment()));
+                    IslandUtils.getDefaultWorldBiome(Environment.of(serverLevel.getWorld().getEnvironment())));
             Arrays.fill(biomes, biome);
         }
 

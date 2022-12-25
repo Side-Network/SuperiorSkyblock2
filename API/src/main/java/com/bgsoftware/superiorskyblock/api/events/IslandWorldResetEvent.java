@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorskyblock.api.events;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import org.bukkit.World;
 import org.bukkit.event.Cancellable;
 
 import javax.annotation.Nullable;
@@ -14,7 +14,7 @@ public class IslandWorldResetEvent extends IslandEvent implements Cancellable {
 
     @Nullable
     private final SuperiorPlayer superiorPlayer;
-    private final World.Environment environment;
+    private final Environment environment;
 
     private boolean cancelled = false;
 
@@ -26,7 +26,7 @@ public class IslandWorldResetEvent extends IslandEvent implements Cancellable {
      * @param island         The island that the world was reset for.
      * @param environment    The environment of the world that was reset.
      */
-    public IslandWorldResetEvent(@Nullable SuperiorPlayer superiorPlayer, Island island, World.Environment environment) {
+    public IslandWorldResetEvent(@Nullable SuperiorPlayer superiorPlayer, Island island, Environment environment) {
         super(island);
         this.superiorPlayer = superiorPlayer;
         this.environment = environment;
@@ -44,7 +44,7 @@ public class IslandWorldResetEvent extends IslandEvent implements Cancellable {
     /**
      * Get the environment of the world that was reset.
      */
-    public World.Environment getEnvironment() {
+    public Environment getEnvironment() {
         return environment;
     }
 

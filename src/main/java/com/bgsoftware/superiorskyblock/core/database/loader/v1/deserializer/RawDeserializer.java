@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -60,7 +61,7 @@ public class RawDeserializer implements IDeserializer {
 
     @Override
     public String[] deserializeHomes(String locationParam) {
-        String[] islandHomes = new String[World.Environment.values().length];
+        String[] islandHomes = new String[Environment.values().length];
 
         if (locationParam == null)
             return islandHomes;
@@ -71,7 +72,7 @@ public class RawDeserializer implements IDeserializer {
             try {
                 String[] locationSection = worldSection.split("=");
                 String environment = locationSection[0].toUpperCase(Locale.ENGLISH);
-                islandHomes[World.Environment.valueOf(environment).ordinal()] = locationSection[1];
+                islandHomes[Environment.valueOf(environment).ordinal()] = locationSection[1];
             } catch (Exception ignored) {
             }
         }
@@ -284,7 +285,7 @@ public class RawDeserializer implements IDeserializer {
     @Override
     @SuppressWarnings("unchecked")
     public KeyMap<Integer>[] deserializeGenerators(String generator) {
-        KeyMap<Integer>[] cobbleGenerator = new KeyMap[World.Environment.values().length];
+        KeyMap<Integer>[] cobbleGenerator = new KeyMap[Environment.values().length];
 
         if (generator == null)
             return cobbleGenerator;
@@ -293,7 +294,7 @@ public class RawDeserializer implements IDeserializer {
             for (String env : generator.split(";")) {
                 String[] sections = env.split(":");
                 try {
-                    World.Environment environment = World.Environment.valueOf(sections[0]);
+                    Environment environment = Environment.valueOf(sections[0]);
                     deserializeGenerators(sections[1], cobbleGenerator[environment.ordinal()] = KeyMapImpl.createHashMap());
                 } catch (Exception ignored) {
                 }

@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorskyblock.api.events;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import org.bukkit.World;
 import org.bukkit.event.Cancellable;
 
 /**
@@ -9,7 +9,7 @@ import org.bukkit.event.Cancellable;
  */
 public class IslandLockWorldEvent extends IslandEvent implements Cancellable {
 
-    private final World.Environment environment;
+    private final Environment environment;
 
     private boolean cancelled = false;
 
@@ -19,7 +19,7 @@ public class IslandLockWorldEvent extends IslandEvent implements Cancellable {
      * @param island      The island that the world was locked for.
      * @param environment The environment of the world that is locked.
      */
-    public IslandLockWorldEvent(Island island, World.Environment environment) {
+    public IslandLockWorldEvent(Island island, Environment environment) {
         super(island);
         this.environment = environment;
     }
@@ -27,7 +27,7 @@ public class IslandLockWorldEvent extends IslandEvent implements Cancellable {
     /**
      * Get the environment of the world that is being locked.
      */
-    public World.Environment getEnvironment() {
+    public Environment getEnvironment() {
         return environment;
     }
 
