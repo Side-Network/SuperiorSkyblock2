@@ -60,9 +60,9 @@ public class MissionData {
     }
 
     public void reloadData(ConfigurationSection section) {
-        this.notCompleted = MenuParser.getItemStack("config.yml", section.getConfigurationSection("icons.not-completed"));
-        this.canComplete = MenuParser.getItemStack("config.yml", section.getConfigurationSection("icons.can-complete"));
-        this.completed = MenuParser.getItemStack("config.yml", section.getConfigurationSection("icons.completed"));
+        this.notCompleted = MenuParserImpl.getInstance().getItemStack("config.yml", section.getConfigurationSection("icons.not-completed"));
+        this.canComplete = MenuParserImpl.getInstance().getItemStack("config.yml", section.getConfigurationSection("icons.can-complete"));
+        this.completed = MenuParserImpl.getInstance().getItemStack("config.yml", section.getConfigurationSection("icons.completed"));
     }
 
     public boolean isAutoReward() {

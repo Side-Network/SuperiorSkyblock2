@@ -99,7 +99,9 @@ shadowJar {
 
     archiveName = rootProject.name + "-" + rootProject.buildVersion + ".jar"
 
-    delete fileTree(rootProject.targetFolder.getAbsolutePath())
+    delete fileTree('./target/') {
+        exclude archiveName
+    }
 
     exclude '*exclude.jar'
 

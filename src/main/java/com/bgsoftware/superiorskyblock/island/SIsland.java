@@ -3504,8 +3504,7 @@ public class SIsland implements Island {
         }
 
         if (environment == Environment.NETHER && !netherAllowed) {
-            Log.debugResult(Debug.GENERATE_BLOCK, "SIsland", "generateBlock",
-                    "Nether generator not allowed for this island", "null");
+            Log.debugResult(Debug.GENERATE_BLOCK, "Nether generator not allowed for this island", "null");
             return null;
         }
 

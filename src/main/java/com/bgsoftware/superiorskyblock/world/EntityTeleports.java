@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.world;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.events.IslandSetHomeEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
@@ -64,7 +65,7 @@ public class EntityTeleports {
         });
     }
 
-    public static CompletableFuture<Location> findIslandSafeLocation(Island island, World.Environment environment) {
+    public static CompletableFuture<Location> findIslandSafeLocation(Island island, Environment environment) {
         Location homeLocation = island.getIslandHome(environment);
 
         Preconditions.checkNotNull(homeLocation, "Cannot find a suitable home location for island " +

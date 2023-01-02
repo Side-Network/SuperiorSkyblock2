@@ -159,7 +159,7 @@ public class PortalsListener implements Listener {
                 return true;
             case WORLD_NOT_UNLOCKED: {
                 if (!Message.WORLD_NOT_UNLOCKED.isEmpty(superiorPlayer.getUserLocale())) {
-                    World.Environment originalDestination = getTargetWorld(portalLocation, teleportCause);
+                    Environment originalDestination = getTargetWorld(portalLocation, teleportCause);
                     Message.SCHEMATICS.send(superiorPlayer, Message.WORLD_NOT_UNLOCKED.getMessage(
                             superiorPlayer.getUserLocale(), Formatters.CAPITALIZED_FORMATTER.format(originalDestination.name())));
                 }

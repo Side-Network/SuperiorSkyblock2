@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.core.menu.impl;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.menu.Menu;
 import com.bgsoftware.superiorskyblock.api.menu.layout.MenuLayout;
 import com.bgsoftware.superiorskyblock.api.menu.view.MenuView;
@@ -83,10 +84,10 @@ public class MenuIslandCreation extends AbstractMenu<MenuIslandCreation.View, Me
         if (menuView != null)
             menuView.closeView();
 
-        World.Environment environment = plugin.getSettings().getWorlds().getDefaultWorld();
-        boolean offset = template.isOffset() || (environment == World.Environment.NORMAL ?
+        Environment environment = plugin.getSettings().getWorlds().getDefaultWorld();
+        boolean offset = template.isOffset() || (environment == Environment.NORMAL ?
                 plugin.getSettings().getWorlds().getNormal().isSchematicOffset() :
-                environment == World.Environment.NETHER ? plugin.getSettings().getWorlds().getNether().isSchematicOffset() :
+                environment == Environment.NETHER ? plugin.getSettings().getWorlds().getNether().isSchematicOffset() :
                         plugin.getSettings().getWorlds().getEnd().isSchematicOffset());
 
         plugin.getGrid().createIsland(clickedPlayer, schematic, template.getBonusWorth(),
