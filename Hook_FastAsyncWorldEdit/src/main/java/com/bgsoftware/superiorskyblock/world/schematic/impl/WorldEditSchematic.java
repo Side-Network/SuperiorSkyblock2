@@ -37,8 +37,7 @@ public class WorldEditSchematic extends BaseSchematic implements Schematic {
     @Override
     public void pasteSchematic(Island island, Location location, Runnable callback, Consumer<Throwable> onFailure) {
         try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(location.getWorld()))) {
-            Log.debug(Debug.PASTE_SCHEMATIC, "WorldEditSchematic", "pasteSchematic",
-                    this.name, island.getOwner().getName(), location);
+            Log.debug(Debug.PASTE_SCHEMATIC, this.name, island.getOwner().getName(), location);
 
             BlockVector3 at = BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 

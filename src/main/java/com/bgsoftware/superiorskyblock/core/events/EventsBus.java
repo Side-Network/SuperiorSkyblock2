@@ -13,7 +13,7 @@ import com.bgsoftware.superiorskyblock.api.island.container.IslandsContainer;
 import com.bgsoftware.superiorskyblock.api.island.warps.IslandWarp;
 import com.bgsoftware.superiorskyblock.api.island.warps.WarpCategory;
 import com.bgsoftware.superiorskyblock.api.key.Key;
-import com.bgsoftware.superiorskyblock.api.menu.ISuperiorMenu;
+import com.bgsoftware.superiorskyblock.api.menu.view.MenuView;
 import com.bgsoftware.superiorskyblock.api.missions.IMissionsHolder;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.player.container.PlayersContainer;
@@ -24,6 +24,8 @@ import com.bgsoftware.superiorskyblock.api.upgrades.UpgradeLevel;
 import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCost;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
+import com.bgsoftware.superiorskyblock.core.logging.Debug;
+import com.bgsoftware.superiorskyblock.core.logging.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
@@ -515,20 +517,23 @@ public class EventsBus {
     }
 
     public EventResult<UpgradeResult> callIslandUpgradeEvent(CommandSender commandSender, Island island,
-                                                             Upgrade upgrade, UpgradeLevel upgradeLevel) {
-        return callIslandUpgradeEvent(getSuperiorPlayer(commandSender), island, upgrade, upgradeLevel,
-                Collections.emptyList(), null);
+                                                             Upgrade upgrade, UpgradeLevel nextUpdate,
+                                                             IslandUpgradeEvent.Cause cause) {
+        return callIslandUpgradeEvent(getSuperiorPlayer(commandSender), island, upgrade, nextUpdate,
+                Collections.emptyList(), cause, null);
     }
 
     public EventResult<UpgradeResult> callIslandUpgradeEvent(@Nullable SuperiorPlayer superiorPlayer, Island island,
-                                                             Upgrade upgrade, UpgradeLevel upgradeLevel) {
-        return callIslandUpgradeEvent(superiorPlayer, island, upgrade, upgradeLevel, upgradeLevel.getCommands(), upgradeLevel.getCost());
+                                                             Upgrade upgrade, UpgradeLevel currentLevel,
+                                                             UpgradeLevel nextLevel, IslandUpgradeEvent.Cause cause) {
+        return callIslandUpgradeEvent(superiorPlayer, island, upgrade, nextLevel, currentLevel.getCommands(), cause, currentLevel.getCost());
     }
 
     public EventResult<UpgradeResult> callIslandUpgradeEvent(@Nullable SuperiorPlayer superiorPlayer, Island island,
-                                                             Upgrade upgrade, UpgradeLevel upgradeLevel,
-                                                             List<String> commands, @Nullable UpgradeCost upgradeCost) {
-        return callEvent(() -> new IslandUpgradeEvent(superiorPlayer, island, upgrade, upgradeLevel, commands, upgradeCost),
+                                                             Upgrade upgrade, UpgradeLevel nextLevel,
+                                                             List<String> commands, IslandUpgradeEvent.Cause cause,
+                                                             @Nullable UpgradeCost upgradeCost) {
+        return callEvent(() -> new IslandUpgradeEvent(superiorPlayer, island, upgrade, nextLevel, commands, cause, upgradeCost),
                 "islandupgradeevent", new UpgradeResult(commands, upgradeCost), UpgradeResult::new);
     }
 
@@ -583,14 +588,14 @@ public class EventsBus {
         return callEvent(() -> new PlayerChangeRoleEvent(superiorPlayer, newPlayer), "playerchangeroleevent");
     }
 
-    public EventResult<ISuperiorMenu> callPlayerCloseMenuEvent(SuperiorPlayer superiorPlayer, ISuperiorMenu superiorMenu,
-                                                               @Nullable ISuperiorMenu newMenu) {
-        return callEvent(() -> new PlayerCloseMenuEvent(superiorPlayer, superiorMenu, newMenu),
-                "playerclosemenuevent", newMenu, PlayerCloseMenuEvent::getNewMenu);
+    public EventResult<MenuView<?, ?>> callPlayerCloseMenuEvent(SuperiorPlayer superiorPlayer, MenuView<?, ?> menuView,
+                                                                @Nullable MenuView<?, ?> newMenuView) {
+        return callEvent(() -> new PlayerCloseMenuEvent(superiorPlayer, menuView, newMenuView),
+                "playerclosemenuevent", newMenuView, PlayerCloseMenuEvent::getNewMenuView);
     }
 
-    public boolean callPlayerOpenMenuEvent(SuperiorPlayer superiorPlayer, ISuperiorMenu superiorMenu) {
-        return callEvent(() -> new PlayerOpenMenuEvent(superiorPlayer, superiorMenu), "playeropenmenuevent");
+    public boolean callPlayerOpenMenuEvent(SuperiorPlayer superiorPlayer, MenuView<?, ?> menuView) {
+        return callEvent(() -> new PlayerOpenMenuEvent(superiorPlayer, menuView), "playeropenmenuevent");
     }
 
     public void callPlayerReplaceEvent(SuperiorPlayer oldPlayer, SuperiorPlayer newPlayer) {
@@ -653,23 +658,38 @@ public class EventsBus {
         if (plugin.getSettings().getDisabledEvents().contains(eventName))
             return EventResult.of(false, def);
 
+        Log.debug(Debug.FIRE_EVENT, eventName);
+
         E event = eventSupplier.get();
 
         Bukkit.getPluginManager().callEvent(event);
-        return EventResult.of(event.isCancelled(), getResultFunction.apply(event));
+
+        boolean cancelled = event.isCancelled();
+        T result = getResultFunction.apply(event);
+
+        Log.debugResult(Debug.FIRE_EVENT, "Cancelled:", cancelled);
+        Log.debugResult(Debug.FIRE_EVENT, "Result:", result);
+
+        return EventResult.of(cancelled, result);
     }
 
     private <E extends Event & Cancellable> boolean callEvent(Supplier<E> eventSupplier, String eventName) {
         if (plugin.getSettings().getDisabledEvents().contains(eventName))
             return true;
 
+        Log.debug(Debug.FIRE_EVENT, eventName);
+
         E event = eventSupplier.get();
 
         Bukkit.getPluginManager().callEvent(event);
+
+        Log.debugResult(Debug.FIRE_EVENT, "Cancelled:", event.isCancelled());
+
         return !event.isCancelled();
     }
 
     private static <T extends Event> T callEvent(T event) {
+        Log.debug(Debug.FIRE_EVENT, event.getEventName());
         Bukkit.getPluginManager().callEvent(event);
         return event;
     }

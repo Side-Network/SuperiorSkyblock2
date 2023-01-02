@@ -69,7 +69,13 @@ public class IslandsDeserializer {
 
             Optional<UUID> playerUUID = members.getUUID("player");
             if (!playerUUID.isPresent()) {
-                Log.warnFromFile("Cannot load island members with invalid uuids for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island members with invalid uuids for ", uuid.get(), ", skipping...");
+                return;
+            }
+
+            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(playerUUID.get(), false);
+            if (superiorPlayer == null) {
+                Log.warn("Cannot load island member with unrecognized uuid: " + playerUUID.get() + ", skipping...");
                 return;
             }
 
@@ -78,9 +84,8 @@ public class IslandsDeserializer {
             PlayerRole playerRole = members.getInt("role").map(SPlayerRole::fromId)
                     .orElse(SPlayerRole.defaultRole());
 
-            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(playerUUID.get());
-            superiorPlayer.setPlayerRole(playerRole);
 
+            superiorPlayer.setPlayerRole(playerRole);
             builder.addIslandMember(superiorPlayer);
         });
     }
@@ -97,12 +102,17 @@ public class IslandsDeserializer {
 
             Optional<UUID> playerUUID = bans.getUUID("player");
             if (!playerUUID.isPresent()) {
-                Log.warnFromFile("Cannot load banned players with invalid uuids for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load banned players with invalid uuids for ", uuid.get(), ", skipping...");
+                return;
+            }
+
+            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(playerUUID.get(), false);
+            if (superiorPlayer == null) {
+                Log.warn("Cannot load island ban with unrecognized uuid: " + playerUUID.get() + ", skipping...");
                 return;
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
-            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(playerUUID.get());
             builder.addBannedPlayer(superiorPlayer);
         });
     }
@@ -119,12 +129,17 @@ public class IslandsDeserializer {
 
             Optional<UUID> uuid = visitors.getUUID("player");
             if (!uuid.isPresent()) {
-                Log.warnFromFile("Cannot load island visitors with invalid uuids for ", islandUUID.get(), ", skipping...");
+                Log.warn("Cannot load island visitors with invalid uuids for ", islandUUID.get(), ", skipping...");
+                return;
+            }
+
+            SuperiorPlayer visitorPlayer = plugin.getPlayers().getSuperiorPlayer(uuid.get(), false);
+            if (visitorPlayer == null) {
+                Log.warn("Cannot load island visitor with unrecognized uuid: " + uuid.get() + ", skipping...");
                 return;
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(islandUUID.get(), IslandBuilderImpl::new);
-            SuperiorPlayer visitorPlayer = plugin.getPlayers().getSuperiorPlayer(uuid.get());
             long visitTime = visitors.getLong("visit_time").orElse(System.currentTimeMillis());
             builder.addUniqueVisitor(visitorPlayer, visitTime);
         });
@@ -142,7 +157,13 @@ public class IslandsDeserializer {
 
             Optional<UUID> playerUUID = playerPermissions.getUUID("player");
             if (!playerUUID.isPresent()) {
-                Log.warnFromFile("Cannot load player permissions for invalid players on ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load player permissions for invalid players on ", uuid.get(), ", skipping...");
+                return;
+            }
+
+            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(playerUUID.get(), false);
+            if (superiorPlayer == null) {
+                Log.warn("Cannot load island player permissions with unrecognized uuid: " + playerUUID.get() + ", skipping...");
                 return;
             }
 
@@ -154,18 +175,17 @@ public class IslandsDeserializer {
                 }
             });
             if (!islandPrivilege.isPresent()) {
-                Log.warnFromFile("Cannot load player permissions with invalid permission for player ", playerUUID.get(), ", skipping...");
+                Log.warn("Cannot load player permissions with invalid permission for player ", playerUUID.get(), ", skipping...");
                 return;
             }
 
             Optional<Byte> status = playerPermissions.getByte("status");
             if (!status.isPresent()) {
-                Log.warnFromFile("Cannot load player permissions with invalid status for player ", playerUUID.get(), ", skipping...");
+                Log.warn("Cannot load player permissions with invalid status for player ", playerUUID.get(), ", skipping...");
                 return;
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
-            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(playerUUID.get());
             builder.setPlayerPermission(superiorPlayer, islandPrivilege.get(), status.get() == 1);
         });
     }
@@ -182,7 +202,7 @@ public class IslandsDeserializer {
 
             Optional<PlayerRole> playerRole = rolePermissions.getInt("role").map(SPlayerRole::fromId);
             if (!playerRole.isPresent()) {
-                Log.warnFromFile("Cannot load role permissions with invalid role for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load role permissions with invalid role for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -194,7 +214,7 @@ public class IslandsDeserializer {
                 }
             });
             if (!islandPrivilege.isPresent()) {
-                Log.warnFromFile("Cannot load role permissions with invalid permission for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load role permissions with invalid permission for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -215,13 +235,13 @@ public class IslandsDeserializer {
 
             Optional<Upgrade> upgrade = upgrades.getString("upgrade").map(plugin.getUpgrades()::getUpgrade);
             if (!upgrade.isPresent()) {
-                Log.warnFromFile("Cannot load upgrades with invalid upgrade names for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load upgrades with invalid upgrade names for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Integer> level = upgrades.getInt("level");
             if (!level.isPresent()) {
-                Log.warnFromFile("Cannot load upgrades with invalid levels for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load upgrades with invalid levels for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -244,13 +264,13 @@ public class IslandsDeserializer {
                 return IslandUtils.isWarpNameLengthValid(_name) ? _name : _name.substring(0, IslandUtils.getMaxWarpNameLength());
             });
             if (!name.isPresent() || name.get().isEmpty()) {
-                Log.warnFromFile("Cannot load warps with invalid names for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load warps with invalid names for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Location> location = islandWarp.getString("location").map(Serializers.LOCATION_SERIALIZER::deserialize);
             if (!location.isPresent()) {
-                Log.warnFromFile("Cannot load warps with invalid locations for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load warps with invalid locations for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -339,13 +359,13 @@ public class IslandsDeserializer {
 
             Optional<Key> block = blockLimits.getString("block").map(KeyImpl::of);
             if (!block.isPresent()) {
-                Log.warnFromFile("Cannot load block limits for invalid blocks for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load block limits for invalid blocks for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Integer> limit = blockLimits.getInt("limit");
             if (!limit.isPresent()) {
-                Log.warnFromFile("Cannot load block limits with invalid limits for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load block limits with invalid limits for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -366,13 +386,13 @@ public class IslandsDeserializer {
 
             Optional<Key> entity = entityLimits.getString("entity").map(KeyImpl::of);
             if (!entity.isPresent()) {
-                Log.warnFromFile("Cannot load entity limits for invalid entities on ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load entity limits for invalid entities on ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Integer> limit = entityLimits.getInt("limit");
             if (!limit.isPresent()) {
-                Log.warnFromFile("Cannot load entity limits with invalid limits for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load entity limits with invalid limits for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -393,7 +413,13 @@ public class IslandsDeserializer {
 
             Optional<UUID> uuid = ratings.getUUID("player");
             if (!uuid.isPresent()) {
-                Log.warnFromFile("Cannot load ratings with invalid players for ", islandUUID.get(), ", skipping...");
+                Log.warn("Cannot load ratings with invalid players for ", islandUUID.get(), ", skipping...");
+                return;
+            }
+
+            SuperiorPlayer ratingPlayer = plugin.getPlayers().getSuperiorPlayer(uuid.get(), false);
+            if (ratingPlayer == null) {
+                Log.warn("Cannot load island rating with unrecognized uuid: " + uuid.get() + ", skipping...");
                 return;
             }
 
@@ -405,12 +431,11 @@ public class IslandsDeserializer {
                 }
             });
             if (!rating.isPresent()) {
-                Log.warnFromFile("Cannot load ratings with invalid rating value for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load ratings with invalid rating value for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(islandUUID.get(), IslandBuilderImpl::new);
-            SuperiorPlayer ratingPlayer = plugin.getPlayers().getSuperiorPlayer(uuid.get());
             builder.setRating(ratingPlayer, rating.get());
         });
     }
@@ -429,9 +454,9 @@ public class IslandsDeserializer {
             Optional<Mission<?>> mission = missionName.map(plugin.getMissions()::getMission);
             if (!mission.isPresent()) {
                 if (!missionName.isPresent()) {
-                    Log.warnFromFile("Cannot load island missions with invalid missions for ", uuid.get(), ", skipping...");
+                    Log.warn("Cannot load island missions with invalid missions for ", uuid.get(), ", skipping...");
                 } else {
-                    Log.warnFromFile("Cannot load island missions with invalid mission ",
+                    Log.warn("Cannot load island missions with invalid mission ",
                             missionName.get(), " for ", uuid.get(), ", skipping...");
                 }
                 return;
@@ -439,7 +464,7 @@ public class IslandsDeserializer {
 
             Optional<Integer> finishCount = missions.getInt("finish_count");
             if (!finishCount.isPresent()) {
-                Log.warnFromFile("Cannot load island missions with invalid finish count for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island missions with invalid finish count for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -466,13 +491,13 @@ public class IslandsDeserializer {
                 }
             });
             if (!islandFlag.isPresent()) {
-                Log.warnFromFile("Cannot load island flags with invalid flags for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island flags with invalid flags for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Byte> status = islandFlagResult.getByte("status");
             if (!status.isPresent()) {
-                Log.warnFromFile("Cannot load island flags with invalid status for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island flags with invalid status for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -494,19 +519,19 @@ public class IslandsDeserializer {
             Optional<Integer> environment = generators.getEnum("environment", Environment.class)
                     .map(Enum::ordinal);
             if (!environment.isPresent()) {
-                Log.warnFromFile("Cannot load generator rates with invalid environment for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load generator rates with invalid environment for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Key> block = generators.getString("block").map(KeyImpl::of);
             if (!block.isPresent()) {
-                Log.warnFromFile("Cannot load generator rates with invalid block for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load generator rates with invalid block for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Integer> rate = generators.getInt("rate");
             if (!rate.isPresent()) {
-                Log.warnFromFile("Cannot load generator rates with invalid rate for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load generator rates with invalid rate for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -528,13 +553,13 @@ public class IslandsDeserializer {
             Optional<Integer> environment = islandHomes.getEnum("environment", Environment.class)
                     .map(Enum::ordinal);
             if (!environment.isPresent()) {
-                Log.warnFromFile("Cannot load island homes with invalid environment for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island homes with invalid environment for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Location> location = islandHomes.getString("location").map(Serializers.LOCATION_SERIALIZER::deserialize);
             if (!location.isPresent()) {
-                Log.warnFromFile("Cannot load island homes with invalid location for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island homes with invalid location for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -556,13 +581,13 @@ public class IslandsDeserializer {
             Optional<Integer> environment = islandVisitorHomes.getEnum("environment", Environment.class)
                     .map(Enum::ordinal);
             if (!environment.isPresent()) {
-                Log.warnFromFile("Cannot load island homes with invalid environment for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island homes with invalid environment for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Location> location = islandVisitorHomes.getString("location").map(Serializers.LOCATION_SERIALIZER::deserialize);
             if (!location.isPresent()) {
-                Log.warnFromFile("Cannot load island homes with invalid location for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island homes with invalid location for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -584,13 +609,13 @@ public class IslandsDeserializer {
             Optional<PotionEffectType> effectType = islandEffects.getString("effect_type")
                     .map(PotionEffectType::getByName);
             if (!effectType.isPresent()) {
-                Log.warnFromFile("Cannot load island effects with invalid effect for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island effects with invalid effect for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Integer> level = islandEffects.getInt("level");
             if (!level.isPresent()) {
-                Log.warnFromFile("Cannot load island effects with invalid level for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island effects with invalid level for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -611,13 +636,13 @@ public class IslandsDeserializer {
 
             Optional<Integer> index = islandChests.getInt("index");
             if (!index.isPresent() || index.get() < 0) {
-                Log.warnFromFile("Cannot load island chest with invalid index for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island chest with invalid index for ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<ItemStack[]> contents = islandChests.getString("contents").map(Serializers.INVENTORY_SERIALIZER::deserialize);
             if (!contents.isPresent()) {
-                Log.warnFromFile("Cannot load island chest with invalid contents for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island chest with invalid contents for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -656,13 +681,13 @@ public class IslandsDeserializer {
 
             Optional<PlayerRole> playerRole = roleLimits.getInt("role").map(SPlayerRole::fromId);
             if (!playerRole.isPresent()) {
-                Log.warnFromFile("Cannot load role limit for invalid role on ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load role limit for invalid role on ", uuid.get(), ", skipping...");
                 return;
             }
 
             Optional<Integer> limit = roleLimits.getInt("limit");
             if (!limit.isPresent()) {
-                Log.warnFromFile("Cannot load role limit for invalid limit on ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load role limit for invalid limit on ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -683,7 +708,7 @@ public class IslandsDeserializer {
 
             Optional<String> name = warpCategory.getString("name").map(Formatters.STRIP_COLOR_FORMATTER::format);
             if (!name.isPresent() || name.get().isEmpty()) {
-                Log.warnFromFile("Cannot load warp categories with invalid name for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load warp categories with invalid name for ", uuid.get(), ", skipping...");
                 return;
             }
 
@@ -705,7 +730,7 @@ public class IslandsDeserializer {
 
             Optional<BigDecimal> balance = islandBank.getBigDecimal("balance");
             if (!balance.isPresent()) {
-                Log.warnFromFile("Cannot load island banks with invalid balance for ", uuid.get(), ", skipping...");
+                Log.warn("Cannot load island banks with invalid balance for ", uuid.get(), ", skipping...");
                 return;
             }
 

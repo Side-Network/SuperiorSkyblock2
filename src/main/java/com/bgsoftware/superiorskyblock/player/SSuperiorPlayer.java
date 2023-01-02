@@ -9,6 +9,7 @@ import com.bgsoftware.superiorskyblock.api.enums.HitActionResult;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
+import com.bgsoftware.superiorskyblock.api.menu.view.MenuView;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.persistence.PersistentDataContainer;
 import com.bgsoftware.superiorskyblock.api.player.algorithm.PlayerTeleportAlgorithm;
@@ -32,6 +33,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
 
 import javax.annotation.Nonnull;
@@ -40,6 +43,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -159,10 +163,16 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     public void setTextureValue(@Nonnull String textureValue) {
         Preconditions.checkNotNull(textureValue, "textureValue parameter cannot be null.");
 
-        Log.debug(Debug.SET_TEXTURE_VALUE, "SSuperiorPlayer", "setTextureValue", getName(), textureValue);
+        Log.debug(Debug.SET_TEXTURE_VALUE, getName(), textureValue);
 
+        // We first update the texture value, even if they are equal.
         this.textureValue = textureValue;
 
+        // We now compare them but remove the timestamp when comparing.
+        if (Objects.equals(removeTextureValueTimeStamp(this.textureValue), removeTextureValueTimeStamp(textureValue)))
+            return;
+
+        // We only save the value if it's actually different.
         PlayersDatabaseBridge.saveTextureValue(this);
     }
 
@@ -173,7 +183,10 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setLastTimeStatus(long lastTimeStatus) {
-        Log.debug(Debug.SET_PLAYER_LAST_TIME_UPDATED, "SSuperiorPlayer", "setLastTimeStatus", getName(), lastTimeStatus);
+        Log.debug(Debug.SET_PLAYER_LAST_TIME_UPDATED, getName(), lastTimeStatus);
+
+        if (this.lastTimeStatus == lastTimeStatus)
+            return;
 
         this.lastTimeStatus = lastTimeStatus;
 
@@ -196,14 +209,15 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     public void setName(String name) {
         Preconditions.checkNotNull(name, "name parameter cannot be null.");
 
-        if (!this.name.equals(name)) {
-            try {
-                plugin.getPlayers().getPlayersContainer().removePlayer(this);
-                this.name = name;
-                PlayersDatabaseBridge.savePlayerName(this);
-            } finally {
-                plugin.getPlayers().getPlayersContainer().addPlayer(this);
-            }
+        if (Objects.equals(this.name, name))
+            return;
+
+        try {
+            plugin.getPlayers().getPlayersContainer().removePlayer(this);
+            this.name = name;
+            PlayersDatabaseBridge.savePlayerName(this);
+        } finally {
+            plugin.getPlayers().getPlayersContainer().addPlayer(this);
         }
     }
 
@@ -236,6 +250,23 @@ public class SSuperiorPlayer implements SuperiorPlayer {
         return player != null && (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR);
     }
 
+    @Nullable
+    @Override
+    public MenuView<?, ?> getOpenedView() {
+        Player player = asPlayer();
+
+        if (player != null) {
+            InventoryView openInventory = player.getOpenInventory();
+            if (openInventory != null && openInventory.getTopInventory() != null) {
+                InventoryHolder inventoryHolder = openInventory.getTopInventory().getHolder();
+                if (inventoryHolder instanceof MenuView)
+                    return (MenuView<?, ?>) inventoryHolder;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public boolean isAFK() {
         Player player = asPlayer();
@@ -257,15 +288,45 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     @Override
     public boolean hasPermission(String permission) {
         Preconditions.checkNotNull(permission, "permission parameter cannot be null.");
+
+        if (permission.isEmpty())
+            return true;
+
+        Log.debug(Debug.PERMISSION_LOOKUP, getName(), permission);
+
         Player player = asPlayer();
-        return permission.isEmpty() || (player != null && player.hasPermission(permission));
+        if (player == null) {
+            Log.debugResult(Debug.PERMISSION_LOOKUP, "Result", "Player is not online");
+            return false;
+        }
+
+        boolean res = player.hasPermission(permission);
+
+        Log.debugResult(Debug.PERMISSION_LOOKUP, "Result", res);
+
+        return res;
     }
 
     @Override
     public boolean hasPermissionWithoutOP(String permission) {
         Preconditions.checkNotNull(permission, "permission parameter cannot be null.");
+
+        if (permission.isEmpty())
+            return true;
+
+        Log.debug(Debug.PERMISSION_LOOKUP, getName(), permission, "No-Op Check");
+
         Player player = asPlayer();
-        return player != null && plugin.getProviders().getPermissionsProvider().hasPermission(player, permission);
+        if (player == null) {
+            Log.debugResult(Debug.PERMISSION_LOOKUP, "Result", "Player is not online");
+            return false;
+        }
+
+        boolean res = plugin.getProviders().getPermissionsProvider().hasPermission(player, permission);
+
+        Log.debugResult(Debug.PERMISSION_LOOKUP, "Result", res);
+
+        return res;
     }
 
     @Override
@@ -398,8 +459,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setIsland(Island island) {
-        Log.debug(Debug.SET_PLAYER_ISLAND, "SSuperiorPlayer", "setIsland", getName(),
-                island == null ? "null" : island.getOwner().getName());
+        Log.debug(Debug.SET_PLAYER_ISLAND, getName(), island == null ? "null" : island.getOwner().getName());
 
         this.playerIsland = island;
     }
@@ -437,7 +497,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     public void setPlayerRole(PlayerRole playerRole) {
         Preconditions.checkNotNull(playerRole, "playerRole parameter cannot be null.");
 
-        Log.debug(Debug.SET_PLAYER_ROLE, "SSuperiorPlayer", "setPlayerRole", getName(), playerRole.getName());
+        Log.debug(Debug.SET_PLAYER_ROLE, getName(), playerRole.getName());
 
         this.playerRole = playerRole;
 
@@ -453,9 +513,14 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setDisbands(int disbands) {
-        this.disbands = Math.max(disbands, 0);
+        disbands = Math.max(disbands, 0);
 
-        Log.debug(Debug.SET_DISBANDS, "SSuperiorPlayer", "setDisbands", getName(), this.disbands);
+        Log.debug(Debug.SET_DISBANDS, getName(), disbands);
+
+        if (this.disbands == disbands)
+            return;
+
+        this.disbands = disbands;
 
         PlayersDatabaseBridge.saveDisbands(this);
     }
@@ -481,8 +546,10 @@ public class SSuperiorPlayer implements SuperiorPlayer {
         Preconditions.checkNotNull(userLocale, "userLocale parameter cannot be null.");
         Preconditions.checkArgument(PlayerLocales.isValidLocale(userLocale), "Locale " + userLocale + " is not a valid locale.");
 
-        Log.debug(Debug.SET_LANGUAGE, "SSuperiorPlayer", "setUserLocale", getName(),
-                userLocale.getLanguage() + "-" + userLocale.getCountry());
+        Log.debug(Debug.SET_LANGUAGE, getName(), userLocale.getLanguage() + "-" + userLocale.getCountry());
+
+        if (Objects.equals(this.userLocale, userLocale))
+            return;
 
         this.userLocale = userLocale;
 
@@ -501,7 +568,11 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setWorldBorderEnabled(boolean enabled) {
-        Log.debug(Debug.SET_TOGGLED_BORDER, "SSuperiorPlayer", "setWorldBorderEnabled", getName(), enabled);
+        Log.debug(Debug.SET_TOGGLED_BORDER, getName(), enabled);
+
+        if (this.worldBorderEnabled == enabled)
+            return;
+
         this.worldBorderEnabled = enabled;
         PlayersDatabaseBridge.saveToggledBorder(this);
     }
@@ -523,7 +594,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setBlocksStacker(boolean enabled) {
-        Log.debug(Debug.SET_TOGGLED_STACKER, "SSuperiorPlayer", "setBlocksStacker", getName(), enabled);
+        Log.debug(Debug.SET_TOGGLED_STACKER, getName(), enabled);
         blocksStackerEnabled = enabled;
     }
 
@@ -539,7 +610,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setSchematicMode(boolean enabled) {
-        Log.debug(Debug.SET_TOGGLED_SCHEMATIC, "SSuperiorPlayer", "setSchematicMode", getName(), enabled);
+        Log.debug(Debug.SET_TOGGLED_SCHEMATIC, getName(), enabled);
         schematicModeEnabled = enabled;
     }
 
@@ -555,7 +626,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setTeamChat(boolean enabled) {
-        Log.debug(Debug.SET_TEAM_CHAT, "SSuperiorPlayer", "setTeamChat", getName(), enabled);
+        Log.debug(Debug.SET_TEAM_CHAT, getName(), enabled);
         teamChatEnabled = enabled;
     }
 
@@ -576,7 +647,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setBypassMode(boolean enabled) {
-        Log.debug(Debug.SET_ADMIN_BYPASS, "SSuperiorPlayer", "setBypassMode", getName(), enabled);
+        Log.debug(Debug.SET_ADMIN_BYPASS, getName(), enabled);
         bypassModeEnabled = enabled;
     }
 
@@ -587,7 +658,11 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setToggledPanel(boolean toggledPanel) {
-        Log.debug(Debug.SET_TOGGLED_PANEL, "SSuperiorPlayer", "setToggledPanel", getName(), toggledPanel);
+        Log.debug(Debug.SET_TOGGLED_PANEL, getName(), toggledPanel);
+
+        if (this.toggledPanel == toggledPanel)
+            return;
+
         this.toggledPanel = toggledPanel;
         PlayersDatabaseBridge.saveToggledPanel(this);
     }
@@ -614,8 +689,12 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setIslandFly(boolean enabled) {
-        Log.debug(Debug.SET_ISLAND_FLY, "SSuperiorPlayer", "setIslandFly", getName(), enabled);
-        islandFly = enabled;
+        Log.debug(Debug.SET_ISLAND_FLY, getName(), enabled);
+
+        if (this.islandFly == enabled)
+            return;
+
+        this.islandFly = enabled;
         PlayersDatabaseBridge.saveIslandFly(this);
     }
 
@@ -631,7 +710,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setAdminSpy(boolean enabled) {
-        Log.debug(Debug.SET_ADMIN_SPY, "SSuperiorPlayer", "setAdminSpy", getName(), enabled);
+        Log.debug(Debug.SET_ADMIN_SPY, getName(), enabled);
         adminSpyEnabled = enabled;
     }
 
@@ -644,10 +723,12 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     public void setBorderColor(BorderColor borderColor) {
         Preconditions.checkNotNull(borderColor, "borderColor parameter cannot be null.");
 
-        Log.debug(Debug.SET_BORDER_COLOR, "SSuperiorPlayer", "setBorderColor", getName(), borderColor);
+        Log.debug(Debug.SET_BORDER_COLOR, getName(), borderColor);
+
+        if (this.borderColor == borderColor)
+            return;
 
         this.borderColor = borderColor;
-
         PlayersDatabaseBridge.saveBorderColor(this);
     }
 
@@ -662,8 +743,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setSchematicPos1(@Nullable Block block) {
-        Log.debug(Debug.SET_SCHEMATIC_POSITION, "SSuperiorPlayer", "setSchematicPos1", getName(),
-                block == null ? "null" : block.getLocation());
+        Log.debug(Debug.SET_SCHEMATIC_POSITION, getName(), block == null ? "null" : block.getLocation());
         this.schematicPos1 = block == null ? null : new SBlockPosition(block.getLocation());
     }
 
@@ -674,8 +754,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setSchematicPos2(@Nullable Block block) {
-        Log.debug(Debug.SET_SCHEMATIC_POSITION, "SSuperiorPlayer", "setSchematicPos2", getName(),
-                block == null ? "null" : block.getLocation());
+        Log.debug(Debug.SET_SCHEMATIC_POSITION, getName(), block == null ? "null" : block.getLocation());
         this.schematicPos2 = block == null ? null : new SBlockPosition(block.getLocation());
     }
 
@@ -690,7 +769,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setImmunedToPvP(boolean immunedToPvP) {
-        Log.debug(Debug.SET_PVP_IMMUNED, "SSuperiorPlayer", "setImmunedToPvP", getName(), immunedToPvP);
+        Log.debug(Debug.SET_PVP_IMMUNED, getName(), immunedToPvP);
         this.immuneToPvP = immunedToPvP;
     }
 
@@ -701,7 +780,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setLeavingFlag(boolean leavingFlag) {
-        Log.debug(Debug.SET_LEAVING_FLAG, "SSuperiorPlayer", "setLeavingFlag", getName(), leavingFlag);
+        Log.debug(Debug.SET_LEAVING_FLAG, getName(), leavingFlag);
         this.leavingFlag = leavingFlag;
     }
 
@@ -728,7 +807,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     @Override
     public void setImmunedToPortals(boolean immuneToTeleport) {
-        Log.debug(Debug.SET_PORTALS_IMMUNED, "SSuperiorPlayer", "setImmunedToPortals", getName(), immuneToTeleport);
+        Log.debug(Debug.SET_PORTALS_IMMUNED, getName(), immuneToTeleport);
         this.immuneToPortals = immuneToTeleport;
     }
 
@@ -761,8 +840,8 @@ public class SSuperiorPlayer implements SuperiorPlayer {
         // Convert data for missions
         plugin.getMissions().convertPlayerData(otherPlayer, this);
 
-        PlayersDatabaseBridge.updatePlayer(this);
-        PlayersDatabaseBridge.deletePlayer(otherPlayer);
+        // Replace player in DB.
+        PlayersDatabaseBridge.replacePlayer(otherPlayer, this);
     }
 
     @Override
@@ -823,18 +902,26 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     public void setAmountMissionCompleted(Mission<?> mission, int finishCount) {
         Preconditions.checkNotNull(mission, "mission parameter cannot be null.");
 
-        Log.debug(Debug.SET_PLAYER_MISSION_COMPLETED, "SSuperiorPlayer", "setAmountMissionCompleted",
-                getName(), mission.getName(), finishCount);
+        Log.debug(Debug.SET_PLAYER_MISSION_COMPLETED, getName(), mission.getName(), finishCount);
+
+        // We always want to reset data
+        mission.clearData(this);
 
         if (finishCount > 0) {
-            completedMissions.put(mission, finishCount);
+            Integer oldFinishCount = completedMissions.put(mission, finishCount);
+
+            if (Objects.equals(oldFinishCount, finishCount))
+                return;
+
             PlayersDatabaseBridge.saveMission(this, mission, finishCount);
         } else {
-            completedMissions.remove(mission);
+            Integer oldFinishCount = completedMissions.remove(mission);
+
+            if (oldFinishCount == null)
+                return;
+
             PlayersDatabaseBridge.removeMission(this, mission);
         }
-
-        mission.clearData(this);
     }
 
     @Override
@@ -867,6 +954,13 @@ public class SSuperiorPlayer implements SuperiorPlayer {
                 "uuid=[" + uuid + "]," +
                 "name=[" + name + "]" +
                 "}";
+    }
+
+    private static String removeTextureValueTimeStamp(@Nullable String textureValue) {
+        // The texture value string is a json containing a timestamp value.
+        // However, when we compare texture values, we want to emit the timestamp value.
+        // This value is found at index 35->41 (6 chars in length).
+        return textureValue == null || textureValue.length() <= 42 ? null : textureValue.substring(0, 35) + textureValue.substring(42);
     }
 
 }

@@ -7,6 +7,7 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.Manager;
 import com.bgsoftware.superiorskyblock.core.database.bridge.GridDatabaseBridge;
+import com.bgsoftware.superiorskyblock.core.database.bridge.PlayersDatabaseBridge;
 import com.bgsoftware.superiorskyblock.core.database.cache.DatabaseCache;
 import com.bgsoftware.superiorskyblock.core.database.loader.DatabaseLoader;
 import com.bgsoftware.superiorskyblock.core.database.loader.backup.BackupDatabase;
@@ -108,7 +109,7 @@ public class DataManager extends Manager {
     private void loadPlayers() {
         Log.info("Starting to load players...");
 
-        DatabaseBridge playersLoader = plugin.getFactory().createDatabaseBridge((SuperiorPlayer) null);
+        DatabaseBridge playersLoader = PlayersDatabaseBridge.getGlobalPlayersBridge();
 
         DatabaseCache<SuperiorPlayer.Builder> databaseCache = new DatabaseCache<>();
         AtomicInteger playersCount = new AtomicInteger();
@@ -186,9 +187,15 @@ public class DataManager extends Manager {
                 return;
             }
 
-            Optional<SuperiorPlayer> owner = databaseResult.getUUID("owner").map(plugin.getPlayers()::getSuperiorPlayer);
-            if (!owner.isPresent()) {
+            Optional<UUID> ownerUUID = databaseResult.getUUID("owner");
+            if (!ownerUUID.isPresent()) {
                 Log.warn("Cannot load island with invalid owner uuid, skipping...");
+                return;
+            }
+
+            SuperiorPlayer owner = plugin.getPlayers().getSuperiorPlayer(ownerUUID.get(), false);
+            if (owner == null) {
+                Log.warn("Cannot load island with unrecognized owner uuid: " + ownerUUID.get() + ", skipping...");
                 return;
             }
 
@@ -199,7 +206,7 @@ public class DataManager extends Manager {
             }
 
             Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new)
-                    .setOwner(owner.get())
+                    .setOwner(owner)
                     .setUniqueId(uuid.get())
                     .setCenter(center.get())
                     .setName(databaseResult.getString("name").orElse(""))

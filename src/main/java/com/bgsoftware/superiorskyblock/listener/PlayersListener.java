@@ -8,6 +8,7 @@ import com.bgsoftware.superiorskyblock.api.events.IslandRestrictMoveEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandUncoopPlayerEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandChest;
+import com.bgsoftware.superiorskyblock.api.player.respawn.RespawnAction;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.Materials;
 import com.bgsoftware.superiorskyblock.core.Mutable;
@@ -27,6 +28,7 @@ import com.bgsoftware.superiorskyblock.island.top.SortingTypes;
 import com.bgsoftware.superiorskyblock.player.PlayerLocales;
 import com.bgsoftware.superiorskyblock.player.SuperiorNPCPlayer;
 import com.bgsoftware.superiorskyblock.player.chat.PlayerChat;
+import com.bgsoftware.superiorskyblock.player.respawn.RespawnActions;
 import com.bgsoftware.superiorskyblock.world.BukkitEntities;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -49,6 +51,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitTask;
@@ -80,13 +83,39 @@ public class PlayersListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private void onPlayerLogin(PlayerLoginEvent e) {
-        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
-        List<SuperiorPlayer> duplicatedPlayers = plugin.getPlayers().matchAllPlayers(_superiorPlayer ->
-                _superiorPlayer != superiorPlayer && _superiorPlayer.getName().equalsIgnoreCase(e.getPlayer().getName()));
+        List<SuperiorPlayer> duplicatedPlayers = plugin.getPlayers().matchAllPlayers(superiorPlayer ->
+                superiorPlayer.getName().equalsIgnoreCase(e.getPlayer().getName()) &&
+                        !superiorPlayer.getUniqueId().equals(e.getPlayer().getUniqueId()));
+
         if (!duplicatedPlayers.isEmpty()) {
-            Log.info("Changing UUID of " + superiorPlayer.getName() + " to " + superiorPlayer.getUniqueId());
-            for (SuperiorPlayer duplicatePlayer : duplicatedPlayers) {
-                plugin.getPlayers().replacePlayers(duplicatePlayer, superiorPlayer);
+            Log.info("Changing UUID of " + e.getPlayer().getName() + " to " + e.getPlayer().getUniqueId());
+
+            SuperiorPlayer playerWithNewUUID = plugin.getPlayers().getSuperiorPlayer(e.getPlayer().getUniqueId(), false);
+
+            if (playerWithNewUUID != null) {
+                // Even tho we have duplicates, there's already a record for the new player.
+                // Therefore, we just want to delete the old records from DB and cache.
+                Log.info("Detected a record for the new player uuid already - deleting old ones...");
+                // Delete all records
+                duplicatedPlayers.forEach(duplicatedPlayer -> {
+                    plugin.getPlayers().replacePlayers(duplicatedPlayer, null);
+                    plugin.getPlayers().getPlayersContainer().removePlayer(duplicatedPlayer);
+                });
+                // We make sure the new player is correctly set in all caches by removing it and adding it.
+                plugin.getPlayers().getPlayersContainer().removePlayer(playerWithNewUUID);
+                plugin.getPlayers().getPlayersContainer().addPlayer(playerWithNewUUID);
+            } else {
+                // We first want to remove all original players.
+                duplicatedPlayers.forEach(plugin.getPlayers().getPlayersContainer()::removePlayer);
+
+                // We now want to create the new player.
+                SuperiorPlayer newPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer().getUniqueId(), true, false);
+
+                // We now want to replace all existing players
+                duplicatedPlayers.forEach(originalPlayer -> {
+                    if (originalPlayer != newPlayer)
+                        plugin.getPlayers().replacePlayers(originalPlayer, newPlayer);
+                });
             }
         }
     }
@@ -283,7 +312,7 @@ public class PlayersListener implements Listener {
                     !plugin.getSettings().getVoidTeleport().isVisitors() : !plugin.getSettings().getVoidTeleport().isMembers()))
                 return;
 
-            Log.debug(Debug.VOID_TELEPORT, "PlayersListener", "onPlayerMove", superiorPlayer.getName());
+            Log.debug(Debug.VOID_TELEPORT, superiorPlayer.getName());
 
             noFallDamage.add(e.getPlayer().getUniqueId());
             superiorPlayer.teleport(island, result -> {
@@ -678,5 +707,17 @@ public class PlayersListener implements Listener {
             e.setCancelled(true);
     }
 
+    /* PLAYER DEATH */
+
+    @EventHandler
+    private void onPlayerRespawn(PlayerRespawnEvent event) {
+        for (RespawnAction respawnAction : plugin.getSettings().getPlayerRespawn()) {
+            if (respawnAction == RespawnActions.VANILLA || respawnAction.canPerform(event)) {
+                respawnAction.perform(event);
+                return;
+            }
+        }
+
+    }
 
 }

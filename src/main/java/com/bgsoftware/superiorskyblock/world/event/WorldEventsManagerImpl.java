@@ -61,7 +61,7 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
         Mutable<Boolean> recalculateEntities = new Mutable<>(false);
 
         if (chunk.getX() == (islandCenter.getBlockX() >> 4) && chunk.getZ() == (islandCenter.getBlockZ() >> 4)) {
-            if (Environment.of(chunk.getWorld().getEnvironment()) == plugin.getSettings().getWorlds().getDefaultWorld()) {
+            if (chunk.getWorld().getEnvironment() == plugin.getSettings().getWorlds().getDefaultWorld()) {
                 island.setBiome(firstBlock.getWorld().getBiome(firstBlock.getBlockX(), firstBlock.getBlockZ()), false);
             }
 

@@ -130,7 +130,13 @@ public enum Debug {
     VOID_TELEPORT,
     TELEPORT_PLAYER,
     LOAD_CHUNK,
-    PASTE_SCHEMATIC;
+    PASTE_SCHEMATIC,
+    FIRE_EVENT,
+    FIND_SAFE_TELEPORT,
+    PERMISSION_LOOKUP,
+    REPLACE_PLAYER,
+
+    SHOW_STACKTRACE;
 
     private static String[] DEBUG_NAMES = null;
 

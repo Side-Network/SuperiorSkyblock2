@@ -36,7 +36,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Mule;
-import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Trident;
 import org.bukkit.entity.Villager;
@@ -282,17 +281,7 @@ public class ProtectionListener implements Listener {
             BukkitEntities.getPlayerSource(e.getDamager()).map(plugin.getPlayers()::getSuperiorPlayer).ifPresent(damagerPlayer -> {
                 Island island = plugin.getGrid().getIslandAt(e.getEntity().getLocation());
 
-                IslandPrivilege islandPrivilege;
-
-                if (BukkitEntities.isMonster(e.getEntityType())) {
-                    islandPrivilege = IslandPrivileges.MONSTER_DAMAGE;
-                } else if (BukkitEntities.isAnimal(e.getEntityType())) {
-                    islandPrivilege = IslandPrivileges.ANIMAL_DAMAGE;
-                } else if (e.getEntity() instanceof Painting || e.getEntity() instanceof ItemFrame) {
-                    islandPrivilege = IslandPrivileges.ITEM_FRAME;
-                } else {
-                    islandPrivilege = IslandPrivileges.BREAK;
-                }
+                IslandPrivilege islandPrivilege = BukkitEntities.getCategory(e.getEntityType()).getDamagePrivilege();
 
                 if (preventInteraction(island, e.getEntity().getLocation(), damagerPlayer, islandPrivilege,
                         Flag.SEND_MESSAGES, Flag.PREVENT_OUTSIDE_ISLANDS)) {
@@ -389,9 +378,7 @@ public class ProtectionListener implements Listener {
         EntityType spawnType = BukkitItems.getEntityType(e.getItem());
 
         if (spawnType != EntityType.UNKNOWN) {
-            IslandPrivilege islandPrivilege = BukkitEntities.isMonster(spawnType) ?
-                    IslandPrivileges.MONSTER_SPAWN : BukkitEntities.isAnimal(spawnType) ?
-                    IslandPrivileges.ANIMAL_SPAWN : IslandPrivileges.BUILD;
+            IslandPrivilege islandPrivilege = BukkitEntities.getCategory(spawnType).getSpawnPrivilege();
             Location blockLocation = e.getClickedBlock().getLocation();
             SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
             Island island = plugin.getGrid().getIslandAt(blockLocation);
@@ -540,9 +527,10 @@ public class ProtectionListener implements Listener {
     }
 
     public boolean preventPlayerPickupItem(Player player, Location location, Flag... flags) {
+        Location blockLocation = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(player);
         Island island = plugin.getGrid().getIslandAt(location);
-        return preventInteraction(island, location, superiorPlayer, IslandPrivileges.PICKUP_DROPS, flags);
+        return preventInteraction(island, blockLocation, superiorPlayer, IslandPrivileges.PICKUP_DROPS, flags);
     }
 
     /* PROJECTILE INTERACTS */
@@ -607,9 +595,7 @@ public class ProtectionListener implements Listener {
                     return;
 
                 location = hitEntity.getLocation();
-                islandPrivilege = BukkitEntities.isMonster(e.getEntityType()) ?
-                        IslandPrivileges.MONSTER_DAMAGE : BukkitEntities.isAnimal(e.getEntityType()) ?
-                        IslandPrivileges.ANIMAL_DAMAGE : IslandPrivileges.BREAK;
+                islandPrivilege = BukkitEntities.getCategory(e.getEntityType()).getDamagePrivilege();
                 hitBlock = null;
             } else {
                 if (!PROJECTILE_HIT_EVENT_TARGET_BLOCK.isValid())
@@ -696,12 +682,6 @@ public class ProtectionListener implements Listener {
         if (!island.isInsideRange(location)) {
             if (sendMessages)
                 Message.BUILD_OUTSIDE_ISLAND.send(superiorPlayer);
-            return true;
-        }
-
-        if (island.isSpawn() && plugin.getSettings().getSpawn().isProtected()) {
-            if (sendMessages)
-                Message.PROTECTION.send(superiorPlayer);
             return true;
         }
 

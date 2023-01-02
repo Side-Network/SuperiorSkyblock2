@@ -3,7 +3,6 @@ package com.bgsoftware.superiorskyblock.core.logging;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.EnumSet;
 import java.util.logging.Level;
 
@@ -27,7 +26,7 @@ public class Log {
     }
 
     public static void warnFromFile(String fileName, Object first, Object... parts) {
-        logInternal(Level.WARNING, fileName, first, parts);
+        logInternalWithFile(Level.WARNING, fileName, first, parts);
     }
 
     public static void error(Object first, Object... parts) {
@@ -39,34 +38,36 @@ public class Log {
         error.printStackTrace();
     }
 
-    public static void error(File file, Object first, Object... parts) {
-        logInternal(Level.SEVERE, file, first, parts);
+    public static void errorFromFile(String fileName, Object first, Object... parts) {
+        logInternalWithFile(Level.SEVERE, fileName, first, parts);
     }
 
-    public static void error(Throwable error, File file, Object first, Object... parts) {
-        error(file, first, parts);
+    public static void errorFromFile(Throwable error, String fileName, Object first, Object... parts) {
+        errorFromFile(fileName, first, parts);
         error.printStackTrace();
     }
 
-    public static void debug(Debug debug, String clazz, String method, Object... params) {
-        if (isDebugged(debug))
-            entering(clazz, method, null, params);
-    }
-
-    public static void debugResult(Debug debug, String clazz, String method, @Nullable String message, Object result) {
-        if (isDebugged(debug))
-            entering(clazz, method, message, result);
-    }
-
-    public static void debugResult(Debug debug, String clazz, String method, @Nullable String message, Throwable error) {
+    public static void debug(Debug debug, Object... params) {
         if (isDebugged(debug)) {
-            enteringInternal(Level.SEVERE, clazz, method, message);
-            error.printStackTrace();
+            String[] classAndMethod = getClassAndMethodNames();
+            enteringInternal(Level.INFO, classAndMethod[0], classAndMethod[1], null, params);
+            if (isDebugged(Debug.SHOW_STACKTRACE))
+                printStackTrace();
         }
     }
 
-    public static void entering(String clazz, String method, @Nullable String message, Object... params) {
-        enteringInternal(Level.INFO, clazz, method, message, params);
+    public static void debugResult(Debug debug, @Nullable String message, Object result) {
+        if (isDebugged(debug)) {
+            String[] classAndMethod = getClassAndMethodNames();
+            enteringInternal(Level.INFO, classAndMethod[0], classAndMethod[1], message, result);
+            if (isDebugged(Debug.SHOW_STACKTRACE))
+                printStackTrace();
+        }
+    }
+
+    public static void entering(@Nullable String message, Object... params) {
+        String[] classAndMethod = getClassAndMethodNames();
+        enteringInternal(Level.INFO, classAndMethod[0], classAndMethod[1], message, params);
     }
 
     public static boolean isDebugMode() {
@@ -98,8 +99,8 @@ public class Log {
         logInternal(level, clazz, "::", method, message == null ? "" : " " + message, paramsMessage.toString());
     }
 
-    private static void logInternal(Level level, String fileName, Object first, Object... parts) {
-        plugin.getLogger().log(level, buildFromParts(fileName, first, parts));
+    private static void logInternalWithFile(Level level, String fileName, Object first, Object... parts) {
+        plugin.getLogger().log(level, buildFromPartsWithFile(fileName, first, parts));
     }
 
     private static void logInternal(Level level, Object first, Object... parts) {
@@ -113,11 +114,28 @@ public class Log {
         return builder.toString();
     }
 
-    private static String buildFromParts(String prefixFile, Object first, Object... parts) {
+    private static String buildFromPartsWithFile(String prefixFile, Object first, Object... parts) {
         StringBuilder builder = new StringBuilder("[").append(prefixFile).append("] ").append(first);
         for (Object part : parts)
             builder.append(part);
         return builder.toString();
+    }
+
+    private static String[] getClassAndMethodNames() {
+        StackTraceElement currentElement = Thread.currentThread().getStackTrace()[3];
+
+        String methodName = currentElement.getMethodName();
+        if (methodName.contains("lambda")) {
+            methodName = methodName.split("\\$")[1];
+        }
+
+        String className = currentElement.getClassName();
+
+        return new String[]{className.substring(className.lastIndexOf(".") + 1), methodName};
+    }
+
+    private static void printStackTrace() {
+        new Exception().printStackTrace();
     }
 
 }

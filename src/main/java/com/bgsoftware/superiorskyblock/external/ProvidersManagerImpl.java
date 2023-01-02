@@ -360,14 +360,19 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     }
 
     private void registerGeneralHooks() {
-        if (canRegisterHook("LeaderHeads"))
-            registerHook("LeaderHeadsHook");
-
         if (canRegisterHook("JetsMinions"))
             registerHook("JetsMinionsHook");
 
-        if (canRegisterHook("SkinsRestorer"))
-            registerHook("SkinsRestorerHook");
+        if (canRegisterHook("SkinsRestorer")) {
+            try {
+                // Detection of old version
+                Class.forName("skinsrestorer.shared.storage.SkinStorage");
+                registerHook("SkinsRestorerHook");
+            } catch (ClassNotFoundException error) {
+                // New version was detected
+                registerHook("SkinsRestorer14Hook");
+            }
+        }
 
         if (canRegisterHook("ChangeSkin"))
             registerHook("ChangeSkinHook");
@@ -593,7 +598,7 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
         } catch (ClassNotFoundException ignored) {
             return Optional.empty();
         } catch (Exception error) {
-            Log.entering("ProvidersManagerImpl", "createInstance", "ENTER", className);
+            Log.entering("ENTER", className);
             Log.error(error, "An unexpected error occurred while creating hook instance:");
             return Optional.empty();
         }

@@ -84,6 +84,9 @@ public class SpawnIsland implements Island {
     private final IslandArea islandArea;
     private final int islandSize;
 
+    private final float homeYaw;
+    private final float homePitch;
+
     private Biome biome = Biome.PLAINS;
 
 
@@ -107,6 +110,9 @@ public class SpawnIsland implements Island {
         this.center = new SBlockPosition(worldName, smartCenter.getBlockX(), smartCenter.getBlockY(), smartCenter.getBlockZ());
         this.islandArea = new IslandArea(this.center, this.islandSize);
         this.spawnWorldInfo = new WorldInfoImpl(this.spawnWorld.getName(), Environment.of(this.spawnWorld.getEnvironment()));
+
+        this.homeYaw = smartCenter.getYaw();
+        this.homePitch = smartCenter.getPitch();
 
         this.dirtyChunksContainer = new DirtyChunksContainer(this);
 
@@ -277,7 +283,7 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public Location getCenter(Environment environment) {
+    public Location getCenter(Environment unused) {
         return center.parse(this.spawnWorld).add(0.5, 0, 0.5);
     }
 
@@ -307,14 +313,17 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public Location getIslandHome(Environment environment) {
-        return getCenter(environment);
+    public Location getIslandHome(Environment unused) {
+        Location center = getCenter(null /*unused*/);
+        center.setYaw(this.homeYaw);
+        center.setPitch(this.homePitch);
+        return center;
     }
 
     @Override
     public Map<Environment, Location> getIslandHomes() {
         Map<Environment, Location> map = new HashMap<>();
-        map.put(plugin.getSettings().getWorlds().getDefaultWorld(), getCenter(null /*unused*/));
+        map.put(plugin.getSettings().getWorlds().getDefaultWorld(), getIslandHome(null /*unused*/));
         return map;
     }
 
@@ -336,7 +345,7 @@ public class SpawnIsland implements Island {
     @Nullable
     @Override
     public Location getVisitorsLocation(Environment unused) {
-        return getCenter(plugin.getSettings().getWorlds().getDefaultWorld());
+        return this.getIslandHome(null /* unused */);
     }
 
     @Override
@@ -486,11 +495,13 @@ public class SpawnIsland implements Island {
 
     @Override
     public boolean isInside(World world, int chunkX, int chunkZ) {
-        return world.equals(this.spawnWorld) && isInside(chunkX, chunkZ);
+        return world.equals(this.spawnWorld) && isChunkInside(chunkX, chunkZ);
     }
 
-    public boolean isInside(int chunkX, int chunkZ) {
-        return this.islandArea.intercepts(chunkX << 4, chunkZ << 4);
+    public boolean isChunkInside(int chunkX, int chunkZ) {
+        IslandArea islandArea = this.islandArea.copy();
+        islandArea.rshift(4);
+        return islandArea.intercepts(chunkX, chunkZ);
     }
 
     @Override
@@ -939,7 +950,7 @@ public class SpawnIsland implements Island {
     @Override
     public boolean isChunkDirty(String worldName, int chunkX, int chunkZ) {
         Preconditions.checkNotNull(worldName, "worldName parameter cannot be null.");
-        Preconditions.checkArgument(this.spawnWorldInfo.getName().equals(worldName) && isInside(chunkX, chunkZ),
+        Preconditions.checkArgument(this.spawnWorldInfo.getName().equals(worldName) && isChunkInside(chunkX, chunkZ),
                 "Chunk must be within the island boundaries.");
         return this.dirtyChunksContainer.isMarkedDirty(ChunkPosition.of(this.spawnWorldInfo, chunkX, chunkZ));
     }

@@ -5,13 +5,12 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.core.io.Files;
-import com.bgsoftware.superiorskyblock.core.io.MenuParser;
+import com.bgsoftware.superiorskyblock.core.io.MenuParserImpl;
 import com.bgsoftware.superiorskyblock.core.io.Resources;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.menu.MenuParseResult;
 import com.bgsoftware.superiorskyblock.core.menu.MenuPatternSlots;
-import com.bgsoftware.superiorskyblock.core.menu.impl.MenuMembers;
-import com.bgsoftware.superiorskyblock.core.menu.pattern.impl.RegularMenuPattern;
+import com.bgsoftware.superiorskyblock.core.menu.impl.MenuIslandMembers;
 import com.bgsoftware.superiorskyblock.mission.SMissionCategory;
 import com.bgsoftware.superiorskyblock.module.BuiltinModule;
 import com.bgsoftware.superiorskyblock.module.missions.commands.CmdAdminMission;
@@ -198,12 +197,12 @@ public class MissionsModule extends BuiltinModule {
         File categoryFolder = new File(getModuleFolder(), "categories/" + categoryName);
 
         if (!categoryFolder.exists()) {
-            Log.warnFromFile("The directory of the mission category ", categoryName, " doesn't exist, skipping...");
+            Log.warn("The directory of the mission category ", categoryName, " doesn't exist, skipping...");
             return false;
         }
 
         if (!categoryFolder.isDirectory()) {
-            Log.warnFromFile("The directory of the mission category ", categoryName, " is not valid, skipping...");
+            Log.warn("The directory of the mission category ", categoryName, " is not valid, skipping...");
             return false;
         }
 
@@ -211,7 +210,7 @@ public class MissionsModule extends BuiltinModule {
                 file.isFile() && file.getName().endsWith(".yml"));
 
         if (missionFiles == null || missionFiles.length == 0) {
-            Log.warnFromFile("The mission category ", categoryName, " doesn't have missions, skipping...");
+            Log.warn("The mission category ", categoryName, " doesn't have missions, skipping...");
             return false;
         }
 
@@ -246,7 +245,7 @@ public class MissionsModule extends BuiltinModule {
         }
 
         if (categoryMissions.isEmpty()) {
-            Log.warnFromFile("The mission category ", categoryName, " doesn't have missions, skipping...");
+            Log.warn("The mission category ", categoryName, " doesn't have missions, skipping...");
             return false;
         }
 
@@ -317,14 +316,14 @@ public class MissionsModule extends BuiltinModule {
 
         ConfigurationSection categoriesSection = config.createSection("categories");
 
-        MenuParseResult menuLoadResult = MenuParser.loadMenu(new RegularMenuPattern.Builder<MenuMembers>(),
-                "missions.yml", null);
+        MenuParseResult<MenuIslandMembers.View> menuLoadResult = MenuParserImpl.getInstance().loadMenu("missions.yml",
+                null);
 
         if (menuLoadResult == null)
             return;
 
         MenuPatternSlots menuPatternSlots = menuLoadResult.getPatternSlots();
-        CommentedConfiguration missionsMenuConfig = menuLoadResult.getConfig();
+        YamlConfiguration missionsMenuConfig = menuLoadResult.getConfig();
 
         int islandsCategorySlot = menuPatternSlots.getSlot(missionsMenuConfig.getString("island-missions", ""));
         if (islandsCategorySlot != -1) {

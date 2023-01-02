@@ -5,10 +5,12 @@ import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.handlers.ModulesManager;
 import com.bgsoftware.superiorskyblock.api.modules.ModuleLoadTime;
 import com.bgsoftware.superiorskyblock.api.modules.PluginModule;
+import com.bgsoftware.superiorskyblock.core.Either;
 import com.bgsoftware.superiorskyblock.core.Manager;
 import com.bgsoftware.superiorskyblock.core.io.JarFiles;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.module.container.ModulesContainer;
+import com.bgsoftware.superiorskyblock.module.missions.MissionsModule;
 import com.bgsoftware.superiorskyblock.module.missions.MissionsModule;
 import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
@@ -18,6 +20,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -56,21 +59,20 @@ public class ModulesManagerImpl extends Manager implements ModulesManager {
 
     @Override
     public PluginModule registerModule(File moduleFile) throws IOException, ReflectiveOperationException {
-        if (!moduleFile.exists())
-            throw new IllegalArgumentException("The given file does not exist.");
-
-        if (!moduleFile.getName().endsWith(".jar"))
-            throw new IllegalArgumentException("The given file is not a valid jar file.");
-
-        String moduleName = moduleFile.getName().replace(".jar", "");
+        Preconditions.checkArgument(moduleFile.exists(), "The file " + moduleFile.getName() + " does not exist.");
+        Preconditions.checkArgument(moduleFile.getName().endsWith(".jar"), "The file " + moduleFile.getName() + " is not a valid jar file.");
 
         ModuleClassLoader moduleClassLoader = new ModuleClassLoader(moduleFile, plugin.getPluginClassLoader());
 
-        //noinspection deprecation
-        Class<?> moduleClass = JarFiles.getClass(moduleFile.toURL(), PluginModule.class, moduleClassLoader);
+        Either<Class<?>, Throwable> moduleClassLookup = JarFiles.getClass(moduleFile.toURL(), PluginModule.class, moduleClassLoader);
+
+        if (moduleClassLookup.getLeft() != null)
+            throw new RuntimeException("An error occurred while reading " + moduleFile.getName(), moduleClassLookup.getLeft());
+
+        Class<?> moduleClass = moduleClassLookup.getRight();
 
         if (moduleClass == null)
-            throw new IllegalArgumentException("The file " + moduleName + " is not a valid module.");
+            throw new RuntimeException("The module file " + moduleFile.getName() + " is not valid.");
 
         PluginModule pluginModule = createInstance(moduleClass);
         pluginModule.initModuleLoader(moduleFile, moduleClassLoader);
@@ -95,6 +97,18 @@ public class ModulesManagerImpl extends Manager implements ModulesManager {
         }
 
         this.modulesContainer.unregisterModule(pluginModule);
+
+        // We now want to unload the ClassLoader and free the held handles for the file.
+        ClassLoader classLoader = pluginModule.getClassLoader();
+        if (classLoader instanceof URLClassLoader) {
+            try {
+                ((URLClassLoader) classLoader).close();
+                // This is an attempt to force Windows to free the handles of the file.
+                System.gc();
+            } catch (IOException ignored) {
+            }
+        }
+
     }
 
     @Override
@@ -160,17 +174,20 @@ public class ModulesManagerImpl extends Manager implements ModulesManager {
         filterModules(moduleLoadTime).forEach(this::enableModule);
     }
 
-    public void reloadModules(SuperiorSkyblockPlugin plugin) {
-        getModules().forEach(pluginModule -> {
-            try {
-                pluginModule.onReload(plugin);
-                if (pluginModule instanceof MissionsModule)
-                    ((MissionsModule) pluginModule).onPluginReload(plugin);
-            } catch (Throwable error) {
-                Log.error("An unexpected error occurred while reloading the module ", pluginModule.getName(), ".");
-                Log.error(error, "Contact ", pluginModule.getAuthor(), " regarding this, this has nothing to do with the plugin.");
-            }
-        });
+    public void reloadModules(ModuleLoadTime moduleLoadTime) {
+        Preconditions.checkNotNull(moduleLoadTime, "moduleLoadTime parameter cannot be null.");
+        filterModules(moduleLoadTime).forEach(this::reloadModuleInternal);
+    }
+
+    private void reloadModuleInternal(PluginModule pluginModule) {
+        try {
+            pluginModule.onReload(plugin);
+            if (pluginModule instanceof MissionsModule)
+                ((MissionsModule) pluginModule).onPluginReload(plugin);
+        } catch (Throwable error) {
+            Log.error("An unexpected error occurred while reloading the module ", pluginModule.getName(), ".");
+            Log.error(error, "Contact ", pluginModule.getAuthor(), " regarding this, this has nothing to do with the plugin.");
+        }
     }
 
     public void loadModulesData(SuperiorSkyblockPlugin plugin) {

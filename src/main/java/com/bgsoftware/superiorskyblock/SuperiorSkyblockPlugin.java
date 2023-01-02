@@ -4,7 +4,6 @@ import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.common.updater.Updater;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblock;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
-import com.bgsoftware.superiorskyblock.api.handlers.MenusManager;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.SortingType;
 import com.bgsoftware.superiorskyblock.api.modules.ModuleLoadTime;
@@ -72,6 +71,7 @@ import com.bgsoftware.superiorskyblock.nms.NMSTags;
 import com.bgsoftware.superiorskyblock.nms.NMSWorld;
 import com.bgsoftware.superiorskyblock.player.PlayersManagerImpl;
 import com.bgsoftware.superiorskyblock.player.container.DefaultPlayersContainer;
+import com.bgsoftware.superiorskyblock.player.respawn.RespawnActions;
 import com.bgsoftware.superiorskyblock.service.ServicesHandler;
 import com.bgsoftware.superiorskyblock.service.bossbar.BossBarsServiceImpl;
 import com.bgsoftware.superiorskyblock.service.dragon.DragonBattleServiceImpl;
@@ -186,6 +186,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
         IslandPrivileges.registerPrivileges();
         SortingTypes.registerSortingTypes();
         IslandFlags.registerFlags();
+        RespawnActions.registerActions();
 
         try {
             SortingComparators.initializeTopIslandMembersSorting();
@@ -244,7 +245,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
                 providersHandler.getWorldsProvider().prepareWorlds();
             } catch (RuntimeException ex) {
                 shouldEnable = false;
-                ManagerLoadException handlerError = new ManagerLoadException(ex.getMessage(), ManagerLoadException.ErrorLevel.SERVER_SHUTDOWN);
+                ManagerLoadException handlerError = new ManagerLoadException(ex, ManagerLoadException.ErrorLevel.SERVER_SHUTDOWN);
                 Log.error(handlerError, "An error occurred while preparing worlds:");
                 Bukkit.shutdown();
                 return;
@@ -323,11 +324,12 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
     @Override
     public void onDisable() {
+        BukkitExecutor.prepareDisable();
+
         if (!shouldEnable)
             return;
 
         ChunksProvider.stop();
-        BukkitExecutor.syncDatabaseCalls();
 
         try {
             dataHandler.saveDatabase(false);
@@ -362,11 +364,11 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
             Log.info("Shutting down calculation task...");
             CalcTask.cancelTask();
 
-            Log.info("Shutting down executor");
-            BukkitExecutor.close();
-
             if (nmsChunks != null)
                 nmsChunks.shutdown();
+
+            Log.info("Shutting down executor");
+            BukkitExecutor.close();
 
             Log.info("Closing database. This may hang the server. Do not shut it down, or data may get lost.");
             dataHandler.closeConnection();
@@ -401,7 +403,8 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
                     new Pair<>(2975, "v1182"),
                     new Pair<>(3105, "v119"),
                     new Pair<>(3117, "v1191"),
-                    new Pair<>(3120, "v1192")
+                    new Pair<>(3120, "v1192"),
+                    new Pair<>(3218, "v1193")
             );
 
             for (Pair<Integer, String> versionData : versions) {
@@ -478,7 +481,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
                 if (generatorsFilesList != null) {
                     for (File file : generatorsFilesList) {
                         //noinspection deprecation
-                        Class<?> generatorClass = JarFiles.getClass(file.toURL(), ChunkGenerator.class, getClassLoader());
+                        Class<?> generatorClass = JarFiles.getClass(file.toURL(), ChunkGenerator.class, getClassLoader()).getRight();
                         if (generatorClass != null) {
                             for (Constructor<?> constructor : generatorClass.getConstructors()) {
                                 if (constructor.getParameterCount() == 0) {
@@ -516,7 +519,9 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
         ItemSkulls.readTextures(this);
 
         if (!loadGrid) {
+            modulesHandler.reloadModules(ModuleLoadTime.BEFORE_WORLD_CREATION);
             settingsHandler = new SettingsManagerImpl(this);
+            modulesHandler.reloadModules(ModuleLoadTime.NORMAL);
         } else {
             commandsHandler.loadData();
             modulesHandler.enableModules(ModuleLoadTime.NORMAL);
@@ -555,11 +560,11 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
         if (loadGrid) {
             dataHandler.loadData();
             stackedBlocksHandler.loadData();
-            SortingType.values().forEach(gridHandler::sortIslands);
+            SortingType.values().forEach(gridHandler::forceSortIslands);
             modulesHandler.loadModulesData(this);
             modulesHandler.enableModules(ModuleLoadTime.AFTER_MODULE_DATA_LOAD);
         } else {
-            modulesHandler.reloadModules(this);
+            modulesHandler.reloadModules(ModuleLoadTime.AFTER_MODULE_DATA_LOAD);
         }
 
         BukkitExecutor.sync(() -> {
@@ -573,6 +578,9 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
         });
 
         CalcTask.startTask();
+
+        if (!loadGrid)
+            modulesHandler.reloadModules(ModuleLoadTime.AFTER_HANDLERS_LOADING);
     }
 
     @Override
@@ -611,7 +619,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
     }
 
     @Override
-    public MenusManager getMenus() {
+    public MenusManagerImpl getMenus() {
         return menusHandler;
     }
 

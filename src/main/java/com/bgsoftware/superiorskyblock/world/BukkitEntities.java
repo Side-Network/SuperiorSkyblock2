@@ -1,8 +1,10 @@
 package com.bgsoftware.superiorskyblock.world;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
+import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Ambient;
@@ -25,17 +27,27 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class BukkitEntities {
 
     private static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
     private static final Map<UUID, List<ItemStack>> entityContent = new HashMap<>();
+    private static final Class<?> HOGLIN_CLASS = ((Supplier<Class<?>>) () -> {
+        try {
+            return Class.forName("org.bukkit.entity.Hoglin");
+        } catch (ClassNotFoundException error) {
+            return null;
+        }
+    }).get();
 
     private BukkitEntities() {
 
@@ -127,19 +139,102 @@ public class BukkitEntities {
         return entity instanceof ArmorStand && !((ArmorStand) entity).isVisible();
     }
 
-    public static boolean isMonster(EntityType entityType) {
-        Class<? extends Entity> entityClass = entityType.getEntityClass();
-        return entityClass != null && (Monster.class.isAssignableFrom(entityClass) ||
-                // Checks for slimes & magma cubes
-                Slime.class.isAssignableFrom(entityClass) ||
-                // Checks for ghasts and phantoms
-                Flying.class.isAssignableFrom(entityClass));
+    public static EntityCategory getCategory(EntityType entityType) {
+        for (EntityCategory entityCategory : EntityCategory.values()) {
+            if (entityCategory.isFromCategory(entityType))
+                return entityCategory;
+        }
+
+        return EntityCategory.UNKNOWN;
     }
 
-    public static boolean isAnimal(EntityType entityType) {
-        Class<? extends Entity> entityClass = entityType.getEntityClass();
-        return entityClass != null && (Creature.class.isAssignableFrom(entityType.getEntityClass()) ||
-                Ambient.class.isAssignableFrom(entityType.getEntityClass()));
+    private static EnumSet<EntityType> createEntityTypesSet(Predicate<EntityType> predicate) {
+        EnumSet<EntityType> entityTypes = EnumSet.noneOf(EntityType.class);
+        for (EntityType entityType : EntityType.values()) {
+            if (predicate.test(entityType))
+                entityTypes.add(entityType);
+        }
+        return entityTypes;
+    }
+
+    public enum EntityCategory {
+
+        MONSTER(IslandPrivileges.MONSTER_DAMAGE, IslandPrivileges.MONSTER_SPAWN) {
+
+            private final EnumSet<EntityType> MONSTER_TYPES = createEntityTypesSet(entityType -> {
+                Class<? extends Entity> entityClass = entityType.getEntityClass();
+                return entityClass != null && (Monster.class.isAssignableFrom(entityClass) ||
+                        // Checks for slimes & magma cubes
+                        Slime.class.isAssignableFrom(entityClass) ||
+                        // Checks for ghasts and phantoms
+                        Flying.class.isAssignableFrom(entityClass) ||
+                        // In Bukkit, Hoglins are considered as Animals for no reason.
+                        // We want to explicitly tell the plugin its monster type.
+                        entityClass == HOGLIN_CLASS
+                );
+            });
+
+            @Override
+            boolean isFromCategory(EntityType entityType) {
+                return MONSTER_TYPES.contains(entityType);
+            }
+        },
+        // !!!Never put this above Monster category!!!
+        ANIMAL(IslandPrivileges.ANIMAL_DAMAGE, IslandPrivileges.ANIMAL_SPAWN) {
+
+            private final EnumSet<EntityType> ANIMAL_TYPES = createEntityTypesSet(entityType -> {
+                Class<? extends Entity> entityClass = entityType.getEntityClass();
+                // This call is done after Monster category is checked.
+                // Therefore, the checks below are enough.
+                return entityClass != null &&
+                        // We check that the entity type is whether a Creature or an Ambient
+                        (Creature.class.isAssignableFrom(entityClass) || Ambient.class.isAssignableFrom(entityClass)) &&
+                        // We make sure this is not Hoglin; In Bukkit, they are considered Animals.
+                        entityClass != HOGLIN_CLASS;
+            });
+
+            @Override
+            boolean isFromCategory(EntityType entityType) {
+                return ANIMAL_TYPES.contains(entityType);
+            }
+        },
+        PAINTING(IslandPrivileges.PAINTING, IslandPrivileges.BUILD) {
+            @Override
+            boolean isFromCategory(EntityType entityType) {
+                return entityType == EntityType.PAINTING;
+            }
+        },
+        ITEM_FRAME(IslandPrivileges.ITEM_FRAME, IslandPrivileges.BUILD) {
+            @Override
+            boolean isFromCategory(EntityType entityType) {
+                return entityType == EntityType.ITEM_FRAME;
+            }
+        },
+        UNKNOWN(IslandPrivileges.BREAK, IslandPrivileges.BUILD) {
+            @Override
+            boolean isFromCategory(EntityType entityType) {
+                return true;
+            }
+        };
+
+        private final IslandPrivilege damagePrivilege;
+        private final IslandPrivilege spawnPrivilege;
+
+        EntityCategory(IslandPrivilege damagePrivilege, IslandPrivilege spawnPrivilege) {
+            this.damagePrivilege = damagePrivilege;
+            this.spawnPrivilege = spawnPrivilege;
+        }
+
+        public IslandPrivilege getDamagePrivilege() {
+            return damagePrivilege;
+        }
+
+        public IslandPrivilege getSpawnPrivilege() {
+            return spawnPrivilege;
+        }
+
+        abstract boolean isFromCategory(EntityType entityType);
+
     }
 
 }

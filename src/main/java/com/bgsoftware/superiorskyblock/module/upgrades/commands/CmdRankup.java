@@ -1,17 +1,19 @@
 package com.bgsoftware.superiorskyblock.module.upgrades.commands;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.events.IslandUpgradeEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.service.placeholders.PlaceholdersService;
 import com.bgsoftware.superiorskyblock.api.upgrades.Upgrade;
 import com.bgsoftware.superiorskyblock.api.upgrades.UpgradeLevel;
 import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCost;
+import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.CommandTabCompletes;
 import com.bgsoftware.superiorskyblock.commands.IPermissibleCommand;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
-import com.bgsoftware.superiorskyblock.core.GameSound;
+import com.bgsoftware.superiorskyblock.core.GameSoundImpl;
 import com.bgsoftware.superiorskyblock.core.events.EventResult;
 import com.bgsoftware.superiorskyblock.core.events.EventsBus;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
@@ -78,10 +80,10 @@ public class CmdRankup implements IPermissibleCommand {
         if (upgrade == null)
             return;
 
-        UpgradeLevel upgradeLevel = island.getUpgradeLevel(upgrade);
-        UpgradeLevel nextUpgradeLevel = upgrade.getUpgradeLevel(upgradeLevel.getLevel() + 1);
+        UpgradeLevel currentLevel = island.getUpgradeLevel(upgrade);
+        UpgradeLevel nextLevel = upgrade.getUpgradeLevel(currentLevel.getLevel() + 1);
 
-        String permission = nextUpgradeLevel == null ? "" : nextUpgradeLevel.getPermission();
+        String permission = nextLevel == null ? "" : nextLevel.getPermission();
 
         if (!permission.isEmpty() && !superiorPlayer.hasPermission(permission)) {
             Message.NO_UPGRADE_PERMISSION.send(superiorPlayer);
@@ -98,14 +100,14 @@ public class CmdRankup implements IPermissibleCommand {
                     Duration.ofMillis(duration), superiorPlayer.getUserLocale()));
             hasNextLevel = false;
         } else {
-            String requiredCheckFailure = nextUpgradeLevel == null ? "" : nextUpgradeLevel.checkRequirements(superiorPlayer);
+            String requiredCheckFailure = nextLevel == null ? "" : nextLevel.checkRequirements(superiorPlayer);
 
             if (!requiredCheckFailure.isEmpty()) {
                 Message.CUSTOM.send(superiorPlayer, requiredCheckFailure, false);
                 hasNextLevel = false;
             } else {
                 EventResult<EventsBus.UpgradeResult> event = plugin.getEventsBus().callIslandUpgradeEvent(
-                        superiorPlayer, island, upgrade, upgradeLevel);
+                        superiorPlayer, island, upgrade, currentLevel, nextLevel, IslandUpgradeEvent.Cause.PLAYER_RANKUP);
 
                 UpgradeCost upgradeCost = event.getResult().getUpgradeCost();
 
@@ -134,11 +136,11 @@ public class CmdRankup implements IPermissibleCommand {
             }
         }
 
-        SUpgradeLevel.ItemData itemData = ((SUpgradeLevel) upgradeLevel).getItemData();
+        SUpgradeLevel.ItemData itemData = ((SUpgradeLevel) currentLevel).getItemData();
         GameSound sound = hasNextLevel ? itemData.hasNextLevelSound : itemData.noNextLevelSound;
 
         if (sound != null)
-            superiorPlayer.runIfOnline(sound::playSound);
+            superiorPlayer.runIfOnline(player -> GameSoundImpl.playSound(player, sound));
     }
 
     @Override
