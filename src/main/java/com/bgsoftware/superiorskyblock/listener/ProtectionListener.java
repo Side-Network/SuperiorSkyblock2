@@ -640,8 +640,11 @@ public class ProtectionListener implements Listener {
         if (island instanceof SIsland sIsland &&
                 flagsSet.contains(Flag.PORTAL_AREA_BLOCK) &&
                 island.isInside(location)) {
-            return sIsland.getCitadelPortalArea().intercepts(location.getBlockX(), location.getBlockY(), location.getBlockZ()) ||
-                    sIsland.getGeneratedCitadelFlag() && location.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getCitadel().getName());
+
+            if (sIsland.getCitadelPortalArea().intercepts(location.getBlockX(), location.getBlockY(), location.getBlockZ()) ||
+                sIsland.getGeneratedCitadelFlag() && location.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getCitadel().getName())) {
+                return true;
+            }
         }
 
         boolean sendMessages = flagsSet.contains(Flag.SEND_MESSAGES);
