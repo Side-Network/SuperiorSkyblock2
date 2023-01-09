@@ -392,6 +392,7 @@ public class IslandFlagsListener extends AbstractGameEventListener {
         Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "NATURAL")).ifPresent(naturalSpawnReasons::add);
         Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "TRAP")).ifPresent(naturalSpawnReasons::add);
         Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "MOUNT")).ifPresent(naturalSpawnReasons::add);
+        Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "REINFORCEMENTS")).ifPresent(naturalSpawnReasons::add);
         Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "VILLAGE_INVASION")).ifPresent(naturalSpawnReasons::add);
         Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "VILLAGE_DEFENSE")).ifPresent(naturalSpawnReasons::add);
         Optional.ofNullable(EnumHelper.getEnum(CreatureSpawnEvent.SpawnReason.class, "PATROL")).ifPresent(naturalSpawnReasons::add);
