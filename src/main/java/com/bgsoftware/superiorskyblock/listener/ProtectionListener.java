@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.listener;
 
 import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -639,9 +640,9 @@ public class ProtectionListener implements Listener {
 
         if (island instanceof SIsland sIsland &&
                 flagsSet.contains(Flag.PORTAL_AREA_BLOCK) &&
-                island.isInside(location)) {
-
-            if (sIsland.getCitadelPortalArea().intercepts(location.getBlockX(), location.getBlockY(), location.getBlockZ()) ||
+                island.isInside(location)
+        ) {
+            if ((sIsland.getCitadelPortalArea().intercepts(location.getBlockX(), location.getBlockY(), location.getBlockZ()) && Environment.of(location.getWorld().getEnvironment()) == Environment.NORMAL) ||
                 sIsland.getGeneratedCitadelFlag() && location.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getCitadel().getName())) {
                 return true;
             }
