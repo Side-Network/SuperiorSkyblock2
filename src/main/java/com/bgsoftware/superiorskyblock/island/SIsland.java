@@ -822,6 +822,8 @@ public class SIsland implements Island {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         Location teleportLocation = islandHomes.readAndGet(teleportLocations -> teleportLocations.get(environment));
+        if (environment == Environment.THE_END && (teleportLocation == null || !teleportLocation.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getEnd().getName())))
+            teleportLocation = getCenter(environment);
 
         if (teleportLocation == null)
             teleportLocation = getCenter(environment);
@@ -846,7 +848,12 @@ public class SIsland implements Island {
     public void setIslandHome(Location homeLocation) {
         Preconditions.checkNotNull(homeLocation, "homeLocation parameter cannot be null.");
         Preconditions.checkNotNull(homeLocation.getWorld(), "homeLocation's world cannot be null.");
-        setIslandHome(Environment.of(homeLocation.getWorld().getEnvironment()), homeLocation);
+        Environment env;
+        if (homeLocation.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getCitadel().getName()))
+            env = Environment.CITADEL;
+        else
+            env = Environment.of(homeLocation.getWorld().getEnvironment());
+        setIslandHome(env, homeLocation);
     }
 
     @Override
