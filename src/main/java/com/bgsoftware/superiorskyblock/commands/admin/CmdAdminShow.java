@@ -332,6 +332,12 @@ public class CmdAdminShow implements IAdminIslandCommand {
                             infoMessage.append(Message.ISLAND_INFO_ROLES.getMessage(locale, playerRole, rolesStrings.get(playerRole))));
         }
 
+        // Temporary - known island entities:
+        infoMessage.append("\n").append("[debug] tracked entity counts: ").append("\n");
+        for (Map.Entry<Key, Integer> entry : island.getEntitiesTracker().getEntitiesCounts().entrySet()) {
+            infoMessage.append(" - ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+        }
+
         if (!Message.ISLAND_INFO_FOOTER.isEmpty(locale))
             infoMessage.append(Message.ISLAND_INFO_FOOTER.getMessage(locale));
 

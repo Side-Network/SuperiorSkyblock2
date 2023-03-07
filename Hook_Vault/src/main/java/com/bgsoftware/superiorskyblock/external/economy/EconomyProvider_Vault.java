@@ -68,7 +68,7 @@ public class EconomyProvider_Vault implements EconomyProvider {
         if (!econ.hasAccount(offlinePlayer))
             econ.createPlayerAccount(offlinePlayer);
 
-        return Precision.round(econ.getBalance(offlinePlayer), 3);
+        return Math.floor(econ.getBalance(offlinePlayer));
     }
 
 }
