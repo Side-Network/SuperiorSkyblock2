@@ -75,7 +75,18 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
         int progressValue = pagedObject.getProgressValue(inventoryViewer);
         int amountCompleted = missionsHolder.getAmountMissionCompleted(pagedObject);
 
-        ItemStack itemStack = completed ? missionData.getCompleted().build(inventoryViewer) :
+        ItemStack itemStack;
+        if (!plugin.getMissions().hasAllRequiredMissions(inventoryViewer, missionData.getMission())) {
+            for (String requiredMission : missionData.getMission().getRequiredMissions()) {
+                Mission<?> required = plugin.getMissions().getMission(requiredMission);
+                if (required != null && !plugin.getMissions().hasAllRequiredMissions(inventoryViewer, required)) {
+                    itemStack = plugin.getMissions().getCompletePrevious().build();
+                    return itemStack;
+                }
+            }
+        }
+
+        itemStack = completed ? missionData.getCompleted().build(inventoryViewer) :
                 plugin.getMissions().canComplete(inventoryViewer, pagedObject) ?
                         missionData.getCanComplete()
                                 .replaceAll("{0}", percentage + "")
