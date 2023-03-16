@@ -328,6 +328,8 @@ public class PortalsListener implements Listener {
                 return plugin.getSettings().getWorlds().getNether().isSchematicOffset();
             case THE_END:
                 return plugin.getSettings().getWorlds().getEnd().isSchematicOffset();
+            case CITADEL:
+                return true;
             default:
                 return false;
         }
