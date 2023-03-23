@@ -195,7 +195,7 @@ public class EntityTeleports {
         homeLocation.setYaw(yaw);
         homeLocation.setPitch(pitch);
 
-        Location locationResult = changeIslandHome(island, homeLocation).add(0, 1.5, 0);
+        Location locationResult = changeIslandHome(island, homeLocation);
 
         Log.debugResult(Debug.FIND_SAFE_TELEPORT, "Result Location", locationResult);
 
@@ -221,7 +221,7 @@ public class EntityTeleports {
                 toTeleport.setPitch(pitch);
             }
 
-            toTeleport = changeIslandHome(island, toTeleport).add(0, 1.5, 0);
+            toTeleport = changeIslandHome(island, toTeleport);
 
             Log.debugResult(Debug.FIND_SAFE_TELEPORT, "Result Location", toTeleport);
 
