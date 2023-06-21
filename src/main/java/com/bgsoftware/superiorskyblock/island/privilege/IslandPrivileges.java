@@ -17,6 +17,7 @@ public class IslandPrivileges {
     public static final IslandPrivilege BAN_MEMBER = register("BAN_MEMBER");
     public static final IslandPrivilege BREAK = register("BREAK");
     public static final IslandPrivilege BUILD = register("BUILD");
+    public static final IslandPrivilege BREAK_VOID_CHESTS = register("BREAK_VOID_CHESTS");
     public static final IslandPrivilege CHANGE_NAME = register("CHANGE_NAME");
     public static final IslandPrivilege CHEST_ACCESS = register("CHEST_ACCESS");
     public static final IslandPrivilege CLOSE_BYPASS = register("CLOSE_BYPASS");
