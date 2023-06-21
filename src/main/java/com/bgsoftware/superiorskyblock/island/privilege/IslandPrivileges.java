@@ -21,6 +21,7 @@ public class IslandPrivileges {
     public static final IslandPrivilege BREAK = register("BREAK");
     public static final IslandPrivilege BRUSH = register("BRUSH", ServerVersion.isAtLeast(ServerVersion.v1_20));
     public static final IslandPrivilege BUILD = register("BUILD");
+    public static final IslandPrivilege BREAK_VOID_CHESTS = register("BREAK_VOID_CHESTS");
     public static final IslandPrivilege CHANGE_NAME = register("CHANGE_NAME", IslandPrivilege.Type.COMMAND);
     public static final IslandPrivilege CHEST_ACCESS = register("CHEST_ACCESS");
     public static final IslandPrivilege CHORUS_FRUIT = register("CHORUS_FRUIT", ServerVersion.isAtLeast(ServerVersion.v1_9));
