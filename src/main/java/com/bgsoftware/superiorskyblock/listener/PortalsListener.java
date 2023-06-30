@@ -84,6 +84,8 @@ public class PortalsListener extends AbstractGameEventListener {
 
             if (teleportedPlayer != null)
                 teleportedPlayer.setPlayerStatus(PlayerStatus.LEAVING_ISLAND);
+            else
+                return;
 
             BukkitExecutor.sync(() -> {
                 Dimension dimension = plugin.getSettings().getWorlds().getDefaultWorldDimension();
@@ -107,6 +109,8 @@ public class PortalsListener extends AbstractGameEventListener {
             return;
 
         boolean isPlayer = entity instanceof Player;
+        if (!isPlayer)
+            return;
 
         Material originalMaterial = portalLocation.getBlock().getType();
 
@@ -122,12 +126,8 @@ public class PortalsListener extends AbstractGameEventListener {
                 return;
         }
 
-        if (isPlayer) {
-            SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(entity);
-            this.portalsManager.get().handlePlayerPortalFromIsland(superiorPlayer, island, portalLocation, portalType, true);
-        } else {
-            this.portalsManager.get().handleEntityPortalFromIsland(entity, island, portalLocation, portalType);
-        }
+        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(entity);
+        this.portalsManager.get().handlePlayerPortalFromIsland(superiorPlayer, island, portalLocation, portalType, true);
     }
 
     private void handlePlayerPortal(GameEvent<GameEventArgs.EntityPortalEvent> e) {
