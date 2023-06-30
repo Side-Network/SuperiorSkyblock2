@@ -91,11 +91,12 @@ public class PortalsListener implements Listener {
 
                 if (teleportedPlayer != null)
                     teleportedPlayer.setLeavingFlag(true);
+                else
+                    return;
 
                 BukkitExecutor.sync(() -> {
                     EntityTeleports.teleportUntilSuccess(e.getEntity(), island.getIslandHome(Environment.NORMAL), 5, () -> {
-                        if (teleportedPlayer != null)
-                            teleportedPlayer.setLeavingFlag(false);
+                        teleportedPlayer.setLeavingFlag(false);
                     });
                 }, 5L);
             }
@@ -105,27 +106,25 @@ public class PortalsListener implements Listener {
             return;
 
         boolean isPlayer = e.getEntity() instanceof Player;
+        if (!isPlayer)
+            return;
 
         Material originalMaterial = e.getLocation().getBlock().getType();
 
         PlayerTeleportEvent.TeleportCause teleportCause = originalMaterial == Materials.NETHER_PORTAL.toBukkitType() ?
                 PlayerTeleportEvent.TeleportCause.NETHER_PORTAL : PlayerTeleportEvent.TeleportCause.END_PORTAL;
 
-        if (isPlayer && (teleportCause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL ? Bukkit.getAllowNether() : Bukkit.getAllowEnd()))
+        if (teleportCause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL ? Bukkit.getAllowNether() : Bukkit.getAllowEnd())
             return;
 
         if (teleportCause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) {
-            int ticksDelay = !isPlayer ? 0 : ((Player) e.getEntity()).getGameMode() == GameMode.CREATIVE ? 1 : 80;
+            int ticksDelay = ((Player) e.getEntity()).getGameMode() == GameMode.CREATIVE ? 1 : 80;
             int portalTicks = plugin.getNMSEntities().getPortalTicks(e.getEntity());
             if (portalTicks != ticksDelay)
                 return;
         }
 
-        if (isPlayer) {
-            onPlayerPortal((Player) e.getEntity(), e.getLocation(), teleportCause, false);
-        } else {
-            simulateEntityPortal(e.getEntity(), e.getLocation(), teleportCause);
-        }
+        onPlayerPortal((Player) e.getEntity(), e.getLocation(), teleportCause, false);
     }
 
     public void onPlayerPortal(Player player, Location portalLocation,
