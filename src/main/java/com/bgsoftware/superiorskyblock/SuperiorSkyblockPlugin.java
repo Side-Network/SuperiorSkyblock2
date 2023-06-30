@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorskyblock;
 
 import com.bgsoftware.common.reflection.ReflectMethod;
-import com.bgsoftware.common.updater.Updater;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblock;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -99,7 +98,6 @@ import java.util.Optional;
 public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblock {
 
     private static SuperiorSkyblockPlugin plugin;
-    private final Updater updater = new Updater(this, "superiorskyblock2");
 
     private final DataManager dataHandler = new DataManager(this);
     private final FactoriesManagerImpl factoriesHandler = new FactoriesManagerImpl();
@@ -272,13 +270,6 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
             modulesHandler.enableModules(ModuleLoadTime.AFTER_HANDLERS_LOADING);
 
-            if (updater.isOutdated()) {
-                Log.info("");
-                Log.info("A new version is available (v", updater.getLatestVersion(), ")!");
-                Log.info("Version's description: \"", updater.getVersionDescription(), "\"");
-                Log.info("");
-            }
-
             ChunksProvider.start();
 
             // Calculate the maximum amount of islands that fit into the world.
@@ -378,10 +369,6 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
         return getGenerator();
-    }
-
-    public Updater getUpdater() {
-        return updater;
     }
 
     public ClassLoader getPluginClassLoader() {
