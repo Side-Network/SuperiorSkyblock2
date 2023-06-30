@@ -36,13 +36,6 @@ public class AdminPlayersListener extends AbstractGameEventListener {
                     "&8[&fSuperiorSeries&8] &7This server is using SuperiorSkyblock2 v" +
                             plugin.getDescription().getVersion() + buildName, true), 5L);
         }
-
-        // Notifies operators about new updates
-        if (player.isOp() && plugin.getUpdater().isOutdated()) {
-            Bukkit.getScheduler().runTaskLater(plugin, () ->
-                    player.sendMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "SuperiorSkyblock2" + ChatColor.GRAY +
-                            " A new version is available (v" + plugin.getUpdater().getLatestVersion() + ")!"), 20L);
-        }
     }
 
 }

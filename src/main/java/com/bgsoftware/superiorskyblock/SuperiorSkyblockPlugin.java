@@ -273,13 +273,6 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
             loadingStage = PluginLoadingStage.CHUNKS_PROVIDER_INITIALIZED;
 
-            if (updater.isOutdated()) {
-                Log.info("");
-                Log.info("A new version is available (v", updater.getLatestVersion(), ")!");
-                Log.info("Version's description: \"", updater.getVersionDescription(), "\"");
-                Log.info("");
-            }
-
             // Calculate the maximum amount of islands that fit into the world.
             if (calculateMaxPossibleIslands() < 1000) {
                 Log.warn("It seems like you configured your max-world-size in server.properties to be a small number (", nmsAlgorithms.getMaxWorldSize(), ").");
