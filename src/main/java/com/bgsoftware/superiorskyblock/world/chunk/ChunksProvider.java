@@ -1,14 +1,16 @@
 package com.bgsoftware.superiorskyblock.world.chunk;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.common.executors.IWorker;
 import com.bgsoftware.common.executors.WorkerExecutor;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
+import com.bgsoftware.superiorskyblock.core.profiler.ProfileType;
+import com.bgsoftware.superiorskyblock.core.profiler.Profiler;
 import org.bukkit.Chunk;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +38,14 @@ public class ChunksProvider {
             return new CompletableFuture<>();
 
         Log.debug(Debug.LOAD_CHUNK, chunkPosition, chunkLoadReason);
+
+        Chunk loadedChunk = ChunkPosition.getLoadedChunk(chunkPosition).orElse(null);
+        if (loadedChunk != null) {
+            processPendingChunkLoadRequest(loadedChunk, chunkPosition);
+            if (onLoadConsumer != null)
+                onLoadConsumer.accept(loadedChunk);
+            return CompletableFuture.completedFuture(loadedChunk);
+        }
 
         PendingChunkLoadRequest pendingRequest = pendingRequests.get(chunkPosition);
 
@@ -85,6 +95,7 @@ public class ChunksProvider {
             if (stopped)
                 return;
 
+            long profiler = Profiler.start(ProfileType.LOAD_CHUNK);
             Log.debug(Debug.LOAD_CHUNK, chunkPosition, chunkLoadReason);
 
             plugin.getProviders().getChunksProvider().loadChunk(chunkPosition.getWorld(),
@@ -96,7 +107,7 @@ public class ChunksProvider {
                 }
 
                 try {
-                    finishLoad(chunk);
+                    finishLoad(chunk, profiler);
                 } catch (Exception error2) {
                     Log.entering("ENTER", chunkPosition, chunkLoadReason);
                     Log.error(error2, "An unexpected error occurred while finishing chunk loading:");
@@ -104,17 +115,22 @@ public class ChunksProvider {
             });
         }
 
-        private void finishLoad(Chunk chunk) {
-            PendingChunkLoadRequest pendingRequest = pendingRequests.remove(chunkPosition);
-
+        private void finishLoad(Chunk chunk, long profiler) {
+            Profiler.end(profiler);
             Log.debug(Debug.LOAD_CHUNK, chunkPosition, chunkLoadReason);
-
-            if (pendingRequest != null) {
-                pendingRequest.callbacks.forEach(chunkConsumer -> chunkConsumer.accept(chunk));
-                pendingRequest.completableFuture.complete(chunk);
-            }
+            processPendingChunkLoadRequest(chunk, chunkPosition);
         }
 
+    }
+
+    private static void processPendingChunkLoadRequest(Chunk chunk, ChunkPosition chunkPosition) {
+        PendingChunkLoadRequest pendingRequest = pendingRequests.remove(chunkPosition);
+
+        if (pendingRequest == null)
+            return;
+
+        pendingRequest.callbacks.forEach(chunkConsumer -> chunkConsumer.accept(chunk));
+        pendingRequest.completableFuture.complete(chunk);
     }
 
     private static class PendingChunkLoadRequest {

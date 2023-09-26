@@ -1,10 +1,21 @@
 package com.bgsoftware.superiorskyblock.island;
 
+import com.bgsoftware.common.annotations.Nullable;
+import com.bgsoftware.common.annotations.Size;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
-import com.bgsoftware.superiorskyblock.api.island.*;
+import com.bgsoftware.superiorskyblock.api.island.BlockChangeResult;
+import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.island.IslandBlockFlags;
+import com.bgsoftware.superiorskyblock.api.island.IslandChest;
+import com.bgsoftware.superiorskyblock.api.island.IslandChunkFlags;
+import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
+import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
+import com.bgsoftware.superiorskyblock.api.island.PermissionNode;
+import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
+import com.bgsoftware.superiorskyblock.api.island.SortingType;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandBlocksTrackerAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandCalculationAlgorithm;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandEntitiesTrackerAlgorithm;
@@ -28,6 +39,7 @@ import com.bgsoftware.superiorskyblock.core.SequentialListBuilder;
 import com.bgsoftware.superiorskyblock.core.WorldInfoImpl;
 import com.bgsoftware.superiorskyblock.core.database.bridge.EmptyDatabaseBridge;
 import com.bgsoftware.superiorskyblock.core.errors.ManagerLoadException;
+import com.bgsoftware.superiorskyblock.core.key.KeyMaps;
 import com.bgsoftware.superiorskyblock.core.persistence.EmptyPersistentDataContainer;
 import com.bgsoftware.superiorskyblock.core.serialization.Serializers;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
@@ -54,7 +66,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -395,26 +406,25 @@ public class SpawnIsland implements Island {
 
     @Override
     public List<Chunk> getAllChunks() {
-        return getAllChunks(false);
+        return getAllChunks(0);
     }
 
     @Override
-    public List<Chunk> getAllChunks(boolean onlyProtected) {
-        return getAllChunks(plugin.getSettings().getWorlds().getDefaultWorld(), onlyProtected);
+    public List<Chunk> getAllChunks(@IslandChunkFlags int flags) {
+        return getAllChunks(plugin.getSettings().getWorlds().getDefaultWorld(), flags);
     }
 
     @Override
+    @Deprecated
     public List<Chunk> getAllChunks(Environment environment) {
-        return getAllChunks(environment, false);
+        return getAllChunks(environment, 0);
     }
 
     @Override
-    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected) {
-        return getAllChunks(environment, onlyProtected, false);
-    }
+    public List<Chunk> getAllChunks(Environment environment, @IslandChunkFlags int flags) {
+        boolean onlyProtected = (flags & IslandChunkFlags.ONLY_PROTECTED) != 0;
+        boolean noEmptyChunks = (flags & IslandChunkFlags.NO_EMPTY_CHUNKS) != 0;
 
-    @Override
-    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
         Location min = onlyProtected ? getMinimumProtected() : getMinimum();
         Location max = onlyProtected ? getMaximumProtected() : getMaximum();
         Chunk minChunk = min.getChunk();
@@ -434,12 +444,46 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(boolean onlyProtected, boolean noEmptyChunks) {
-        return getLoadedChunks(plugin.getSettings().getWorlds().getDefaultWorld(), onlyProtected, noEmptyChunks);
+    @Deprecated
+    public List<Chunk> getAllChunks(boolean onlyProtected) {
+        return getAllChunks(onlyProtected ? IslandChunkFlags.ONLY_PROTECTED : 0);
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+    @Deprecated
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected) {
+        return getAllChunks(environment, onlyProtected ? IslandChunkFlags.ONLY_PROTECTED : 0);
+    }
+
+    @Override
+    @Deprecated
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+        int flags = 0;
+        if (onlyProtected) flags |= IslandChunkFlags.ONLY_PROTECTED;
+        if (noEmptyChunks) flags |= IslandChunkFlags.NO_EMPTY_CHUNKS;
+        return getAllChunks(environment, flags);
+    }
+
+    @Override
+    public List<Chunk> getLoadedChunks() {
+        return getLoadedChunks(0);
+    }
+
+    @Override
+    public List<Chunk> getLoadedChunks(@IslandChunkFlags int flags) {
+        return getLoadedChunks(plugin.getSettings().getWorlds().getDefaultWorld(), flags);
+    }
+
+    @Override
+    public List<Chunk> getLoadedChunks(Environment environment) {
+        return getLoadedChunks(environment, 0);
+    }
+
+    @Override
+    public List<Chunk> getLoadedChunks(Environment environment, @IslandChunkFlags int flags) {
+        boolean onlyProtected = (flags & IslandChunkFlags.ONLY_PROTECTED) != 0;
+        boolean noEmptyChunks = (flags & IslandChunkFlags.NO_EMPTY_CHUNKS) != 0;
+
         Location min = onlyProtected ? getMinimumProtected() : getMinimum();
         Location max = onlyProtected ? getMaximumProtected() : getMaximum();
 
@@ -458,32 +502,121 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, Consumer<Chunk> onChunkLoad) {
-        return getAllChunksAsync(environment, onlyProtected, false, onChunkLoad);
+    public List<Chunk> getLoadedChunks(boolean onlyProtected, boolean noEmptyChunks) {
+        int flags = 0;
+        if (onlyProtected) flags |= IslandChunkFlags.ONLY_PROTECTED;
+        if (noEmptyChunks) flags |= IslandChunkFlags.NO_EMPTY_CHUNKS;
+        return getLoadedChunks(flags);
     }
 
     @Override
-    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected, boolean noEmptyChunks, Consumer<Chunk> onChunkLoad) {
-        return IslandUtils.getAllChunksAsync(this, center.getWorld(), onlyProtected, noEmptyChunks, ChunkLoadReason.API_REQUEST, onChunkLoad);
+    public List<Chunk> getLoadedChunks(Environment environment, boolean onlyProtected, boolean noEmptyChunks) {
+        int flags = 0;
+        if (onlyProtected) flags |= IslandChunkFlags.ONLY_PROTECTED;
+        if (noEmptyChunks) flags |= IslandChunkFlags.NO_EMPTY_CHUNKS;
+        return getLoadedChunks(environment, flags);
     }
 
     @Override
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment) {
+        return getAllChunksAsync(environment, 0);
+    }
+
+    @Override
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, @IslandChunkFlags int flags) {
+        return getAllChunksAsync(environment, flags, null);
+    }
+
+    @Override
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment,
+                                                            @Nullable Consumer<Chunk> onChunkLoad) {
+        return getAllChunksAsync(environment, 0, onChunkLoad);
+    }
+
+    @Override
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment,
+                                                            @IslandChunkFlags int flags,
+                                                            @Nullable Consumer<Chunk> onChunkLoad) {
+        return IslandUtils.getAllChunksAsync(this, center.getWorld(), flags, ChunkLoadReason.API_REQUEST, onChunkLoad);
+    }
+
+    @Override
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment, boolean onlyProtected,
+                                                            @Nullable Consumer<Chunk> onChunkLoad) {
+        return getAllChunksAsync(environment, onlyProtected ? IslandChunkFlags.ONLY_PROTECTED : 0, onChunkLoad);
+    }
+
+    @Override
+    public List<CompletableFuture<Chunk>> getAllChunksAsync(Environment environment,
+                                                            boolean onlyProtected, boolean noEmptyChunks,
+                                                            @Nullable Consumer<Chunk> onChunkLoad) {
+        int flags = 0;
+        if (onlyProtected) flags |= IslandChunkFlags.ONLY_PROTECTED;
+        if (noEmptyChunks) flags |= IslandChunkFlags.NO_EMPTY_CHUNKS;
+        return getAllChunksAsync(environment, flags, onChunkLoad);
+    }
+
+    @Override
+    public void resetChunks() {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(@Nullable Runnable onFinish) {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(Environment environment) {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(Environment environment, @Nullable Runnable onFinish) {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(@IslandChunkFlags int flags) {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(@IslandChunkFlags int flags, @Nullable Runnable onFinish) {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(Environment environment, @IslandChunkFlags int flags) {
+        // Do nothing.
+    }
+
+    @Override
+    public void resetChunks(Environment environment, @IslandChunkFlags int flags, @Nullable Runnable onFinish) {
+        // Do nothing.
+    }
+
+    @Override
+    @Deprecated
     public void resetChunks(Environment environment, boolean onlyProtected) {
         // Do nothing.
     }
 
     @Override
-    public void resetChunks(Environment environment, boolean onlyProtected, Runnable onFinish) {
+    @Deprecated
+    public void resetChunks(Environment environment, boolean onlyProtected, @Nullable Runnable onFinish) {
         // Do nothing.
     }
 
     @Override
+    @Deprecated
     public void resetChunks(boolean onlyProtected) {
         // Do nothing.
     }
 
     @Override
-    public void resetChunks(boolean onlyProtected, Runnable onFinish) {
+    @Deprecated
+    public void resetChunks(boolean onlyProtected, @Nullable Runnable onFinish) {
         // Do nothing.
     }
 
@@ -821,6 +954,16 @@ public class SpawnIsland implements Island {
     }
 
     @Override
+    public boolean isCurrentlyActive() {
+        return true;
+    }
+
+    @Override
+    public void setCurrentlyActive(boolean active) {
+        // Do nothing.
+    }
+
+    @Override
     public long getLastTimeUpdate() {
         return -1;
     }
@@ -876,31 +1019,80 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public void handleBlockPlace(Block block, int amount) {
+    public BlockChangeResult handleBlockPlaceWithResult(Block block) {
+        return BlockChangeResult.SUCCESS;
+    }
+
+    @Override
+    public void handleBlockPlace(Key key) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockPlace(Block block, int amount, boolean save) {
+    public BlockChangeResult handleBlockPlaceWithResult(Key key) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockPlace(Block block, @Size int amount) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockPlace(Key key, int amount) {
+    public BlockChangeResult handleBlockPlaceWithResult(Block block, @Size int amount) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockPlace(Key key, @Size int amount) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockPlace(Key key, int amount, boolean save) {
+    public BlockChangeResult handleBlockPlaceWithResult(Key key, @Size int amount) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockPlace(Block block, @Size int amount, @IslandBlockFlags int flags) {
         // Do nothing.
     }
 
     @Override
+    public BlockChangeResult handleBlockPlaceWithResult(Block block, @Size int amount, int flags) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockPlace(Key key, @Size int amount, @IslandBlockFlags int flags) {
+        // Do nothing.
+    }
+
+    @Override
+    public BlockChangeResult handleBlockPlaceWithResult(Key key, @Size int amount, @IslandBlockFlags int flags) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    @Deprecated
+    public void handleBlockPlace(Block block, @Size int amount, boolean save) {
+        // Do nothing.
+    }
+
+    @Override
+    @Deprecated
+    public void handleBlockPlace(Key key, @Size int amount, boolean save) {
+        // Do nothing.
+    }
+
+    @Override
+    @Deprecated
     public void handleBlockPlace(Key key, BigInteger amount, boolean save) {
         // Do nothing.
     }
 
     @Override
+    @Deprecated
     public void handleBlockPlace(Key key, BigInteger amount, boolean save, boolean updateLastTimeStatus) {
         // Do nothing.
     }
@@ -911,33 +1103,116 @@ public class SpawnIsland implements Island {
     }
 
     @Override
+    public Map<Key, BlockChangeResult> handleBlocksPlaceWithResult(Map<Key, Integer> blocks) {
+        return KeyMaps.createEmptyMap();
+    }
+
+    @Override
+    public void handleBlocksPlace(Map<Key, Integer> blocks, int flags) {
+        // Do nothing.
+    }
+
+    @Override
+    public Map<Key, BlockChangeResult> handleBlocksPlaceWithResult(Map<Key, Integer> blocks, int flags) {
+        return KeyMaps.createEmptyMap();
+    }
+
+    @Override
     public void handleBlockBreak(Block block) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockBreak(Block block, int amount) {
+    public BlockChangeResult handleBlockBreakWithResult(Block block) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockBreak(Key key) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockBreak(Block block, int amount, boolean save) {
+    public BlockChangeResult handleBlockBreakWithResult(Key key) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockBreak(Block block, @Size int amount) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockBreak(Key key, int amount) {
+    public BlockChangeResult handleBlockBreakWithResult(Block block, @Size int amount) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockBreak(Key key, @Size int amount) {
         // Do nothing.
     }
 
     @Override
-    public void handleBlockBreak(Key key, int amount, boolean save) {
+    public BlockChangeResult handleBlockBreakWithResult(Key key, @Size int amount) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockBreak(Block block, @Size int amount, @IslandBlockFlags int flags) {
         // Do nothing.
     }
 
     @Override
+    public BlockChangeResult handleBlockBreakWithResult(Block block, @Size int amount, int flags) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    public void handleBlockBreak(Key key, @Size int amount, @IslandBlockFlags int flags) {
+        // Do nothing.
+    }
+
+    @Override
+    public BlockChangeResult handleBlockBreakWithResult(Key key, @Size int amount, int flags) {
+        return BlockChangeResult.SPAWN_ISLAND;
+    }
+
+    @Override
+    @Deprecated
+    public void handleBlockBreak(Block block, @Size int amount, boolean save) {
+        // Do nothing.
+    }
+
+    @Override
+    @Deprecated
+    public void handleBlockBreak(Key key, @Size int amount, boolean save) {
+        // Do nothing.
+    }
+
+    @Override
+    @Deprecated
     public void handleBlockBreak(Key key, BigInteger amount, boolean save) {
         // Do nothing.
+    }
+
+    @Override
+    public void handleBlocksBreak(Map<Key, Integer> blocks) {
+        // Do nothing.
+    }
+
+    @Override
+    public Map<Key, BlockChangeResult> handleBlocksBreakWithResult(Map<Key, Integer> blocks) {
+        return KeyMaps.createEmptyMap();
+    }
+
+    @Override
+    public void handleBlocksBreak(Map<Key, Integer> blocks, @IslandBlockFlags int flags) {
+        // Do nothing.
+    }
+
+    @Override
+    public Map<Key, BlockChangeResult> handleBlocksBreakWithResult(Map<Key, Integer> blocks, int flags) {
+        return KeyMaps.createEmptyMap();
     }
 
     @Override
@@ -1160,7 +1435,7 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public boolean hasReachedBlockLimit(Key key, int amount) {
+    public boolean hasReachedBlockLimit(Key key, @Size int amount) {
         return false;
     }
 
@@ -1210,12 +1485,12 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public CompletableFuture<Boolean> hasReachedEntityLimit(EntityType entityType, int amount) {
+    public CompletableFuture<Boolean> hasReachedEntityLimit(EntityType entityType, @Size int amount) {
         return CompletableFuture.completedFuture(false);
     }
 
     @Override
-    public CompletableFuture<Boolean> hasReachedEntityLimit(Key key, int amount) {
+    public CompletableFuture<Boolean> hasReachedEntityLimit(Key key, @Size int amount) {
         return CompletableFuture.completedFuture(false);
     }
 
@@ -1276,6 +1551,11 @@ public class SpawnIsland implements Island {
 
     @Override
     public void applyEffects(SuperiorPlayer superiorPlayer) {
+        // Do nothing.
+    }
+
+    @Override
+    public void applyEffects() {
         // Do nothing.
     }
 
@@ -1471,7 +1751,7 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public void setGeneratorAmount(Key key, int amount, Environment environment) {
+    public void setGeneratorAmount(Key key, @Size int amount, Environment environment) {
         // Do nothing.
     }
 

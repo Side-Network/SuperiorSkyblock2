@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.bank.BankTransaction;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
@@ -83,11 +84,13 @@ public class BankCustomWithdrawButton extends AbstractMenuViewButton<IslandMenuV
 
     public static class Template extends MenuTemplateButtonImpl<IslandMenuView> {
 
+        @Nullable
         private final GameSound successSound;
+        @Nullable
         private final GameSound failSound;
 
-        Template(TemplateItem buttonItem, List<String> commands, String requiredPermission,
-                 GameSound lackPermissionSound, GameSound successSound, GameSound failSound) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable List<String> commands, @Nullable String requiredPermission,
+                 @Nullable GameSound lackPermissionSound, @Nullable GameSound successSound, @Nullable GameSound failSound) {
             super(buttonItem, null, commands, requiredPermission, lackPermissionSound,
                     BankCustomWithdrawButton.class, BankCustomWithdrawButton::new);
             this.successSound = successSound;

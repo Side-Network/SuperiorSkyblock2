@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -7,11 +8,11 @@ import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.upgrades.Upgrade;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.core.messages.Message;
-import com.bgsoftware.superiorskyblock.player.PlayerLocales;
 import com.bgsoftware.superiorskyblock.commands.IAdminIslandCommand;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
+import com.bgsoftware.superiorskyblock.core.messages.Message;
+import com.bgsoftware.superiorskyblock.island.IslandUtils;
 import com.bgsoftware.superiorskyblock.module.BuiltinModules;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeBlockLimits;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeCropGrowth;
@@ -19,7 +20,7 @@ import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeEntityLim
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeIslandEffects;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeMobDrops;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeSpawnerRates;
-import com.bgsoftware.superiorskyblock.island.IslandUtils;
+import com.bgsoftware.superiorskyblock.player.PlayerLocales;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.potion.PotionEffectType;
@@ -77,7 +78,7 @@ public class CmdAdminShow implements IAdminIslandCommand {
     }
 
     @Override
-    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, Island island, String[] args) {
+    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, @Nullable SuperiorPlayer targetPlayer, Island island, String[] args) {
         java.util.Locale locale = PlayerLocales.getLocale(sender);
         long lastTime = island.getLastTimeUpdate();
 
@@ -191,7 +192,7 @@ public class CmdAdminShow implements IAdminIslandCommand {
         }
 
         // Island coop limit
-        if (!Message.ISLAND_INFO_ADMIN_COOP_LIMIT.isEmpty(locale)) {
+        if (plugin.getSettings().isCoopMembers() && !Message.ISLAND_INFO_ADMIN_COOP_LIMIT.isEmpty(locale)) {
             infoMessage.append(Message.ISLAND_INFO_ADMIN_COOP_LIMIT.getMessage(locale, island.getCoopLimit()));
             if (island.getCoopLimitRaw() != island.getCoopLimit())
                 infoMessage.append(" ").append(Message.ISLAND_INFO_ADMIN_VALUE_SYNCED.getMessage(locale));
@@ -273,7 +274,7 @@ public class CmdAdminShow implements IAdminIslandCommand {
                     Map<Key, Integer> customGeneratorValues = island.getCustomGeneratorAmounts(environment);
                     StringBuilder generatorString = new StringBuilder();
                     for (Map.Entry<String, Integer> entry : island.getGeneratorPercentages(environment).entrySet()) {
-                        Key key = KeyImpl.of(entry.getKey());
+                        Key key = Keys.ofMaterialAndData(entry.getKey());
                         generatorString.append(Message.ISLAND_INFO_ADMIN_GENERATOR_RATES_LINE.getMessage(locale,
                                 Formatters.CAPITALIZED_FORMATTER.format(entry.getKey()),
                                 Formatters.NUMBER_FORMATTER.format(IslandUtils.getGeneratorPercentageDecimal(island, key, environment)),

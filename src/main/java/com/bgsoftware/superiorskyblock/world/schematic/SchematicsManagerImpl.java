@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.world.schematic;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.handlers.SchematicManager;
@@ -35,7 +36,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
-import javax.annotation.Nullable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -51,7 +51,6 @@ import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
 public class SchematicsManagerImpl extends Manager implements SchematicManager {
 
     private final SchematicsContainer schematicsContainer;

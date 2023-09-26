@@ -1,18 +1,17 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
-import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
+import com.bgsoftware.superiorskyblock.api.island.IslandChunkFlags;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
-import com.bgsoftware.superiorskyblock.core.logging.Log;
-import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.commands.CommandTabCompletes;
 import com.bgsoftware.superiorskyblock.commands.IAdminIslandCommand;
+import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
-import com.bgsoftware.superiorskyblock.island.IslandUtils;
-import com.bgsoftware.superiorskyblock.core.ChunkPosition;
+import com.bgsoftware.superiorskyblock.core.logging.Log;
+import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
@@ -68,7 +67,7 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
     }
 
     @Override
-    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, List<Island> islands, String[] args) {
+    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, @Nullable SuperiorPlayer targetPlayer, List<Island> islands, String[] args) {
         Environment environment = CommandArguments.getEnvironment(sender, args[3]);
 
         if (environment == null)
@@ -106,8 +105,7 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
             }
 
             // Resetting the chunks
-            List<ChunkPosition> chunkPositions = IslandUtils.getChunkCoords(island, WorldInfo.of(world), true, true);
-            IslandUtils.deleteChunks(island, chunkPositions, () -> island.calcIslandWorth(null));
+            island.resetChunks(environment, IslandChunkFlags.ONLY_PROTECTED, () -> island.calcIslandWorth(null));
 
             island.setSchematicGenerate(environment, false);
         }

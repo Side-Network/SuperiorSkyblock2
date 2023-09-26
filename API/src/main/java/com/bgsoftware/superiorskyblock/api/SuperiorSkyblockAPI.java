@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.api;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.config.SettingsManager;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
@@ -26,7 +27,6 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -71,7 +71,7 @@ public class SuperiorSkyblockAPI {
      * Everytime a change is made to the API, the version of it changes.
      */
     public static int getAPIVersion() {
-        return 6;
+        return 8;
     }
 
     /*

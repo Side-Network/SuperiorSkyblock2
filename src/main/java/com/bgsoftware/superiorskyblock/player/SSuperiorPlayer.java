@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.player;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
@@ -12,6 +13,7 @@ import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.menu.view.MenuView;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.persistence.PersistentDataContainer;
+import com.bgsoftware.superiorskyblock.api.player.PlayerStatus;
 import com.bgsoftware.superiorskyblock.api.player.algorithm.PlayerTeleportAlgorithm;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockPosition;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -37,8 +39,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitTask;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,11 +84,8 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     private BorderColor borderColor;
     private long lastTimeStatus;
 
-    private boolean immuneToPvP = false;
-    private boolean immuneToPortals = false;
-    private boolean leavingFlag = false;
-
     private BukkitTask teleportTask = null;
+    private PlayerStatus playerStatus = PlayerStatus.NONE;
 
     public SSuperiorPlayer(SuperiorPlayerBuilderImpl builder) {
         this.uuid = builder.uuid;
@@ -122,7 +119,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
             return target ? HitActionResult.TARGET_NOT_ONLINE : HitActionResult.NOT_ONLINE;
 
         // Checks for pvp warm-up
-        if (player.isImmunedToPvP())
+        if (player.getPlayerStatus() == PlayerStatus.PVP_IMMUNED)
             return target ? HitActionResult.TARGET_PVP_WARMUP : HitActionResult.PVP_WARMUP;
 
         Island standingIsland = plugin.getGrid().getIslandAt(player.getLocation());
@@ -160,7 +157,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void setTextureValue(@Nonnull String textureValue) {
+    public void setTextureValue(String textureValue) {
         Preconditions.checkNotNull(textureValue, "textureValue parameter cannot be null.");
 
         Log.debug(Debug.SET_TEXTURE_VALUE, getName(), textureValue);
@@ -762,26 +759,51 @@ public class SSuperiorPlayer implements SuperiorPlayer {
      *   Missions Methods
      */
 
+    /*
+     *   Data Methods
+     */
+
     @Override
+    @Deprecated
     public boolean isImmunedToPvP() {
-        return immuneToPvP;
+        return this.playerStatus == PlayerStatus.PVP_IMMUNED;
     }
 
     @Override
+    @Deprecated
     public void setImmunedToPvP(boolean immunedToPvP) {
-        Log.debug(Debug.SET_PVP_IMMUNED, getName(), immunedToPvP);
-        this.immuneToPvP = immunedToPvP;
+        if (immunedToPvP)
+            setPlayerStatus(PlayerStatus.PVP_IMMUNED);
+        else if (getPlayerStatus() == PlayerStatus.PVP_IMMUNED)
+            setPlayerStatus(PlayerStatus.NONE);
     }
 
     @Override
+    @Deprecated
     public boolean isLeavingFlag() {
-        return leavingFlag;
+        return this.playerStatus == PlayerStatus.LEAVING_ISLAND;
     }
 
     @Override
+    @Deprecated
     public void setLeavingFlag(boolean leavingFlag) {
-        Log.debug(Debug.SET_LEAVING_FLAG, getName(), leavingFlag);
-        this.leavingFlag = leavingFlag;
+        if (leavingFlag)
+            setPlayerStatus(PlayerStatus.LEAVING_ISLAND);
+        else if (getPlayerStatus() == PlayerStatus.LEAVING_ISLAND)
+            setPlayerStatus(PlayerStatus.NONE);
+    }
+
+    @Override
+    public boolean isImmunedToPortals() {
+        return this.playerStatus == PlayerStatus.PORTALS_IMMUNED;
+    }
+
+    @Override
+    public void setImmunedToPortals(boolean immuneToTeleport) {
+        if (immuneToTeleport)
+            setPlayerStatus(PlayerStatus.PORTALS_IMMUNED);
+        else if (getPlayerStatus() == PlayerStatus.PORTALS_IMMUNED)
+            setPlayerStatus(PlayerStatus.NONE);
     }
 
     @Override
@@ -797,18 +819,19 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public boolean isImmunedToPortals() {
-        return immuneToPortals;
+    public PlayerStatus getPlayerStatus() {
+        return this.playerStatus;
     }
 
-    /*
-     *   Data Methods
-     */
-
     @Override
-    public void setImmunedToPortals(boolean immuneToTeleport) {
-        Log.debug(Debug.SET_PORTALS_IMMUNED, getName(), immuneToTeleport);
-        this.immuneToPortals = immuneToTeleport;
+    public void setPlayerStatus(PlayerStatus playerStatus) {
+        Preconditions.checkNotNull(playerStatus, "playerStatus cannot be null");
+
+        if (this.playerStatus == playerStatus)
+            return;
+
+        Log.debug(Debug.SET_PLAYER_STATUS, getName(), playerStatus.name());
+        this.playerStatus = playerStatus;
     }
 
     @Override

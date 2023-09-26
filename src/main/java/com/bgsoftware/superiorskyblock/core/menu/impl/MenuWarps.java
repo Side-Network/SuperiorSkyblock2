@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.warps.IslandWarp;
@@ -24,13 +25,12 @@ import com.bgsoftware.superiorskyblock.core.menu.view.args.IslandViewArgs;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
 import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
-import com.bgsoftware.superiorskyblock.island.warp.SIslandWarp;
+import com.bgsoftware.superiorskyblock.island.warp.WarpIcons;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public class MenuWarps extends AbstractPagedMenu<MenuWarps.View, MenuWarps.Args,
     private final List<String> editLore;
 
     private MenuWarps(MenuParseResult<View> parseResult, List<String> editLore) {
-        super(MenuIdentifiers.MENU_WARPS, parseResult, true);
+        super(MenuIdentifiers.MENU_WARPS, parseResult, false);
         this.editLore = editLore;
     }
 
@@ -119,15 +119,11 @@ public class MenuWarps extends AbstractPagedMenu<MenuWarps.View, MenuWarps.Args,
 
         List<String> editLore = cfg.getStringList("edit-lore");
 
-        if (SIslandWarp.DEFAULT_WARP_ICON == null) {
-            ItemStack defaultWarpIcon = menuParseResult.getLayoutBuilder().build().getButtons().stream()
-                    .filter(button -> button.getViewButtonType().equals(WarpPagedObjectButton.class))
-                    .findFirst().map(MenuTemplateButton::getButtonItem)
-                    .orElse(null);
-
-            SIslandWarp.DEFAULT_WARP_ICON = new TemplateItem(defaultWarpIcon == null ? new ItemBuilder(Material.AIR) :
-                    new ItemBuilder(defaultWarpIcon));
-        }
+        ItemStack defaultWarpIcon = menuParseResult.getLayoutBuilder().build().getButtons().stream()
+                .filter(button -> button.getViewButtonType().equals(WarpPagedObjectButton.class))
+                .findFirst().map(MenuTemplateButton::getButtonItem)
+                .orElse(null);
+        WarpIcons.DEFAULT_WARP_ICON = new TemplateItem(defaultWarpIcon == null ? new ItemBuilder(Material.AIR) : new ItemBuilder(defaultWarpIcon));
 
         return new MenuWarps(menuParseResult, editLore);
     }

@@ -3,11 +3,13 @@ package com.bgsoftware.superiorskyblock.commands.player;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
-import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
 import com.bgsoftware.superiorskyblock.core.Materials;
+import com.bgsoftware.superiorskyblock.core.Text;
+import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
+import com.bgsoftware.superiorskyblock.core.key.types.CustomKey;
+import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -68,12 +70,25 @@ public class CmdValue implements ISuperiorCommand {
                 inHand = new ItemStack(Material.AIR);
             }
 
-            toCheck = KeyImpl.of(inHand);
+            toCheck = Keys.of(inHand);
 
-            if (inHand.getType() == Materials.SPAWNER.toBukkitType())
-                keyName = Formatters.CAPITALIZED_FORMATTER.format(toCheck.getSubKey() + "_Spawner");
+            if (inHand.getType() == Materials.SPAWNER.toBukkitType()) {
+                String subKey = toCheck.getSubKey();
+                if (!Text.isBlank(subKey))
+                    keyName = Formatters.CAPITALIZED_FORMATTER.format(subKey + "_Spawner");
+            }
+
+            if (keyName.isEmpty() && toCheck instanceof CustomKey) {
+                String subKey = toCheck.getSubKey();
+                if (Text.isBlank(subKey)) {
+                    keyName = Formatters.CAPITALIZED_FORMATTER.format(toCheck.toString());
+                } else {
+                    keyName = Formatters.CAPITALIZED_FORMATTER.format(subKey);
+                }
+            }
+
         } else {
-            toCheck = KeyImpl.of(args[1]);
+            toCheck = Keys.ofMaterialAndData(args[1]);
         }
 
         if (keyName.isEmpty())

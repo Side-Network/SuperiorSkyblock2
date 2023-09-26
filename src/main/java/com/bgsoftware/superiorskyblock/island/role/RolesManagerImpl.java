@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.island.role;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.handlers.RolesManager;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
@@ -9,7 +10,6 @@ import com.bgsoftware.superiorskyblock.island.role.container.RolesContainer;
 import com.google.common.base.Preconditions;
 import org.bukkit.configuration.ConfigurationSection;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class RolesManagerImpl extends Manager implements RolesManager {
             throw new ManagerLoadException("Missing \"coop\" section for island roles", ManagerLoadException.ErrorLevel.SERVER_SHUTDOWN);
 
         SPlayerRole guestsRole = loadRole(guestSection, GUEST_ROLE_INDEX, null);
-        SPlayerRole previousRole = loadRole(coopSection, COOP_ROLE_INDEX, guestsRole);
+        SPlayerRole coopRole = loadRole(coopSection, COOP_ROLE_INDEX, guestsRole);
 
         ConfigurationSection laddersSection = rolesSection.getConfigurationSection("ladder");
 
@@ -53,6 +53,7 @@ public class RolesManagerImpl extends Manager implements RolesManager {
             rolesByWeight.add(laddersSection.getConfigurationSection(roleSectionName));
         rolesByWeight.sort(Comparator.comparingInt(o -> o.getInt("weight", -1)));
 
+        SPlayerRole previousRole = coopRole;
         for (ConfigurationSection roleSection : rolesByWeight)
             previousRole = loadRole(roleSection, previousRole.getWeight() + 1, previousRole);
     }

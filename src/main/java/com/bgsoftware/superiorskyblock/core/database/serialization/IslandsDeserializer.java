@@ -20,7 +20,7 @@ import com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer.Json
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer.MultipleDeserializer;
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer.RawDeserializer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.serialization.Serializers;
 import com.bgsoftware.superiorskyblock.island.IslandUtils;
@@ -341,7 +341,7 @@ public class IslandsDeserializer {
 
         blockCounts.forEach(blockCountElement -> {
             JsonObject blockCountObject = blockCountElement.getAsJsonObject();
-            Key blockKey = KeyImpl.of(blockCountObject.get("id").getAsString());
+            Key blockKey = Keys.ofMaterialAndData(blockCountObject.get("id").getAsString());
             BigInteger amount = new BigInteger(blockCountObject.get("amount").getAsString());
             builder.setBlockCount(blockKey, amount);
         });
@@ -357,7 +357,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<Key> block = blockLimits.getString("block").map(KeyImpl::of);
+            Optional<Key> block = blockLimits.getString("block").map(Keys::ofMaterialAndData);
             if (!block.isPresent()) {
                 Log.warn("Cannot load block limits for invalid blocks for ", uuid.get(), ", skipping...");
                 return;
@@ -384,7 +384,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<Key> entity = entityLimits.getString("entity").map(KeyImpl::of);
+            Optional<Key> entity = entityLimits.getString("entity").map(Keys::ofEntityType);
             if (!entity.isPresent()) {
                 Log.warn("Cannot load entity limits for invalid entities on ", uuid.get(), ", skipping...");
                 return;
@@ -523,7 +523,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<Key> block = generators.getString("block").map(KeyImpl::of);
+            Optional<Key> block = generators.getString("block").map(Keys::ofMaterialAndData);
             if (!block.isPresent()) {
                 Log.warn("Cannot load generator rates with invalid block for ", uuid.get(), ", skipping...");
                 return;
@@ -640,7 +640,7 @@ public class IslandsDeserializer {
                 return;
             }
 
-            Optional<ItemStack[]> contents = islandChests.getString("contents").map(Serializers.INVENTORY_SERIALIZER::deserialize);
+            Optional<ItemStack[]> contents = islandChests.getBlob("contents").map(Serializers.INVENTORY_SERIALIZER::deserialize);
             if (!contents.isPresent()) {
                 Log.warn("Cannot load island chest with invalid contents for ", uuid.get(), ", skipping...");
                 return;

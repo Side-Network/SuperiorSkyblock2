@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorskyblock.service.placeholders;
 
+import com.bgsoftware.common.annotations.NotNull;
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
@@ -12,15 +14,14 @@ import com.bgsoftware.superiorskyblock.api.service.placeholders.PlayerPlaceholde
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.key.ConstantKeys;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.external.placeholders.PlaceholdersProvider;
 import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
 import com.bgsoftware.superiorskyblock.island.top.SortingTypes;
+import com.bgsoftware.superiorskyblock.service.IService;
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,8 +35,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("WeakerAccess")
-public class PlaceholdersServiceImpl implements PlaceholdersService {
+public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
 
     private static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
 
@@ -183,6 +183,7 @@ public class PlaceholdersServiceImpl implements PlaceholdersService {
                     .put("bank_limit", (island, superiorPlayer) -> Formatters.NUMBER_FORMATTER.format(island.getBankLimit()))
                     .put("bank_limit_format", (island, superiorPlayer) ->
                             Formatters.FANCY_NUMBER_FORMATTER.format(island.getBankLimit(), superiorPlayer.getUserLocale()))
+                    .put("uuid", (island, superiorPlayer) -> island.getUniqueId() + "")
                     .build();
 
     private static final Map<SortingType, BiFunction<Island, SuperiorPlayer, String>> TOP_VALUE_FORMAT_FUNCTIONS =
@@ -219,6 +220,11 @@ public class PlaceholdersServiceImpl implements PlaceholdersService {
     private final List<PlaceholdersProvider> placeholdersProviders = new LinkedList<>();
 
     public PlaceholdersServiceImpl() {
+    }
+
+    @Override
+    public Class<?> getAPIClass() {
+        return PlaceholdersService.class;
     }
 
     public void register(List<PlaceholdersProvider> placeholdersProviders) {
@@ -320,16 +326,16 @@ public class PlaceholdersServiceImpl implements PlaceholdersService {
                 } else if ((matcher = COUNT_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                     String keyName = matcher.group(1);
                     return Optional.of(Formatters.NUMBER_FORMATTER.format(island
-                            .getBlockCountAsBigInteger(KeyImpl.of(keyName))));
+                            .getBlockCountAsBigInteger(Keys.ofMaterialAndData(keyName))));
                 } else if ((matcher = BLOCK_LIMIT_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                     String keyName = matcher.group(1);
-                    return Optional.of(island.getBlockLimit(KeyImpl.of(keyName)) + "");
+                    return Optional.of(island.getBlockLimit(Keys.ofMaterialAndData(keyName)) + "");
                 } else if ((matcher = ENTITY_LIMIT_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                     String keyName = matcher.group(1);
-                    return Optional.of(island.getEntityLimit(KeyImpl.of(keyName)) + "");
+                    return Optional.of(island.getEntityLimit(Keys.ofEntityType(keyName)) + "");
                 } else if ((matcher = ENTITY_COUNT_PLACEHOLDER_PATTERN.matcher(placeholder)).matches()) {
                     String keyName = matcher.group(1);
-                    return Optional.of(Formatters.NUMBER_FORMATTER.format(island.getEntitiesTracker().getEntityCount(KeyImpl.of(keyName))));
+                    return Optional.of(Formatters.NUMBER_FORMATTER.format(island.getEntitiesTracker().getEntityCount(Keys.ofEntityType(keyName))));
                 } else if ((matcher = MEMBER_PLACEHOLDER_PATTERN.matcher(subPlaceholder)).matches()) {
                     return handleMembersPlaceholder(island, matcher.group(1));
                 } else if ((matcher = VISITOR_LAST_JOIN_PLACEHOLDER_PATTERN.matcher(subPlaceholder)).matches()) {

@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorskyblock.core.logging;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.logging.Level;
 
@@ -12,9 +12,18 @@ public class Log {
 
     private static final EnumSet<Debug> DEBUG_FILTERS = EnumSet.noneOf(Debug.class);
     private static boolean debugMode = false;
+    private static final ThreadLocal<StackTrace> originalStackTrace = new ThreadLocal<>();
 
     private Log() {
 
+    }
+
+    public static void attachStackTrace(StackTrace stackTrace) {
+        originalStackTrace.set(stackTrace);
+    }
+
+    public static void detachStackTrace() {
+        originalStackTrace.set(null);
     }
 
     public static void info(Object first, Object... parts) {
@@ -45,6 +54,14 @@ public class Log {
     public static void errorFromFile(Throwable error, String fileName, Object first, Object... parts) {
         errorFromFile(fileName, first, parts);
         error.printStackTrace();
+    }
+
+    public static void profile(String[] profiledDataLines) {
+        if (!isDebugged(Debug.PROFILER))
+            return;
+
+        for (String line : profiledDataLines)
+            logInternal(Level.INFO, line);
     }
 
     public static void debug(Debug debug, Object... params) {
@@ -135,7 +152,10 @@ public class Log {
     }
 
     private static void printStackTrace() {
-        new Exception().printStackTrace();
+        Thread.dumpStack();
+        StackTrace originalStackTrace = Log.originalStackTrace.get();
+        if (originalStackTrace != null)
+            originalStackTrace.dump();
     }
 
 }

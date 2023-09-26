@@ -1,24 +1,33 @@
 package com.bgsoftware.superiorskyblock.commands.admin;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.service.portals.PortalsManagerService;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.CommandTabCompletes;
 import com.bgsoftware.superiorskyblock.commands.IAdminIslandCommand;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
-import com.bgsoftware.superiorskyblock.listener.PortalsListener;
+import org.bukkit.PortalType;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class CmdAdminTeleport implements IAdminIslandCommand {
+
+    private static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
+    private static final LazyReference<PortalsManagerService> portalsManager = new LazyReference<PortalsManagerService>() {
+        @Override
+        protected PortalsManagerService create() {
+            return plugin.getServices().getService(PortalsManagerService.class);
+        }
+    };
 
     @Override
     public List<String> getAliases() {
@@ -63,7 +72,7 @@ public class CmdAdminTeleport implements IAdminIslandCommand {
     }
 
     @Override
-    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, Island island, String[] args) {
+    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, @Nullable SuperiorPlayer targetPlayer, Island island, String[] args) {
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(sender);
 
         Environment environment;
@@ -83,16 +92,20 @@ public class CmdAdminTeleport implements IAdminIslandCommand {
 
         if (environment != plugin.getSettings().getWorlds().getDefaultWorld()) {
             if (!island.wasSchematicGenerated(environment)) {
-                PlayerTeleportEvent.TeleportCause teleportCause;
-                switch (environment) {
-                    case NETHER -> teleportCause = PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
-                    case THE_END -> teleportCause = PlayerTeleportEvent.TeleportCause.END_PORTAL;
-                    case CITADEL -> teleportCause = PlayerTeleportEvent.TeleportCause.COMMAND;
-                    default -> teleportCause = PlayerTeleportEvent.TeleportCause.PLUGIN;
-                }
-                plugin.getListener(PortalsListener.class).get()
-                        .onPlayerPortal((Player) sender, ((Player) sender).getLocation(), teleportCause, true);
+                PortalType portalType = environment == World.Environment.NETHER ? PortalType.NETHER : PortalType.ENDER;
+                portalsManager.get().handlePlayerPortalFromIsland(superiorPlayer, island, superiorPlayer.getLocation(),
+                        portalType, false);
                 return;
+                // todo: SIDE
+                //                 PlayerTeleportEvent.TeleportCause teleportCause;
+                //                switch (environment) {
+                //                    case NETHER -> teleportCause = PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
+                //                    case THE_END -> teleportCause = PlayerTeleportEvent.TeleportCause.END_PORTAL;
+                //                    case CITADEL -> teleportCause = PlayerTeleportEvent.TeleportCause.COMMAND;
+                //                    default -> teleportCause = PlayerTeleportEvent.TeleportCause.PLUGIN;
+                //                }
+                //                plugin.getListener(PortalsListener.class).get()
+                //                        .onPlayerPortal((Player) sender, ((Player) sender).getLocation(), teleportCause, true);
             }
         }
 

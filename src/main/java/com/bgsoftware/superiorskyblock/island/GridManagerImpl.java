@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorskyblock.island;
 
+import com.bgsoftware.common.annotations.NotNull;
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridgeMode;
@@ -13,10 +15,12 @@ import com.bgsoftware.superiorskyblock.api.island.SortingType;
 import com.bgsoftware.superiorskyblock.api.island.container.IslandsContainer;
 import com.bgsoftware.superiorskyblock.api.menu.view.MenuView;
 import com.bgsoftware.superiorskyblock.api.schematic.Schematic;
+import com.bgsoftware.superiorskyblock.api.service.dragon.DragonBattleService;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import com.bgsoftware.superiorskyblock.api.world.algorithm.IslandCreationAlgorithm;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.LazyWorldLocation;
 import com.bgsoftware.superiorskyblock.core.Manager;
 import com.bgsoftware.superiorskyblock.core.SBlockPosition;
@@ -47,9 +51,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -57,17 +59,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
 public class GridManagerImpl extends Manager implements GridManager {
 
     private static final Function<Island, UUID> ISLAND_OWNERS_MAPPER = island -> island.getOwner().getUniqueId();
 
     private final Set<UUID> pendingCreationTasks = Sets.newHashSet();
     private final Set<UUID> customWorlds = Sets.newHashSet();
+
+    private final LazyReference<DragonBattleService> dragonBattleService = new LazyReference<DragonBattleService>() {
+        @Override
+        protected DragonBattleService create() {
+            return plugin.getServices().getService(DragonBattleService.class);
+        }
+    };
 
     private final IslandsPurger islandsPurger;
     private final IslandPreviews islandPreviews;
@@ -107,7 +116,8 @@ public class GridManagerImpl extends Manager implements GridManager {
             throw new RuntimeException("GridManager was not initialized correctly. Contact Ome_R regarding this!");
 
         initializeDatabaseBridge();
-        this.islandCreationAlgorithm = DefaultIslandCreationAlgorithm.getInstance();
+        if (this.islandCreationAlgorithm == null)
+            this.islandCreationAlgorithm = DefaultIslandCreationAlgorithm.getInstance();
 
         this.lastIsland = new SBlockPosition(plugin.getSettings().getWorlds().getDefaultWorldName(), 0, 100, 0);
         BukkitExecutor.sync(this::updateSpawn);
@@ -216,6 +226,20 @@ public class GridManagerImpl extends Manager implements GridManager {
         this.islandCreationAlgorithm.createIsland(builder, this.lastIsland).whenComplete((islandCreationResult, error) -> {
             pendingCreationTasks.remove(builder.owner.getUniqueId());
 
+            switch (islandCreationResult.getStatus()) {
+                case NAME_OCCUPIED:
+                    builder.owner.setIsland(null);
+                    Message.ISLAND_ALREADY_EXIST.send(builder.owner);
+                    return;
+                case SUCCESS:
+                    break;
+                default:
+                    Log.warn("Cannot handle creation status: " + islandCreationResult.getStatus());
+                    builder.owner.setIsland(null);
+                    Message.CREATE_ISLAND_FAILURE.send(builder.owner);
+                    return;
+            }
+
             if (error == null) {
                 try {
                     Island island = islandCreationResult.getIsland();
@@ -233,6 +257,7 @@ public class GridManagerImpl extends Manager implements GridManager {
 
                         island.setBiome(biome);
                         island.setSchematicGenerate(plugin.getSettings().getWorlds().getDefaultWorld());
+                        island.setCurrentlyActive(true);
 
                         if (offset) {
                             island.setBonusWorth(island.getRawWorth().negate());
@@ -263,7 +288,7 @@ public class GridManagerImpl extends Manager implements GridManager {
                                         BukkitExecutor.sync(() -> IslandUtils.resetChunksExcludedFromList(island, affectedChunks), 10L);
                                     if (plugin.getSettings().getWorlds().getDefaultWorld() == Environment.THE_END) {
                                         plugin.getNMSDragonFight().awardTheEndAchievement(player);
-                                        plugin.getServices().getDragonBattleService().resetEnderDragonBattle(island);
+                                        this.dragonBattleService.get().resetEnderDragonBattle(island);
                                     }
                                 }
                             });
@@ -294,7 +319,7 @@ public class GridManagerImpl extends Manager implements GridManager {
 
     @Override
     public IslandCreationAlgorithm getIslandCreationAlgorithm() {
-        return this.islandCreationAlgorithm;
+        return Optional.ofNullable(this.islandCreationAlgorithm).orElse(DefaultIslandCreationAlgorithm.getInstance());
     }
 
     @Override
@@ -340,8 +365,16 @@ public class GridManagerImpl extends Manager implements GridManager {
     @Override
     public void cancelAllIslandPreviews() {
         if (!Bukkit.isPrimaryThread()) {
-            BukkitExecutor.sync(this::cancelAllIslandPreviews);
-            return;
+            BukkitExecutor.sync(this::cancelAllIslandPreviewsSync);
+        } else {
+            cancelAllIslandPreviewsSync();
+        }
+    }
+
+    private void cancelAllIslandPreviewsSync() {
+        if (!Bukkit.isPrimaryThread()) {
+            Log.warn("Trying to cancel all island previews asynchronous. Stack trace:");
+            new Exception().printStackTrace();
         }
 
         this.islandPreviews.getActivePreviews().forEach(islandPreview -> {
@@ -373,6 +406,8 @@ public class GridManagerImpl extends Manager implements GridManager {
             if (openedView != null)
                 openedView.closeView();
 
+            island.removeEffects(superiorPlayer);
+
             superiorPlayer.teleport(plugin.getGrid().getSpawnIsland());
             Message.ISLAND_GOT_DELETED_WHILE_INSIDE.send(superiorPlayer);
         });
@@ -386,7 +421,7 @@ public class GridManagerImpl extends Manager implements GridManager {
             BukkitExecutor.data(() -> IslandsDatabaseBridge.deleteIsland(island));
         }
 
-        plugin.getServices().getDragonBattleService().stopEnderDragonBattle(island);
+        this.dragonBattleService.get().stopEnderDragonBattle(island);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.menu.Menu;
@@ -29,7 +30,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -147,6 +147,7 @@ public class MenuIslandCreation extends AbstractMenu<MenuIslandCreation.View, Me
                     } catch (IllegalArgumentException error) {
                         Log.warnFromFile("island-creation.yml", "Invalid biome name for item ",
                                 itemSectionName, ": ", biomeName);
+                        continue;
                     }
                 }
 
@@ -156,8 +157,6 @@ public class MenuIslandCreation extends AbstractMenu<MenuIslandCreation.View, Me
                         buttonBuilder.setBonusWorth(BigDecimal.valueOf((double) bonusWorth));
                     } else if (bonusWorth instanceof String) {
                         buttonBuilder.setBonusWorth(new BigDecimal((String) bonusWorth));
-                    } else {
-                        buttonBuilder.setBonusWorth(BigDecimal.ZERO);
                     }
                 }
 
@@ -167,8 +166,6 @@ public class MenuIslandCreation extends AbstractMenu<MenuIslandCreation.View, Me
                         buttonBuilder.setBonusLevel(BigDecimal.valueOf((double) bonusLevel));
                     } else if (bonusLevel instanceof String) {
                         buttonBuilder.setBonusLevel(new BigDecimal((String) bonusLevel));
-                    } else {
-                        buttonBuilder.setBonusLevel(BigDecimal.ZERO);
                     }
                 }
 

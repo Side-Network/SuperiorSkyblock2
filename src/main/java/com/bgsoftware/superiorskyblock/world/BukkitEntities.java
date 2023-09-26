@@ -3,7 +3,7 @@ package com.bgsoftware.superiorskyblock.world;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.key.Key;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
@@ -21,6 +21,7 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.inventory.AbstractHorseInventory;
 import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
@@ -124,15 +125,14 @@ public class BukkitEntities {
     }
 
     public static Key getLimitEntityType(Entity entity) {
-        Key key = KeyImpl.of(entity.getType());
-        return key.getGlobalKey().contains("MINECART") ?
-                KeyImpl.of("MINECART" + (key.getSubKey().isEmpty() ? "" : ":" + key.getSubKey())) : key;
+        // TODO - Is this really necessary?
+        return Keys.of(entity.getType());
     }
 
     public static boolean canHaveLimit(EntityType entityType) {
         Class<?> entityClass = entityType.getEntityClass();
-        return entityType.name().contains("MINECART") || (entityClass != null &&
-                (LivingEntity.class.isAssignableFrom(entityClass) || Hanging.class.isAssignableFrom(entityClass)));
+        return (entityClass != null && (LivingEntity.class.isAssignableFrom(entityClass) ||
+                Hanging.class.isAssignableFrom(entityClass) || Vehicle.class.isAssignableFrom(entityClass)));
     }
 
     public static boolean canBypassEntityLimit(Entity entity) {
@@ -208,6 +208,18 @@ public class BukkitEntities {
             @Override
             boolean isFromCategory(EntityType entityType) {
                 return entityType == EntityType.ITEM_FRAME;
+            }
+        },
+        VEHICLE(IslandPrivileges.MINECART_DAMAGE, IslandPrivileges.MINECART_PLACE) {
+
+            private final EnumSet<EntityType> VEHICLE_TYPES = createEntityTypesSet(entityType -> {
+                Class<? extends Entity> entityClass = entityType.getEntityClass();
+                return entityClass != null && Vehicle.class.isAssignableFrom(entityClass);
+            });
+
+            @Override
+            boolean isFromCategory(EntityType entityType) {
+                return VEHICLE_TYPES.contains(entityType);
             }
         },
         UNKNOWN(IslandPrivileges.BREAK, IslandPrivileges.BUILD) {

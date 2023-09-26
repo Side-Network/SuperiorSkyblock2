@@ -10,6 +10,7 @@ import com.bgsoftware.superiorskyblock.api.key.KeySet;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.api.player.respawn.RespawnAction;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockOffset;
+import com.bgsoftware.superiorskyblock.core.EnumHelper;
 import com.bgsoftware.superiorskyblock.core.SBlockOffset;
 import com.bgsoftware.superiorskyblock.core.ServerVersion;
 import com.bgsoftware.superiorskyblock.core.errors.ManagerLoadException;
@@ -18,15 +19,17 @@ import com.bgsoftware.superiorskyblock.core.formatting.impl.DateFormatter;
 import com.bgsoftware.superiorskyblock.core.formatting.impl.NumberFormatter;
 import com.bgsoftware.superiorskyblock.core.io.MenuParserImpl;
 import com.bgsoftware.superiorskyblock.core.io.Resources;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
-import com.bgsoftware.superiorskyblock.core.key.KeyMapImpl;
-import com.bgsoftware.superiorskyblock.core.key.KeySetImpl;
+import com.bgsoftware.superiorskyblock.core.key.KeyIndicator;
+import com.bgsoftware.superiorskyblock.core.key.KeyMaps;
+import com.bgsoftware.superiorskyblock.core.key.KeySets;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.serialization.Serializers;
 import com.bgsoftware.superiorskyblock.core.values.BlockValuesManagerImpl;
 import com.bgsoftware.superiorskyblock.tag.CompoundTag;
 import com.bgsoftware.superiorskyblock.tag.ListTag;
+import com.google.common.base.Preconditions;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -38,6 +41,7 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +49,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class SettingsContainer {
@@ -224,6 +230,7 @@ public class SettingsContainer {
     public final int bossBarLimit;
     public final boolean deleteUnsafeWarps;
     public final List<RespawnAction> playerRespawnActions;
+    public final BigInteger blockCountsSaveThreshold;
 
     public SettingsContainer(SuperiorSkyblockPlugin plugin, YamlConfiguration config) throws ManagerLoadException {
         databaseType = config.getString("database.type").toUpperCase(Locale.ENGLISH);
@@ -243,36 +250,15 @@ public class SettingsContainer {
         islandCommand = config.getString("island-command", "island,is,islands");
         maxIslandSize = config.getInt("max-island-size", 200);
         defaultIslandSize = config.getInt("default-values.island-size", 20);
-        defaultBlockLimits = KeyMapImpl.createHashMap();
-        for (String line : config.getStringList("default-values.block-limits")) {
-            String[] sections = line.split(":");
-
-            if (sections.length < 2) {
-                Log.warnFromFile("config.yml", "Cannot parse block limit '", line, "', skipping...");
-                continue;
-            }
-
-            String gloablKey = sections[0];
-            String subKey = sections.length == 2 ? "" : sections[1];
-            String limit = sections.length == 2 ? sections[1] : sections[2];
-            Key key = KeyImpl.of(gloablKey, subKey);
-            defaultBlockLimits.put(key, Integer.parseInt(limit));
-            plugin.getBlockValues().addCustomBlockKey(key);
-        }
-        defaultEntityLimits = KeyMapImpl.createHashMap();
-        for (String line : config.getStringList("default-values.entity-limits")) {
-            String[] sections = line.split(":");
-
-            if (sections.length < 2) {
-                Log.warnFromFile("config.yml", "Cannot parse entity limit '", line, "', skipping...");
-                continue;
-            }
-
-            String gloablKey = sections[0];
-            String subKey = sections.length == 2 ? "" : sections[1];
-            String limit = sections.length == 2 ? sections[1] : sections[2];
-            defaultEntityLimits.put(KeyImpl.of(gloablKey, subKey), Integer.parseInt(limit));
-        }
+        defaultBlockLimits = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+        loadListOrSection(config, "default-values.block-limits", "block limit", (key, limit) -> {
+            Key blockKey = Keys.ofMaterialAndData(key);
+            defaultBlockLimits.put(blockKey, limit);
+            plugin.getBlockValues().addCustomBlockKey(blockKey);
+        });
+        defaultEntityLimits = KeyMaps.createIdentityHashMap(KeyIndicator.ENTITY_TYPE);
+        loadListOrSection(config, "default-values.entity-limits", "entity limit", (entityType, limit) ->
+                defaultEntityLimits.put(Keys.ofEntityType(entityType), limit));
         defaultTeamLimit = config.getInt("default-values.team-limit", 4);
         defaultWarpsLimit = config.getInt("default-values.warps-limit", 3);
         defaultCoopLimit = config.getInt("default-values.coop-limit", 8);
@@ -281,31 +267,23 @@ public class SettingsContainer {
         defaultMobDrops = config.getDouble("default-values.mob-drops", 1D);
         defaultBankLimit = new BigDecimal(config.getString("default-values.bank-limit", "-1"));
         defaultRoleLimits = new HashMap<>();
-        for (String line : config.getStringList("default-values.role-limits")) {
-            String[] sections = line.split(":");
+        loadListOrSection(config, "default-values.role-limits", "role limit", (role, limit) -> {
             try {
-                defaultRoleLimits.put(Integer.parseInt(sections[0]), Integer.parseInt(sections[1]));
-            } catch (NumberFormatException ignored) {
+                defaultRoleLimits.put(Integer.parseInt(role), limit);
+            } catch (NumberFormatException error) {
+                Log.warnFromFile("config.yml", "Invalid role id for limit: " + role);
             }
-        }
+        });
         islandsHeight = config.getInt("islands-height", 100);
         worldBordersEnabled = config.getBoolean("world-borders", true);
         stackedBlocksEnabled = config.getBoolean("stacked-blocks.enabled", true);
         stackedBlocksDisabledWorlds = config.getStringList("stacked-blocks.disabled-worlds");
-        whitelistedStackedBlocks = KeySetImpl.createHashSet(config.getStringList("stacked-blocks.whitelisted")
-                .stream().map(KeyImpl::of).collect(Collectors.toList()));
+        whitelistedStackedBlocks = KeySets.createHashSet(KeyIndicator.MATERIAL, config.getStringList("stacked-blocks.whitelisted"));
         stackedBlocksName = Formatters.COLOR_FORMATTER.format(config.getString("stacked-blocks.custom-name"));
-        stackedBlocksLimits = KeyMapImpl.createHashMap();
-        config.getStringList("stacked-blocks.limits").forEach(line -> {
-            String[] sections = line.split(":");
-            try {
-                if (sections.length == 2)
-                    stackedBlocksLimits.put(KeyImpl.of(sections[0], ""), Integer.parseInt(sections[1]));
-                else if (sections.length == 3)
-                    stackedBlocksLimits.put(KeyImpl.of(sections[0], sections[1]), Integer.parseInt(sections[2]));
-            } catch (Exception error) {
-                Log.error(error, "An unexpected error occurred while parsing stacked block limit for '", line, "':");
-            }
+        stackedBlocksLimits = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+        loadListOrSection(config, "stacked-blocks.limits", "stacked-block limit", (key, limit) -> {
+            Key blockKey = Keys.ofMaterialAndData(key);
+            stackedBlocksLimits.put(blockKey, limit);
         });
         stackedBlocksAutoPickup = config.getBoolean("stacked-blocks.auto-collect", false);
         stackedBlocksMenuEnabled = config.getBoolean("stacked-blocks.deposit-menu.enabled", true);
@@ -425,13 +403,13 @@ public class SettingsContainer {
             for (String env : config.getConfigurationSection("default-values.generator").getKeys(false)) {
                 try {
                     Environment environment = Environment.valueOf(env.toUpperCase(Locale.ENGLISH));
-                    loadGenerator(config.getStringList("default-values.generator." + env), environment.ordinal());
+                    loadGenerator(config, "default-values.generator." + env, environment.ordinal());
                 } catch (Exception error) {
-                    Log.error(error, "An unexpected error occurred while loading default generator values for ", env + ":");
+                    Log.errorFromFile(error, "config.yml", "An unexpected error occurred while loading default generator values for ", env + ":");
                 }
             }
         } else {
-            loadGenerator(config.getStringList("default-values.generator"), 0);
+            loadGenerator(config, "default-values.generator", 0);
         }
         disableRedstoneOffline = config.getBoolean("disable-redstone-offline", true);
         disableRedstoneAFK = config.getBoolean("afk-integrations.disable-redstone", false);
@@ -478,15 +456,15 @@ public class SettingsContainer {
 
                             items.addTag(itemCompound);
                         } catch (Exception error) {
-                            Log.error(error, "An unexpected error occurred while loading container item for ", slot + ":");
+                            Log.errorFromFile(error, "config.yml", "An unexpected error occurred while loading container item for ", slot + ":");
                         }
                     }
                 } catch (IllegalArgumentException ex) {
-                    Log.warn("Invalid container type ", container + ", skipping...");
+                    Log.warnFromFile("config.yml", "Invalid container type ", container + ", skipping...");
                 }
             }
         }
-        defaultSignLines = config.getStringList("default-signs");
+        defaultSignLines = Formatters.formatList(config.getStringList("default-signs"), Formatters.COLOR_FORMATTER);
         eventCommands = new HashMap<>();
         if (config.contains("event-commands")) {
             for (String eventName : config.getConfigurationSection("event-commands").getKeys(false)) {
@@ -530,13 +508,17 @@ public class SettingsContainer {
                 commandAliases.put(label.toLowerCase(Locale.ENGLISH), config.getStringList("command-aliases." + label));
             }
         }
-        valuableBlocks = KeySetImpl.createHashSet(config.getStringList("valuable-blocks").stream()
-                .map(KeyImpl::of).collect(Collectors.toSet()));
+        valuableBlocks = KeySets.createHashSet(KeyIndicator.MATERIAL, config.getStringList("valuable-blocks"));
         islandPreviewLocations = new HashMap<>();
         if (config.isConfigurationSection("preview-islands")) {
-            for (String schematic : config.getConfigurationSection("preview-islands").getKeys(false))
-                islandPreviewLocations.put(schematic.toLowerCase(Locale.ENGLISH), Serializers.LOCATION_SERIALIZER
-                        .deserialize(config.getString("preview-islands." + schematic)));
+            for (String schematic : config.getConfigurationSection("preview-islands").getKeys(false)) {
+                try {
+                    islandPreviewLocations.put(schematic.toLowerCase(Locale.ENGLISH), Serializers.LOCATION_SERIALIZER
+                            .deserialize(config.getString("preview-islands." + schematic)));
+                } catch (Exception error) {
+                    Log.warnFromFile("config.yml", "Cannot deserialize island preview for ", schematic, ", skipping...");
+                }
+            }
         }
         tabCompleteHideVanished = config.getBoolean("tab-complete-hide-vanished", true);
         dropsUpgradePlayersMultiply = config.getBoolean("drops-upgrade-players-multiply", false);
@@ -548,13 +530,9 @@ public class SettingsContainer {
         recalcTaskTimeout = config.getLong("recalc-task-timeout");
         autoLanguageDetection = config.getBoolean("auto-language-detection", true);
         autoUncoopWhenAlone = config.getBoolean("auto-uncoop-when-alone", false);
-        TopIslandMembersSorting islandTopMembersSorting;
-        try {
-            islandTopMembersSorting = TopIslandMembersSorting.valueOf(config.getString("island-top-members-sorting").toUpperCase(Locale.ENGLISH));
-        } catch (IllegalArgumentException error) {
-            islandTopMembersSorting = TopIslandMembersSorting.NAMES;
-        }
-        this.islandTopMembersSorting = islandTopMembersSorting;
+        islandTopMembersSorting = Optional.ofNullable(EnumHelper.getEnum(TopIslandMembersSorting.class,
+                        config.getString("island-top-members-sorting").toUpperCase(Locale.ENGLISH)))
+                .orElse(TopIslandMembersSorting.NAMES);
         bossBarLimit = config.getInt("bossbar-limit", 1);
         deleteUnsafeWarps = config.getBoolean("delete-unsafe-warps", true);
         playerRespawnActions = new LinkedList<>();
@@ -562,9 +540,10 @@ public class SettingsContainer {
             try {
                 playerRespawnActions.add(RespawnAction.getByName(respawnAction));
             } catch (NullPointerException error) {
-                Log.warn("Invalid respawn action ", respawnAction + ", skipping...");
+                Log.warnFromFile("config.yml", "Invalid respawn action ", respawnAction + ", skipping...");
             }
         });
+        blockCountsSaveThreshold = BigInteger.valueOf(config.getInt("block-counts-save-threshold", 100));
     }
 
     private List<String> loadInteractables(SuperiorSkyblockPlugin plugin) {
@@ -600,23 +579,42 @@ public class SettingsContainer {
                 cfg.set("safe-blocks", safeBlocks);
                 cfg.save(file);
             } catch (IOException error) {
-                Log.error(error, "An unexpected error occurred while saving safe blocks into file:");
+                Log.errorFromFile(error, "config.yml", "An unexpected error occurred while saving safe blocks into file:");
             }
         }
 
-        return KeySetImpl.createHashSet(safeBlocks.stream()
-                .map(KeyImpl::of)
-                .collect(Collectors.toSet()));
+        return KeySets.createHashSet(KeyIndicator.MATERIAL, safeBlocks);
     }
 
-    private void loadGenerator(List<String> lines, int index) {
-        defaultGenerator[index] = KeyMapImpl.createHashMap();
-        for (String line : lines) {
-            String[] sections = line.toUpperCase(Locale.ENGLISH).split(":");
-            String globalKey = sections[0];
-            String subKey = sections.length == 2 ? "" : sections[1];
-            String percentage = sections.length == 2 ? sections[1] : sections[2];
-            defaultGenerator[index].put(KeyImpl.of(globalKey, subKey), Integer.parseInt(percentage));
+    private void loadGenerator(YamlConfiguration config, String path, int index) {
+        defaultGenerator[index] = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+        loadListOrSection(config, path, "generator-rates", (key, percentage) -> {
+            Key blockKey = Keys.ofMaterialAndData(key);
+            defaultGenerator[index].put(blockKey, percentage);
+        });
+    }
+
+    private static void loadListOrSection(YamlConfiguration config, String path, String parseName, BiConsumer<String, Integer> consumer) {
+        Object value = Preconditions.checkNotNull(config.get(path), "Path '" + path + "' does not exist.");
+
+        if (value instanceof List) {
+            ((List<String>) value).forEach(line -> {
+                String[] sections = line.split(":");
+                if (sections.length == 2) {
+                    consumer.accept(sections[0], Integer.parseInt(sections[1]));
+                } else if (sections.length == 3) {
+                    consumer.accept(sections[0] + ":" + sections[1], Integer.parseInt(sections[2]));
+                } else {
+                    Log.warnFromFile("config.yml", "Cannot parse " + parseName + " '", line, "', skipping...");
+                }
+            });
+
+        } else if (value instanceof ConfigurationSection) {
+            for (String key : ((ConfigurationSection) value).getKeys(false)) {
+                consumer.accept(key, ((ConfigurationSection) value).getInt(key));
+            }
+        } else {
+            throw new IllegalArgumentException("Value of path '" + path + "' is not a list or a section, but " + value.getClass());
         }
     }
 

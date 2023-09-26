@@ -1,10 +1,13 @@
 package com.bgsoftware.superiorskyblock.core.messages;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.common.config.CommentedConfiguration;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.api.service.message.IMessageComponent;
+import com.bgsoftware.superiorskyblock.api.service.message.MessagesService;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.Text;
 import com.bgsoftware.superiorskyblock.core.collections.AutoRemovalCollection;
 import com.bgsoftware.superiorskyblock.core.events.EventResult;
@@ -20,7 +23,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -826,6 +828,12 @@ public enum Message {
     };
 
     private static final SuperiorSkyblockPlugin plugin = SuperiorSkyblockPlugin.getPlugin();
+    private static final LazyReference<MessagesService> messagesService = new LazyReference<MessagesService>() {
+        @Override
+        protected MessagesService create() {
+            return plugin.getServices().getService(MessagesService.class);
+        }
+    };
 
     private final String defaultMessage;
     private final boolean isCustom;
@@ -899,7 +907,7 @@ public enum Message {
 
             for (Message locale : values()) {
                 if (!locale.isCustom()) {
-                    locale.setMessage(fileLocale, plugin.getServices().getMessagesService().parseComponent(cfg, locale.name()));
+                    locale.setMessage(fileLocale, messagesService.get().parseComponent(cfg, locale.name()));
                     if (countMessages)
                         messagesAmount++;
                 }

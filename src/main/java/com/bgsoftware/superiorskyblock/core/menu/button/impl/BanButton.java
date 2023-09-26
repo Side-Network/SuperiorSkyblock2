@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -55,8 +56,8 @@ public class BanButton extends AbstractMenuViewButton<MenuConfirmBan.View> {
 
         private final boolean banPlayer;
 
-        Template(TemplateItem buttonItem, GameSound clickSound, List<String> commands,
-                 String requiredPermission, GameSound lackPermissionSound, boolean banPlayer) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable GameSound clickSound, @Nullable List<String> commands,
+                 @Nullable String requiredPermission, @Nullable GameSound lackPermissionSound, boolean banPlayer) {
             super(buttonItem, clickSound, commands, requiredPermission, lackPermissionSound,
                     BanButton.class, BanButton::new);
             this.banPlayer = banPlayer;

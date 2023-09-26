@@ -1,11 +1,11 @@
 package com.bgsoftware.superiorskyblock.commands;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
 import com.bgsoftware.superiorskyblock.core.SequentialListBuilder;
 import com.google.common.base.Preconditions;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public abstract class CommandsMap {
     private final Map<String, SuperiorCommand> subCommands = new LinkedHashMap<>();
     private final Map<String, SuperiorCommand> aliasesToCommand = new HashMap<>();
 
-    private final SuperiorSkyblockPlugin plugin;
+    protected final SuperiorSkyblockPlugin plugin;
 
     protected CommandsMap(SuperiorSkyblockPlugin plugin) {
         this.plugin = plugin;
@@ -72,7 +72,7 @@ public abstract class CommandsMap {
     public List<SuperiorCommand> getSubCommands(boolean includeDisabled) {
         SequentialListBuilder<SuperiorCommand> listBuilder = new SequentialListBuilder<>();
 
-        if (includeDisabled)
+        if (!includeDisabled)
             listBuilder.filter(this::isCommandEnabled);
 
         return listBuilder.build(this.subCommands.values());

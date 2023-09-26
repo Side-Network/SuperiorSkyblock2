@@ -3,7 +3,6 @@ package com.bgsoftware.superiorskyblock.core;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -56,23 +55,6 @@ public enum Materials {
         return ServerVersion.isLegacy() ? new ItemStack(toBukkitType(), amount, bukkitData) : new ItemStack(toBukkitType(), amount);
     }
 
-    @Nullable
-    public static Material getMaterialSafe(String material) {
-        try {
-            return Material.valueOf(material);
-        } catch (IllegalArgumentException error) {
-            return null;
-        }
-    }
-
-    public static Material getMaterialSafe(String material, String defaultMaterial) {
-        try {
-            return Material.valueOf(material);
-        } catch (IllegalArgumentException error) {
-            return Material.valueOf(defaultMaterial);
-        }
-    }
-
     public static boolean isSlab(Material material) {
         return MATERIAL_TAGS.get(material) instanceof SlabMaterialTag;
     }
@@ -109,6 +91,10 @@ public enum Materials {
         return MATERIAL_TAGS.get(material) instanceof SignMaterialTag;
     }
 
+    public static boolean isDye(Material material) {
+        return MATERIAL_TAGS.get(material) instanceof DyeMaterialTag;
+    }
+
     public static Set<Material> getBlocksNonLegacy() {
         return Collections.unmodifiableSet(BLOCK_NON_LEGACY_MATERIALS);
     }
@@ -130,26 +116,29 @@ public enum Materials {
     private static EnumMap<Material, MaterialTag> setupMaterialTags() {
         EnumMap<Material, MaterialTag> enumMap = new EnumMap<>(Material.class);
         Arrays.stream(Material.values()).forEach(material -> {
-            if (material.name().startsWith("LEGACY_"))
+            String materialName = material.name();
+            if (materialName.startsWith("LEGACY_"))
                 enumMap.put(material, LegacyMaterialTag.INSTANCE);
-            else if (material.name().contains("SLAB"))
+            else if (materialName.contains("SLAB"))
                 enumMap.put(material, SlabMaterialTag.INSTANCE);
-            else if (material.name().contains("WATER"))
+            else if (materialName.contains("WATER"))
                 enumMap.put(material, WaterMaterialTag.INSTANCE);
-            else if (material.name().contains("RAIL"))
+            else if (materialName.contains("RAIL"))
                 enumMap.put(material, RailMaterialTag.INSTANCE);
-            else if (material.name().contains("MINECART"))
+            else if (materialName.contains("MINECART"))
                 enumMap.put(material, MinecartMaterialTag.INSTANCE);
             else if (material == Material.CHEST || material == Material.ENDER_CHEST ||
-                    material == Material.TRAPPED_CHEST || material.name().contains("SHULKER_BOX") ||
-                    material.name().equals("BARREL"))
+                    material == Material.TRAPPED_CHEST || materialName.contains("SHULKER_BOX") ||
+                    materialName.equals("BARREL"))
                 enumMap.put(material, ChestMaterialTag.INSTANCE);
-            else if (material.name().contains("BOAT"))
+            else if (materialName.contains("BOAT"))
                 enumMap.put(material, BoatMaterialTag.INSTANCE);
-            else if (material.name().contains("LAVA"))
+            else if (materialName.contains("LAVA"))
                 enumMap.put(material, LavaMaterialTag.INSTANCE);
-            else if (material.name().contains("SIGN"))
+            else if (materialName.contains("SIGN"))
                 enumMap.put(material, SignMaterialTag.INSTANCE);
+            else if (ServerVersion.isLegacy() ? material == Material.INK_SACK : materialName.contains("_DYE"))
+                enumMap.put(material, DyeMaterialTag.INSTANCE);
         });
         return enumMap;
     }
@@ -209,6 +198,12 @@ public enum Materials {
     private static class SignMaterialTag implements MaterialTag {
 
         private static final SignMaterialTag INSTANCE = new SignMaterialTag();
+
+    }
+
+    private static class DyeMaterialTag implements MaterialTag {
+
+        private static final DyeMaterialTag INSTANCE = new DyeMaterialTag();
 
     }
 

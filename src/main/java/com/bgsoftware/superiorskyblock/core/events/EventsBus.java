@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.events;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblock;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
@@ -39,7 +40,6 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -370,10 +370,8 @@ public class EventsBus {
         return callEvent(() -> new IslandJoinEvent(superiorPlayer, island, cause), "islandjoinevent");
     }
 
-    public void callIslandKickEvent(SuperiorPlayer superiorPlayer, SuperiorPlayer targetPlayer, Island island) {
-        if (!plugin.getSettings().getDisabledEvents().contains("islandkickevent")) {
-            callEvent(new IslandKickEvent(superiorPlayer, targetPlayer, island));
-        }
+    public boolean callIslandKickEvent(SuperiorPlayer superiorPlayer, SuperiorPlayer targetPlayer, Island island) {
+        return callEvent(() -> new IslandKickEvent(superiorPlayer, targetPlayer, island), "islandkickevent");
     }
 
     public boolean callIslandLeaveEvent(SuperiorPlayer superiorPlayer, Island island,

@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
@@ -14,16 +15,15 @@ import com.bgsoftware.superiorskyblock.core.database.loader.v1.DatabaseLoader_V1
 import com.bgsoftware.superiorskyblock.core.database.loader.v1.attributes.*;
 import com.bgsoftware.superiorskyblock.core.database.serialization.IslandsSerializer;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
-import com.bgsoftware.superiorskyblock.core.key.KeyMapImpl;
-import com.bgsoftware.superiorskyblock.core.logging.Log;
+import com.bgsoftware.superiorskyblock.core.key.KeyIndicator;
+import com.bgsoftware.superiorskyblock.core.key.KeyMaps;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.island.IslandUtils;
 import com.bgsoftware.superiorskyblock.island.privilege.PlayerPrivilegeNode;
 import com.bgsoftware.superiorskyblock.island.role.SPlayerRole;
 import org.bukkit.World;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
@@ -228,13 +228,13 @@ public class RawDeserializer implements IDeserializer {
 
     @Override
     public KeyMap<Integer> deserializeBlockLimits(String blocks) {
-        KeyMap<Integer> blockLimits = KeyMapImpl.createHashMap();
+        KeyMap<Integer> blockLimits = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
 
         if (blocks != null) {
             for (String limit : blocks.split(",")) {
                 try {
                     String[] sections = limit.split("=");
-                    blockLimits.put(KeyImpl.of(sections[0]), Integer.parseInt(sections[1]));
+                    blockLimits.put(Keys.ofMaterialAndData(sections[0]), Integer.parseInt(sections[1]));
                 } catch (Exception ignored) {
                 }
             }
@@ -295,12 +295,12 @@ public class RawDeserializer implements IDeserializer {
                 String[] sections = env.split(":");
                 try {
                     Environment environment = Environment.valueOf(sections[0]);
-                    deserializeGenerators(sections[1], cobbleGenerator[environment.ordinal()] = KeyMapImpl.createHashMap());
+                    deserializeGenerators(sections[1], cobbleGenerator[environment.ordinal()] = KeyMaps.createHashMap(KeyIndicator.MATERIAL));
                 } catch (Exception ignored) {
                 }
             }
         } else {
-            deserializeGenerators(generator, cobbleGenerator[0] = KeyMapImpl.createHashMap());
+            deserializeGenerators(generator, cobbleGenerator[0] = KeyMaps.createHashMap(KeyIndicator.MATERIAL));
         }
 
         return cobbleGenerator;
@@ -326,13 +326,13 @@ public class RawDeserializer implements IDeserializer {
 
     @Override
     public KeyMap<Integer> deserializeEntityLimits(String entities) {
-        KeyMap<Integer> entityLimits = KeyMapImpl.createHashMap();
+        KeyMap<Integer> entityLimits = KeyMaps.createIdentityHashMap(KeyIndicator.ENTITY_TYPE);
 
         if (entities != null) {
             for (String limit : entities.split(",")) {
                 try {
                     String[] sections = limit.split("=");
-                    entityLimits.put(KeyImpl.of(sections[0]), Integer.parseInt(sections[1]));
+                    entityLimits.put(Keys.ofEntityType(sections[0]), Integer.parseInt(sections[1]));
                 } catch (Exception ignored) {
                 }
             }
@@ -421,13 +421,13 @@ public class RawDeserializer implements IDeserializer {
 
     @Override
     public String deserializeBlockCounts(String blockCountsParam) {
-        KeyMap<BigInteger> blockCounts = KeyMapImpl.createHashMap();
+        KeyMap<BigInteger> blockCounts = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
 
         if (blockCountsParam != null) {
             for (String blockCountSection : blockCountsParam.split(";")) {
                 String[] blockCountSections = blockCountSection.split("=");
                 try {
-                    blockCounts.put(KeyImpl.of(blockCountSections[0]), new BigInteger(blockCountSections[1]));
+                    blockCounts.put(Keys.ofMaterialAndData(blockCountSections[0]), new BigInteger(blockCountSections[1]));
                 } catch (NumberFormatException ignored) {
                 }
             }
@@ -494,7 +494,7 @@ public class RawDeserializer implements IDeserializer {
         for (String limit : generator.split(",")) {
             try {
                 String[] sections = limit.split("=");
-                cobbleGenerator.put(KeyImpl.of(sections[0]), Integer.parseInt(sections[1]));
+                cobbleGenerator.put(Keys.ofMaterialAndData(sections[0]), Integer.parseInt(sections[1]));
             } catch (Exception ignored) {
             }
         }

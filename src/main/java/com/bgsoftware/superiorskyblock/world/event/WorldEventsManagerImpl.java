@@ -3,13 +3,13 @@ package com.bgsoftware.superiorskyblock.world.event;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.service.world.WorldRecordService;
 import com.bgsoftware.superiorskyblock.api.world.event.WorldEventsManager;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.Mutable;
-import com.bgsoftware.superiorskyblock.core.Singleton;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
 import com.bgsoftware.superiorskyblock.island.algorithm.DefaultIslandCalculationAlgorithm;
-import com.bgsoftware.superiorskyblock.listener.EntityTrackingListener;
 import com.bgsoftware.superiorskyblock.module.BuiltinModules;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeCropGrowth;
 import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeEntityLimits;
@@ -20,16 +20,26 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Deprecated
 public class WorldEventsManagerImpl implements WorldEventsManager {
 
+    private final LazyReference<WorldRecordService> worldRecordService = new LazyReference<WorldRecordService>() {
+        @Override
+        protected WorldRecordService create() {
+            return plugin.getServices().getService(WorldRecordService.class);
+        }
+    };
     private final SuperiorSkyblockPlugin plugin;
-    private final Singleton<EntityTrackingListener> entityTrackingListener;
+    private final Map<UUID, Set<Chunk>> pendingLoadedChunks = new HashMap<>();
 
     public WorldEventsManagerImpl(SuperiorSkyblockPlugin plugin) {
         this.plugin = plugin;
-        this.entityTrackingListener = plugin.getListener(EntityTrackingListener.class);
     }
 
     private static boolean isHologram(ArmorStand armorStand) {
@@ -49,6 +59,9 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
 
         plugin.getNMSChunks().injectChunkSections(chunk);
 
+        Set<Chunk> pendingLoadedChunksForIsland = this.pendingLoadedChunks.computeIfAbsent(island.getUniqueId(), u -> new LinkedHashSet<>());
+        pendingLoadedChunksForIsland.add(chunk);
+
         boolean cropGrowthEnabled = BuiltinModules.UPGRADES.isUpgradeTypeEnabled(UpgradeTypeCropGrowth.class);
         if (cropGrowthEnabled && island.isInsideRange(chunk))
             plugin.getNMSChunks().startTickingChunk(island, chunk, false);
@@ -58,6 +71,7 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
 
         Location islandCenter = island.getCenter(Environment.of(chunk.getWorld().getEnvironment()));
 
+        boolean entityLimitsEnabled = BuiltinModules.UPGRADES.isUpgradeTypeEnabled(UpgradeTypeEntityLimits.class);
         Mutable<Boolean> recalculateEntities = new Mutable<>(false);
 
         if (chunk.getX() == (islandCenter.getBlockX() >> 4) && chunk.getZ() == (islandCenter.getBlockZ() >> 4)) {
@@ -65,25 +79,30 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
                 island.setBiome(firstBlock.getWorld().getBiome(firstBlock.getBlockX(), firstBlock.getBlockZ()), false);
             }
 
-            recalculateEntities.setValue(true);
+            if (entityLimitsEnabled)
+                recalculateEntities.setValue(true);
         }
 
         BukkitExecutor.sync(() -> {
-            if (!chunk.isLoaded())
+            if (!pendingLoadedChunksForIsland.remove(chunk) || !chunk.isLoaded())
                 return;
 
-            // We want to delete old holograms of stacked blocks + count entities for the chunk
+            // If we cannot recalculate entities at this moment, we want to track entities normally.
+            if (!island.getEntitiesTracker().canRecalculateEntityCounts())
+                recalculateEntities.setValue(false);
+
             for (Entity entity : chunk.getEntities()) {
+                // We want to delete old holograms of stacked blocks + count entities for the chunk
                 if (entity instanceof ArmorStand && isHologram((ArmorStand) entity) &&
-                        plugin.getStackedBlocks().getStackedBlockAmount(entity.getLocation().subtract(0, 1, 0)) > 1)
+                        plugin.getStackedBlocks().getStackedBlockAmount(entity.getLocation().subtract(0, 1, 0)) > 1) {
                     entity.remove();
+                }
             }
 
-            // We want to recalculate entities
-            if (BuiltinModules.UPGRADES.isUpgradeTypeEnabled(UpgradeTypeEntityLimits.class)) {
-                Arrays.stream(chunk.getEntities()).forEach(entityTrackingListener.get()::onEntitySpawn);
-                if (recalculateEntities.getValue())
-                    island.getEntitiesTracker().recalculateEntityCounts();
+            if (recalculateEntities.getValue()) {
+                island.getEntitiesTracker().recalculateEntityCounts();
+                pendingLoadedChunksForIsland.clear();
+                this.pendingLoadedChunks.remove(island.getUniqueId());
             }
         }, 2L);
 
@@ -113,7 +132,7 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
         if (!island.isSpawn() && !plugin.getNMSChunks().isChunkEmpty(chunk))
             island.markChunkDirty(chunk.getWorld(), chunk.getX(), chunk.getZ(), true);
 
-        Arrays.stream(chunk.getEntities()).forEach(entityTrackingListener.get()::onEntityDespawn);
+        Arrays.stream(chunk.getEntities()).forEach(this.worldRecordService.get()::recordEntityDespawn);
     }
 
 }

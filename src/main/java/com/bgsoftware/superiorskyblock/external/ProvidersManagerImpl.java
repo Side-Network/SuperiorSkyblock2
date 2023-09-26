@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.external;
 
 import com.bgsoftware.common.reflection.ReflectMethod;
+import com.bgsoftware.common.shopsbridge.ShopsProvider;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.handlers.ProvidersManager;
 import com.bgsoftware.superiorskyblock.api.hooks.AFKProvider;
@@ -18,11 +19,15 @@ import com.bgsoftware.superiorskyblock.api.hooks.WorldsProvider;
 import com.bgsoftware.superiorskyblock.api.hooks.listener.ISkinsListener;
 import com.bgsoftware.superiorskyblock.api.hooks.listener.IStackedBlocksListener;
 import com.bgsoftware.superiorskyblock.api.hooks.listener.IWorldsListener;
+import com.bgsoftware.superiorskyblock.api.island.SortingType;
 import com.bgsoftware.superiorskyblock.api.key.Key;
+import com.bgsoftware.superiorskyblock.api.service.placeholders.PlaceholdersService;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.Manager;
-import com.bgsoftware.superiorskyblock.core.Materials;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
+import com.bgsoftware.superiorskyblock.core.key.types.SpawnerKey;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
 import com.bgsoftware.superiorskyblock.external.async.AsyncProvider;
@@ -33,6 +38,7 @@ import com.bgsoftware.superiorskyblock.external.menus.MenusProvider_Default;
 import com.bgsoftware.superiorskyblock.external.permissions.PermissionsProvider_Default;
 import com.bgsoftware.superiorskyblock.external.placeholders.PlaceholdersProvider;
 import com.bgsoftware.superiorskyblock.external.prices.PricesProvider_Default;
+import com.bgsoftware.superiorskyblock.external.prices.PricesProvider_ShopsBridgeWrapper;
 import com.bgsoftware.superiorskyblock.external.spawners.SpawnersProvider_AutoDetect;
 import com.bgsoftware.superiorskyblock.external.spawners.SpawnersProvider_Default;
 import com.bgsoftware.superiorskyblock.external.stackedblocks.StackedBlocksProvider_AutoDetect;
@@ -63,6 +69,7 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
 
     private final List<AFKProvider> AFKProvidersList = new LinkedList<>();
+    private List<Runnable> pricesLoadCallbacks = new LinkedList<>();
     private SpawnersProvider spawnersProvider = new SpawnersProvider_Default();
     private StackedBlocksProvider stackedBlocksProvider = new StackedBlocksProvider_Default();
     private EconomyProvider economyProvider = new EconomyProvider_Default();
@@ -75,6 +82,13 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     private ChunksProvider chunksProvider = new ChunksProvider_Default();
     private MenusProvider menusProvider;
     private boolean listenToSpawnerChanges = true;
+
+    private final LazyReference<PlaceholdersService> placeholdersService = new LazyReference<PlaceholdersService>() {
+        @Override
+        protected PlaceholdersService create() {
+            return plugin.getServices().getService(PlaceholdersService.class);
+        }
+    };
 
     private final List<ISkinsListener> skinsListeners = new LinkedList<>();
     private final List<IStackedBlocksListener> stackedBlocksListeners = new LinkedList<>();
@@ -101,6 +115,8 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
             registerPlaceholdersProvider();
             registerChunksProvider();
         });
+        // We try to forcefully load prices after a second the server has enabled.
+        BukkitExecutor.sync(this::forcePricesLoad, 60L);
     }
 
     @Override
@@ -209,6 +225,16 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     @Override
     public void setPricesProvider(PricesProvider pricesProvider) {
         this.pricesProvider = pricesProvider;
+        this.pricesProvider.getWhenPricesAreReady().whenComplete((result, error) -> this.forcePricesLoad());
+    }
+
+    public void forcePricesLoad() {
+        if (this.pricesLoadCallbacks != null) {
+            this.pricesLoadCallbacks.forEach(Runnable::run);
+            this.pricesLoadCallbacks = null;
+            // After we loaded all the price callbacks, we want to sort the top islands.
+            SortingType.values().forEach(plugin.getGrid()::forceSortIslands);
+        }
     }
 
     @Override
@@ -246,6 +272,14 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
         this.stackedBlocksListeners.remove(stackedBlocksListener);
     }
 
+    public void addPricesLoadCallback(Runnable callback) {
+        if (this.pricesLoadCallbacks == null) {
+            callback.run();
+        } else {
+            this.pricesLoadCallbacks.add(callback);
+        }
+    }
+
     public void notifyStackedBlocksListeners(OfflinePlayer offlinePlayer, Block block,
                                              IStackedBlocksListener.Action action) {
         this.stackedBlocksListeners.forEach(stackedBlocksListener ->
@@ -267,7 +301,8 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     }
 
     public Key getSpawnerKey(ItemStack itemStack) {
-        return Key.of(Materials.SPAWNER.toBukkitType() + "", spawnersProvider.getSpawnerType(itemStack) + "");
+        String type = spawnersProvider.getSpawnerType(itemStack);
+        return type == null ? SpawnerKey.GLOBAL_KEY : Keys.ofSpawner(type);
     }
 
     public boolean hasSnapshotsSupport() {
@@ -364,13 +399,13 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
             registerHook("JetsMinionsHook");
 
         if (canRegisterHook("SkinsRestorer")) {
-            try {
-                // Detection of old version
-                Class.forName("skinsrestorer.shared.storage.SkinStorage");
-                registerHook("SkinsRestorerHook");
-            } catch (ClassNotFoundException error) {
-                // New version was detected
+            String version = Bukkit.getPluginManager().getPlugin("SkinsRestorer").getDescription().getVersion();
+            if (version.startsWith("14")) {
                 registerHook("SkinsRestorer14Hook");
+            } else if (version.startsWith("15")) {
+                registerHook("SkinsRestorer15Hook");
+            } else {
+                registerHook("SkinsRestorerHook");
             }
         }
 
@@ -391,6 +426,9 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
 
         if (Bukkit.getPluginManager().isPluginEnabled("Oraxen"))
             registerHook("OraxenHook");
+
+        if (Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"))
+            registerHook("ItemsAdderHook");
     }
 
     private void registerSpawnersProvider() {
@@ -428,7 +466,11 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
             }
         } else if (canRegisterHook("UltimateStacker") &&
                 (auto || configSpawnersProvider.equalsIgnoreCase("UltimateStacker"))) {
-            spawnersProvider = createInstance("spawners.SpawnersProvider_UltimateStacker");
+            if (Bukkit.getPluginManager().getPlugin("UltimateStacker").getDescription().getVersion().startsWith("3")) {
+                spawnersProvider = createInstance("spawners.SpawnersProvider_UltimateStacker3");
+            } else {
+                spawnersProvider = createInstance("spawners.SpawnersProvider_UltimateStacker");
+            }
             listenToSpawnerChanges = false;
         } else if (canRegisterHook("RoseStacker") &&
                 (auto || configSpawnersProvider.equalsIgnoreCase("RoseStacker"))) {
@@ -470,18 +512,9 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     }
 
     private void registerPricesProvider() {
-        Optional<PricesProvider> pricesProvider = Optional.empty();
-
-        if (canRegisterHook("ShopGUIPlus")) {
-            try {
-                Class.forName("net.brcdev.shopgui.shop.item.ShopItem");
-                pricesProvider = createInstance("prices.PricesProvider_ShopGUIPlus78");
-            } catch (ClassNotFoundException error) {
-                pricesProvider = createInstance("prices.PricesProvider_ShopGUIPlus");
-            }
-        }
-
-        pricesProvider.ifPresent(this::setPricesProvider);
+        ShopsProvider.SHOPGUIPLUS.createInstance(plugin)
+                .map(shopsBridge -> new PricesProvider_ShopsBridgeWrapper(plugin, ShopsProvider.SHOPGUIPLUS, shopsBridge))
+                .ifPresent(this::setPricesProvider);
     }
 
     private void registerVanishProvider() {
@@ -548,7 +581,7 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
             placeholdersProvider.ifPresent(placeholdersProviders::add);
         }
 
-        ((PlaceholdersServiceImpl) plugin.getServices().getPlaceholdersService()).register(placeholdersProviders);
+        ((PlaceholdersServiceImpl) this.placeholdersService.get()).register(placeholdersProviders);
     }
 
     private void registerChunksProvider() {
@@ -568,6 +601,10 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     private void registerHook(String className) {
         try {
             Class<?> clazz = Class.forName("com.bgsoftware.superiorskyblock.external." + className);
+
+            if (!isHookCompatible(clazz))
+                return;
+
             Method registerMethod = clazz.getMethod("register", SuperiorSkyblockPlugin.class);
             registerMethod.invoke(null, plugin);
         } catch (Throwable error) {
@@ -582,16 +619,15 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
     private <T> Optional<T> createInstance(String className) {
         try {
             Class<?> clazz = Class.forName("com.bgsoftware.superiorskyblock.external." + className);
-            ReflectMethod<Boolean> compatibleMethod = new ReflectMethod<>(clazz, "isCompatible");
 
-            if (compatibleMethod.isValid() && !compatibleMethod.invoke(null))
+            if (!isHookCompatible(clazz))
                 return Optional.empty();
 
             try {
                 Constructor<?> constructor = clazz.getConstructor(SuperiorSkyblockPlugin.class);
                 // noinspection unchecked
                 return Optional.of((T) constructor.newInstance(plugin));
-            } catch (Exception error) {
+            } catch (NoSuchMethodException error) {
                 // noinspection unchecked
                 return Optional.of((T) clazz.newInstance());
             }
@@ -610,6 +646,11 @@ public class ProvidersManagerImpl extends Manager implements ProvidersManager {
 
     private boolean isHookEnabled(String pluginName) {
         return !plugin.getSettings().getDisabledHooks().contains(pluginName.toLowerCase(Locale.ENGLISH));
+    }
+
+    private boolean isHookCompatible(Class<?> clazz) {
+        ReflectMethod<Boolean> compatibleMethod = new ReflectMethod<>(clazz, "isCompatible");
+        return !compatibleMethod.isValid() || compatibleMethod.invoke(null);
     }
 
 }

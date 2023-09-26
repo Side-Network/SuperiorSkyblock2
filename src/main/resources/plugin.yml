@@ -15,6 +15,7 @@ softdepend:
   - EpicSpawners
   - Essentials
   - FastAsyncWorldEdit
+  - ItemsAdder
   - JetsMinions
   - LuckPerms
   - MergedSpawner
@@ -39,7 +40,6 @@ loadbefore:
   - Multiverse-Core
   - Slimefun
   - My_Worlds
-  - Citizens
 
 libraries:
   - org.openjdk.nashorn:nashorn-core:15.4

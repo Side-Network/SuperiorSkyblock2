@@ -7,6 +7,7 @@ import com.bgsoftware.superiorskyblock.api.menu.button.PagedMenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.itemstack.ItemBuilder;
 import com.bgsoftware.superiorskyblock.core.menu.Menus;
+import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.menu.button.AbstractPagedMenuButton;
 import com.bgsoftware.superiorskyblock.core.menu.button.PagedMenuTemplateButtonImpl;
 import com.bgsoftware.superiorskyblock.core.menu.impl.MenuWarpCategories;
@@ -22,6 +23,10 @@ public class WarpCategoryPagedObjectButton extends AbstractPagedMenuButton<MenuW
 
     @Override
     public ItemStack modifyViewItem(ItemStack buttonItem) {
+        if (pagedObject == null) {
+            return TemplateItem.AIR.build();
+        }
+
         SuperiorPlayer inventoryViewer = menuView.getInventoryViewer();
         Island island = menuView.getIsland();
 

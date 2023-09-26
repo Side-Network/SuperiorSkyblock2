@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.module.upgrades.commands;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.events.IslandUpgradeEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -64,7 +65,7 @@ public class CmdAdminSetUpgrade implements IAdminIslandCommand {
     }
 
     @Override
-    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, Island island, String[] args) {
+    public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, @Nullable SuperiorPlayer targetPlayer, Island island, String[] args) {
         Upgrade upgrade = CommandArguments.getUpgrade(plugin, sender, args[3]);
 
         if (upgrade == null)

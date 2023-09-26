@@ -1,10 +1,12 @@
 package com.bgsoftware.superiorskyblock.island.algorithm;
 
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.bgsoftware.superiorskyblock.api.island.IslandChunkFlags;
 import com.bgsoftware.superiorskyblock.api.island.algorithms.IslandEntitiesTrackerAlgorithm;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
-import com.bgsoftware.superiorskyblock.core.key.KeyMapImpl;
+import com.bgsoftware.superiorskyblock.core.key.KeyIndicator;
+import com.bgsoftware.superiorskyblock.core.key.KeyMaps;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.world.BukkitEntities;
@@ -19,7 +21,7 @@ public class DefaultIslandEntitiesTrackerAlgorithm implements IslandEntitiesTrac
 
     private static final long CALCULATE_DELAY = TimeUnit.MINUTES.toMillis(5);
 
-    private final KeyMap<Integer> entityCounts = KeyMapImpl.createConcurrentHashMap();
+    private final KeyMap<Integer> entityCounts = KeyMaps.createConcurrentHashMap(KeyIndicator.ENTITY_TYPE);
 
     private final Island island;
 
@@ -102,24 +104,19 @@ public class DefaultIslandEntitiesTrackerAlgorithm implements IslandEntitiesTrac
 
     @Override
     public void recalculateEntityCounts() {
-        if (beingRecalculated)
-            return;
-
-        long currentTime = System.currentTimeMillis();
-
-        if (currentTime - lastCalculateTime <= CALCULATE_DELAY)
+        if (beingRecalculated || !canRecalculateEntityCounts())
             return;
 
         this.beingRecalculated = true;
 
         try {
-            this.lastCalculateTime = currentTime;
+            this.lastCalculateTime = System.currentTimeMillis();
 
             clearEntityCounts();
 
-            KeyMap<Integer> recalculatedEntityCounts = KeyMapImpl.createConcurrentHashMap();
+            KeyMap<Integer> recalculatedEntityCounts = KeyMaps.createConcurrentHashMap(KeyIndicator.ENTITY_TYPE);
 
-            island.getLoadedChunks(true, true).forEach(chunk -> {
+            island.getLoadedChunks(IslandChunkFlags.ONLY_PROTECTED | IslandChunkFlags.NO_EMPTY_CHUNKS).forEach(chunk -> {
                 for (Entity entity : chunk.getEntities()) {
                     if (BukkitEntities.canBypassEntityLimit(entity))
                         continue;
@@ -150,8 +147,14 @@ public class DefaultIslandEntitiesTrackerAlgorithm implements IslandEntitiesTrac
         }
     }
 
+    @Override
+    public boolean canRecalculateEntityCounts() {
+        long currentTime = System.currentTimeMillis();
+        return currentTime - lastCalculateTime > CALCULATE_DELAY;
+    }
+
     private boolean canTrackEntity(Key key) {
-        return island.getEntityLimit(key) != -1;
+        return island.getEntityLimit(key) != -1 || key.toString().contains("MINECART");
     }
 
 }

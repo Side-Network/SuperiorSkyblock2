@@ -5,6 +5,7 @@ import com.bgsoftware.superiorskyblock.core.Text;
 import com.bgsoftware.superiorskyblock.core.database.sql.session.QueryResult;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
+import com.bgsoftware.superiorskyblock.core.logging.StackTrace;
 import com.bgsoftware.superiorskyblock.core.threads.BukkitExecutor;
 
 import java.sql.Connection;
@@ -32,7 +33,7 @@ public class StatementHolder {
     }
 
     public void addBatch() {
-        this.batches.add(this.values);
+        this.batches.add(new LinkedList<>(this.values));
         this.values.clear();
     }
 
@@ -97,7 +98,15 @@ public class StatementHolder {
             return;
 
         if (async && !BukkitExecutor.isDataThread()) {
-            BukkitExecutor.data(() -> executeQuery(false, queryResult));
+            StackTrace stackTrace = new StackTrace();
+            BukkitExecutor.data(() -> {
+                try {
+                    Log.attachStackTrace(stackTrace);
+                    executeQuery(false, queryResult);
+                } finally {
+                    Log.detachStackTrace();
+                }
+            });
             return;
         }
 

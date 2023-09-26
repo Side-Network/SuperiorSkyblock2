@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.player;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.data.DatabaseBridge;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
 import com.bgsoftware.superiorskyblock.api.enums.Environment;
@@ -10,6 +11,7 @@ import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.menu.view.MenuView;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.persistence.PersistentDataContainer;
+import com.bgsoftware.superiorskyblock.api.player.PlayerStatus;
 import com.bgsoftware.superiorskyblock.api.wrappers.BlockPosition;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.database.bridge.EmptyDatabaseBridge;
@@ -23,8 +25,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -56,7 +56,7 @@ public class SuperiorNPCPlayer implements SuperiorPlayer {
     }
 
     @Override
-    public void setTextureValue(@Nonnull String textureValue) {
+    public void setTextureValue(String textureValue) {
         // Do nothing.
     }
 
@@ -424,6 +424,17 @@ public class SuperiorNPCPlayer implements SuperiorPlayer {
         // Do nothing.
     }
 
+    @Nullable
+    @Override
+    public BukkitTask getTeleportTask() {
+        return null;
+    }
+
+    @Override
+    public void setTeleportTask(@Nullable BukkitTask teleportTask) {
+        // Do nothing.
+    }
+
     @Override
     public boolean isImmunedToPvP() {
         return false;
@@ -444,17 +455,6 @@ public class SuperiorNPCPlayer implements SuperiorPlayer {
         // Do nothing.
     }
 
-    @Nullable
-    @Override
-    public BukkitTask getTeleportTask() {
-        return null;
-    }
-
-    @Override
-    public void setTeleportTask(@Nullable BukkitTask teleportTask) {
-        // Do nothing.
-    }
-
     @Override
     public boolean isImmunedToPortals() {
         return false;
@@ -462,6 +462,16 @@ public class SuperiorNPCPlayer implements SuperiorPlayer {
 
     @Override
     public void setImmunedToPortals(boolean immuneToPortals) {
+        // Do nothing.
+    }
+
+    @Override
+    public PlayerStatus getPlayerStatus() {
+        return PlayerStatus.NONE;
+    }
+
+    @Override
+    public void setPlayerStatus(PlayerStatus playerStatus) {
         // Do nothing.
     }
 

@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.bank.BankTransaction;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
@@ -71,12 +72,15 @@ public class BankDepositButton extends AbstractMenuViewButton<IslandMenuView> {
 
     public static class Template extends MenuTemplateButtonImpl<IslandMenuView> {
 
+        @Nullable
         private final GameSound successSound;
+        @Nullable
         private final GameSound failSound;
         private final BigDecimal depositPercentage;
 
-        Template(TemplateItem buttonItem, List<String> commands, String requiredPermission,
-                 GameSound lackPermissionSound, GameSound successSound, GameSound failSound, double depositPercentage) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable List<String> commands, @Nullable String requiredPermission,
+                 @Nullable GameSound lackPermissionSound, @Nullable GameSound successSound,
+                 @Nullable GameSound failSound, double depositPercentage) {
             super(buttonItem, null, commands, requiredPermission, lackPermissionSound,
                     BankDepositButton.class, BankDepositButton::new);
             this.successSound = successSound;

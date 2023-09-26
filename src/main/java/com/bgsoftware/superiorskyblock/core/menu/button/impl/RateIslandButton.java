@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
@@ -17,6 +18,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class RateIslandButton extends AbstractMenuViewButton<IslandMenuView> {
 
@@ -75,11 +77,11 @@ public class RateIslandButton extends AbstractMenuViewButton<IslandMenuView> {
 
         private final Rating rating;
 
-        Template(TemplateItem buttonItem, GameSound clickSound, List<String> commands,
-                 String requiredPermission, GameSound lackPermissionSound, Rating rating) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable GameSound clickSound, @Nullable List<String> commands,
+                 @Nullable String requiredPermission, @Nullable GameSound lackPermissionSound, Rating rating) {
             super(buttonItem, clickSound, commands, requiredPermission, lackPermissionSound,
                     RateIslandButton.class, RateIslandButton::new);
-            this.rating = rating;
+            this.rating = Objects.requireNonNull(rating, "rating cannot be null");
         }
 
     }

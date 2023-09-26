@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.commands;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -49,16 +50,18 @@ public interface IAdminIslandCommand extends ISuperiorCommand {
             }
         }
 
-        return Collections.unmodifiableList(tabVariables);
+        return tabVariables == null ? Collections.emptyList() : Collections.unmodifiableList(tabVariables);
     }
 
     boolean supportMultipleIslands();
 
-    default void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, Island island, String[] args) {
+    default void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, @Nullable SuperiorPlayer targetPlayer,
+                         Island island, String[] args) {
         // Not all commands should implement this method.
     }
 
-    default void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, List<Island> islands, String[] args) {
+    default void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, @Nullable SuperiorPlayer targetPlayer,
+                         List<Island> islands, String[] args) {
         // Not all commands should implement this method.
     }
 

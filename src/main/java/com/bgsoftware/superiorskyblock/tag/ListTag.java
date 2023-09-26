@@ -32,9 +32,9 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 package com.bgsoftware.superiorskyblock.tag;
 
+import com.bgsoftware.common.annotations.NotNull;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -117,6 +117,10 @@ public class ListTag extends Tag<List<Tag<?>>> implements Iterable<Tag<?>> {
     @Override
     public Iterator<Tag<?>> iterator() {
         return value.iterator();
+    }
+
+    public int size() {
+        return this.value.size();
     }
 
     @Override

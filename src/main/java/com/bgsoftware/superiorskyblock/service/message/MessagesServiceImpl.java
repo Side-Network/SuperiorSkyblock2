@@ -1,8 +1,10 @@
 package com.bgsoftware.superiorskyblock.service.message;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBar;
 import com.bgsoftware.superiorskyblock.api.service.message.IMessageComponent;
 import com.bgsoftware.superiorskyblock.api.service.message.MessagesService;
+import com.bgsoftware.superiorskyblock.core.EnumHelper;
 import com.bgsoftware.superiorskyblock.core.GameSoundImpl;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
@@ -13,21 +15,26 @@ import com.bgsoftware.superiorskyblock.core.messages.component.impl.ComplexMessa
 import com.bgsoftware.superiorskyblock.core.messages.component.impl.RawMessageComponent;
 import com.bgsoftware.superiorskyblock.core.messages.component.impl.SoundComponent;
 import com.bgsoftware.superiorskyblock.core.messages.component.impl.TitleComponent;
+import com.bgsoftware.superiorskyblock.service.IService;
 import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class MessagesServiceImpl implements MessagesService {
+public class MessagesServiceImpl implements MessagesService, IService {
 
     public MessagesServiceImpl() {
 
+    }
+
+    @Override
+    public Class<?> getAPIClass() {
+        return MessagesService.class;
     }
 
     @Nullable
@@ -43,16 +50,8 @@ public class MessagesServiceImpl implements MessagesService {
     @Nullable
     @Override
     public IMessageComponent getComponent(String messageName, Locale locale) {
-        Message message;
-
-        try {
-            message = Message.valueOf(messageName.toUpperCase(Locale.ENGLISH));
-        } catch (IllegalArgumentException error) {
-            // The given name was invalid.
-            return null;
-        }
-
-        return message.isCustom() ? null : message.getComponent(locale);
+        Message message = EnumHelper.getEnum(Message.class, messageName.toUpperCase(Locale.ENGLISH));
+        return message == null || message.isCustom() ? null : message.getComponent(locale);
     }
 
     @Override

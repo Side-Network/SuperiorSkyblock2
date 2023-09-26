@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
@@ -74,8 +75,8 @@ public class DisbandButton extends AbstractMenuViewButton<IslandMenuView> {
 
         private final boolean disbandIsland;
 
-        Template(TemplateItem buttonItem, GameSound clickSound, List<String> commands,
-                 String requiredPermission, GameSound lackPermissionSound, boolean disbandIsland) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable GameSound clickSound, @Nullable List<String> commands,
+                 @Nullable String requiredPermission, @Nullable GameSound lackPermissionSound, boolean disbandIsland) {
             super(buttonItem, clickSound, commands, requiredPermission, lackPermissionSound,
                     DisbandButton.class, DisbandButton::new);
             this.disbandIsland = disbandIsland;

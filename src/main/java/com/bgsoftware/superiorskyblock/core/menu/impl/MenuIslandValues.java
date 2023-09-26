@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
@@ -12,8 +13,9 @@ import com.bgsoftware.superiorskyblock.core.Materials;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.io.MenuParserImpl;
 import com.bgsoftware.superiorskyblock.core.itemstack.ItemSkulls;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
-import com.bgsoftware.superiorskyblock.core.key.KeySetImpl;
+import com.bgsoftware.superiorskyblock.core.key.KeyIndicator;
+import com.bgsoftware.superiorskyblock.core.key.KeySets;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.core.menu.AbstractMenu;
 import com.bgsoftware.superiorskyblock.core.menu.MenuIdentifiers;
 import com.bgsoftware.superiorskyblock.core.menu.MenuParseResult;
@@ -26,7 +28,6 @@ import com.bgsoftware.superiorskyblock.core.menu.view.args.IslandViewArgs;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
@@ -62,7 +63,7 @@ public class MenuIslandValues extends AbstractMenu<MenuIslandValues.View, Island
         YamlConfiguration cfg = menuParseResult.getConfig();
         MenuLayout.Builder<View> patternBuilder = menuParseResult.getLayoutBuilder();
 
-        KeySet keysToUpdate = KeySetImpl.createHashSet();
+        KeySet keysToUpdate = KeySets.createHashSet(KeyIndicator.MATERIAL);
 
         if (cfg.isConfigurationSection("items")) {
             for (String itemsSectionName : cfg.getConfigurationSection("items").getKeys(false)) {
@@ -73,11 +74,10 @@ public class MenuIslandValues extends AbstractMenu<MenuIslandValues.View, Island
                 if (block == null)
                     continue;
 
-                Key blockKey = KeyImpl.of(block);
+                Key blockKey = Keys.ofMaterialAndData(block);
                 keysToUpdate.add(blockKey);
 
-                patternBuilder.mapButton(menuPatternSlots.getSlot(itemsSectionName),
-                        new ValuesButton.Builder(blockKey));
+                patternBuilder.mapButtons(menuPatternSlots.getSlots(itemsSectionName), new ValuesButton.Builder(blockKey));
             }
         }
 

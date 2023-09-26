@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
@@ -16,6 +17,7 @@ import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ControlPanelButton extends AbstractMenuViewButton<IslandMenuView> {
 
@@ -84,11 +86,12 @@ public class ControlPanelButton extends AbstractMenuViewButton<IslandMenuView> {
 
         private final ControlPanelAction controlPanelAction;
 
-        Template(TemplateItem buttonItem, GameSound clickSound, List<String> commands,
-                 String requiredPermission, GameSound lackPermissionSound, ControlPanelAction controlPanelAction) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable GameSound clickSound, @Nullable List<String> commands,
+                 @Nullable String requiredPermission, @Nullable GameSound lackPermissionSound,
+                 ControlPanelAction controlPanelAction) {
             super(buttonItem, clickSound, commands, requiredPermission, lackPermissionSound,
                     ControlPanelButton.class, ControlPanelButton::new);
-            this.controlPanelAction = controlPanelAction;
+            this.controlPanelAction = Objects.requireNonNull(controlPanelAction, "controlPanelAction cannot be null");
         }
 
     }

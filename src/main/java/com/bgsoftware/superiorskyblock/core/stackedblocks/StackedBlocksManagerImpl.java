@@ -7,12 +7,13 @@ import com.bgsoftware.superiorskyblock.api.handlers.StackedBlocksManager;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.LazyWorldLocation;
 import com.bgsoftware.superiorskyblock.core.Manager;
 import com.bgsoftware.superiorskyblock.core.database.DatabaseResult;
 import com.bgsoftware.superiorskyblock.core.database.bridge.StackedBlocksDatabaseBridge;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
+import com.bgsoftware.superiorskyblock.core.key.Keys;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.serialization.Serializers;
@@ -91,7 +92,7 @@ public class StackedBlocksManagerImpl extends Manager implements StackedBlocksMa
     @Override
     public boolean setStackedBlock(Block block, int amount) {
         Preconditions.checkNotNull(block, "block parameter cannot be null.");
-        return setStackedBlock(block.getLocation(), KeyImpl.of(block), amount);
+        return setStackedBlock(block.getLocation(), Keys.of(block), amount);
     }
 
     @Override
@@ -117,7 +118,7 @@ public class StackedBlocksManagerImpl extends Manager implements StackedBlocksMa
             stackedBlock.setBlockKey(blockKey);
             stackedBlock.setAmount(amount);
             // Must be called with delay in order to fix issue #632
-            BukkitExecutor.sync(() -> stackedBlock.updateName(plugin), 2L);
+            BukkitExecutor.sync(stackedBlock::updateName, 2L);
             StackedBlocksDatabaseBridge.saveStackedBlock(this, stackedBlock);
         } else {
             stackedBlock.removeHologram();
@@ -210,7 +211,7 @@ public class StackedBlocksManagerImpl extends Manager implements StackedBlocksMa
 
         StackedBlock stackedBlock = this.stackedBlocksContainer.getStackedBlock(location);
         if (stackedBlock != null) {
-            stackedBlock.updateName(plugin);
+            stackedBlock.updateName();
             if (stackedBlock.getAmount() <= 1)
                 removeStackedBlock(location);
         }
@@ -220,7 +221,7 @@ public class StackedBlocksManagerImpl extends Manager implements StackedBlocksMa
     public void updateStackedBlockHolograms(Chunk chunk) {
         Preconditions.checkNotNull(chunk, "chunk parameter cannot be null.");
         this.stackedBlocksContainer.forEach(ChunkPosition.of(chunk), stackedBlock -> {
-            stackedBlock.updateName(plugin);
+            stackedBlock.updateName();
             if (stackedBlock.getAmount() <= 1)
                 removeStackedBlock(stackedBlock.getLocation());
         });
@@ -289,7 +290,23 @@ public class StackedBlocksManagerImpl extends Manager implements StackedBlocksMa
 
         Optional<String> item = resultSet.getString("block_type");
 
-        Key blockKey = !item.isPresent() || item.get().isEmpty() ? null : KeyImpl.of(item.get());
+        Key blockKey;
+        if (!item.isPresent() || item.get().isEmpty()) {
+            blockKey = null;
+        } else {
+            String itemValue = item.get();
+            Location blockLocation = location.get();
+            blockKey = Keys.of(Key.class, new LazyReference<Key>() {
+
+                private final Key baseKey = Keys.ofMaterialAndData(itemValue);
+                private final Location keyLocation = blockLocation;
+
+                @Override
+                protected Key create() {
+                    return Keys.of(this.baseKey, this.keyLocation);
+                }
+            });
+        }
 
         StackedBlock stackedBlock = this.stackedBlocksContainer.createStackedBlock(location.get());
         stackedBlock.setAmount(amount.get());
@@ -298,7 +315,7 @@ public class StackedBlocksManagerImpl extends Manager implements StackedBlocksMa
 
     private void updateStackedBlockKeys() {
         this.stackedBlocksContainer.forEach(stackedBlock ->
-                stackedBlock.setBlockKey(KeyImpl.of(stackedBlock.getLocation().getBlock())));
+                stackedBlock.setBlockKey(Keys.of(stackedBlock.getLocation().getBlock())));
     }
 
     private void initializeDatabaseBridge() {

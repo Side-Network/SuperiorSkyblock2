@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.List;
+import java.util.Objects;
 
 public class IconRenameButton<E> extends AbstractMenuViewButton<AbstractIconProviderMenu.View<E>> {
 
@@ -65,11 +67,11 @@ public class IconRenameButton<E> extends AbstractMenuViewButton<AbstractIconProv
 
         private final Message newNameMessage;
 
-        Template(TemplateItem buttonItem, GameSound clickSound, List<String> commands,
-                 String requiredPermission, GameSound lackPermissionSound, Message newNameMessage) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable GameSound clickSound, @Nullable List<String> commands,
+                 @Nullable String requiredPermission, @Nullable GameSound lackPermissionSound, Message newNameMessage) {
             super(buttonItem, clickSound, commands, requiredPermission, lackPermissionSound,
                     IconRenameButton.class, IconRenameButton::new);
-            this.newNameMessage = newNameMessage;
+            this.newNameMessage = Objects.requireNonNull(newNameMessage, "newNameMessage cannot be null");
         }
 
     }

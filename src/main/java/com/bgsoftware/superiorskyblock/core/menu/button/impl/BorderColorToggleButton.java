@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -64,12 +65,13 @@ public class BorderColorToggleButton extends AbstractMenuViewButton<BaseMenuView
         private final TemplateItem enabledItem;
         private final TemplateItem disabledItem;
 
-        Template(GameSound clickSound, List<String> commands, String requiredPermission, GameSound lackPermissionSound,
-                 TemplateItem enabledItem, TemplateItem disabledItem) {
+        Template(@Nullable GameSound clickSound, @Nullable List<String> commands, @Nullable String requiredPermission,
+                 @Nullable GameSound lackPermissionSound, @Nullable TemplateItem enabledItem,
+                 @Nullable TemplateItem disabledItem) {
             super(null, clickSound, commands, requiredPermission, lackPermissionSound,
                     BorderColorToggleButton.class, BorderColorToggleButton::new);
-            this.enabledItem = enabledItem;
-            this.disabledItem = disabledItem;
+            this.enabledItem = enabledItem == null ? TemplateItem.AIR : enabledItem;
+            this.disabledItem = disabledItem == null ? TemplateItem.AIR : disabledItem;
         }
 
     }

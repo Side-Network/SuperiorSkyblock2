@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 
 public class ValuesButton extends AbstractMenuViewButton<MenuIslandValues.View> {
 
@@ -86,11 +88,11 @@ public class ValuesButton extends AbstractMenuViewButton<MenuIslandValues.View> 
 
         private final Key block;
 
-        Template(TemplateItem buttonItem, GameSound clickSound, List<String> commands,
-                 String requiredPermission, GameSound lackPermissionSound, Key block) {
+        Template(@Nullable TemplateItem buttonItem, @Nullable GameSound clickSound, @Nullable List<String> commands,
+                 @Nullable String requiredPermission, @Nullable GameSound lackPermissionSound, Key block) {
             super(buttonItem, clickSound, commands, requiredPermission, lackPermissionSound,
                     ValuesButton.class, ValuesButton::new);
-            this.block = block;
+            this.block = Objects.requireNonNull(block, "block cannot be null");
         }
 
     }

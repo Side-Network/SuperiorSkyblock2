@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.button.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.enums.TopIslandMembersSorting;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.menu.button.MenuTemplateButton;
@@ -7,6 +8,7 @@ import com.bgsoftware.superiorskyblock.api.service.placeholders.PlaceholdersServ
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.GameSoundImpl;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.itemstack.ItemBuilder;
 import com.bgsoftware.superiorskyblock.core.menu.Menus;
@@ -23,12 +25,18 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIslands.View> {
+
+    private static final LazyReference<PlaceholdersService> placeholdersService = new LazyReference<PlaceholdersService>() {
+        @Override
+        protected PlaceholdersService create() {
+            return plugin.getServices().getService(PlaceholdersService.class);
+        }
+    };
 
     private TopIslandsSelfIslandButton(MenuTemplateButton<MenuTopIslands.View> templateButton, MenuTopIslands.View menuView) {
         super(templateButton, menuView);
@@ -128,8 +136,6 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
                     if (members.size() == 0) {
                         lore.add(memberFormat.replace("{}", "None"));
                     } else {
-                        PlaceholdersService placeholdersService = plugin.getServices().getPlaceholdersService();
-
                         if (plugin.getSettings().getTopIslandMembersSorting() != TopIslandMembersSorting.NAMES)
                             members.sort(plugin.getSettings().getTopIslandMembersSorting().getComparator());
 
@@ -138,7 +144,7 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
                                     Message.ISLAND_TOP_STATUS_ONLINE.getMessage(inventoryViewer.getUserLocale()) :
                                     Message.ISLAND_TOP_STATUS_OFFLINE.getMessage(inventoryViewer.getUserLocale());
 
-                            lore.add(placeholdersService.parsePlaceholders(member.asOfflinePlayer(), memberFormat
+                            lore.add(placeholdersService.get().parsePlaceholders(member.asOfflinePlayer(), memberFormat
                                     .replace("{}", member.getName())
                                     .replace("{0}", member.getName())
                                     .replace("{1}", onlineMessage == null ? "" : onlineMessage)
@@ -209,19 +215,21 @@ public class TopIslandsSelfIslandButton extends AbstractMenuViewButton<MenuTopIs
 
         private final TemplateItem islandItem;
         private final TemplateItem noIslandItem;
+        @Nullable
         private final GameSound islandSound;
+        @Nullable
         private final GameSound noIslandSound;
         private final List<String> islandCommands;
         private final List<String> noIslandCommands;
 
-        Template(String requiredPermission, GameSound lackPermissionSound,
-                 TemplateItem islandItem, GameSound islandSound, List<String> islandCommands,
-                 TemplateItem noIslandItem, GameSound noIslandSound,
-                 List<String> noIslandCommands) {
+        Template(@Nullable String requiredPermission, @Nullable GameSound lackPermissionSound,
+                 @Nullable TemplateItem islandItem, @Nullable GameSound islandSound, @Nullable List<String> islandCommands,
+                 @Nullable TemplateItem noIslandItem, @Nullable GameSound noIslandSound,
+                 @Nullable List<String> noIslandCommands) {
             super(null, null, null, requiredPermission, lackPermissionSound,
                     TopIslandsSelfIslandButton.class, TopIslandsSelfIslandButton::new);
-            this.islandItem = islandItem;
-            this.noIslandItem = noIslandItem;
+            this.islandItem = islandItem == null ? TemplateItem.AIR : islandItem;
+            this.noIslandItem = noIslandItem == null ? TemplateItem.AIR : noIslandItem;
             this.islandSound = islandSound;
             this.islandCommands = islandCommands == null ? Collections.emptyList() : islandCommands;
             this.noIslandSound = noIslandSound;

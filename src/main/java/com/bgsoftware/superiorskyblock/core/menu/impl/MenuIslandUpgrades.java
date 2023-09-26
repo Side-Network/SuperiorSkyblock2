@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.menu.impl;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.menu.layout.MenuLayout;
@@ -23,7 +24,6 @@ import com.bgsoftware.superiorskyblock.island.upgrade.SUpgradeLevel;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -66,10 +66,10 @@ public class MenuIslandUpgrades extends AbstractMenu<IslandMenuView, IslandViewA
                     continue;
                 }
 
-                int slot = MenuParserImpl.getInstance().parseButtonSlots(upgradeSection, "item", menuPatternSlots).get(0);
-                upgrade.setSlot(slot);
+                List<Integer> slots = MenuParserImpl.getInstance().parseButtonSlots(upgradeSection, "item", menuPatternSlots);
+                upgrade.setSlots(slots);
 
-                patternBuilder.mapButton(slot, new UpgradeButton.Builder(upgrade));
+                patternBuilder.mapButtons(slots, new UpgradeButton.Builder(upgrade));
 
                 for (String levelSectionKey : upgradeSection.getKeys(false)) {
                     int level;
@@ -81,7 +81,7 @@ public class MenuIslandUpgrades extends AbstractMenu<IslandMenuView, IslandViewA
                         continue;
                     }
 
-                    if (slot == -1) {
+                    if (slots.isEmpty()) {
                         Log.warnFromFile("upgrades.yml", "The item of the upgrade ", upgrade.getName(),
                                 " (level ", level, ") is not inside the pattern, skipping...");
                         continue;

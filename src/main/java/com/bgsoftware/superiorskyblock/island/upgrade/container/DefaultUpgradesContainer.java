@@ -1,9 +1,9 @@
 package com.bgsoftware.superiorskyblock.island.upgrade.container;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.upgrades.Upgrade;
 import com.bgsoftware.superiorskyblock.api.upgrades.cost.UpgradeCostLoader;
 import com.bgsoftware.superiorskyblock.core.SequentialListBuilder;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ public class DefaultUpgradesContainer implements UpgradesContainer {
     @Override
     public Upgrade getUpgrade(int slot) {
         return this.upgrades.values().stream()
-                .filter(upgrade -> upgrade.getSlot() == slot)
+                .filter(upgrade -> upgrade.isSlot(slot))
                 .findFirst()
                 .orElse(null);
     }

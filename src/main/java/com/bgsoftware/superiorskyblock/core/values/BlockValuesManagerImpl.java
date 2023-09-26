@@ -1,15 +1,18 @@
 package com.bgsoftware.superiorskyblock.core.values;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.handlers.BlockValuesManager;
 import com.bgsoftware.superiorskyblock.api.key.CustomKeyParser;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.key.KeyMap;
 import com.bgsoftware.superiorskyblock.api.key.KeySet;
+import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.Manager;
-import com.bgsoftware.superiorskyblock.core.key.KeyImpl;
-import com.bgsoftware.superiorskyblock.core.key.KeyMapImpl;
-import com.bgsoftware.superiorskyblock.core.key.KeySetImpl;
+import com.bgsoftware.superiorskyblock.core.key.BaseKey;
+import com.bgsoftware.superiorskyblock.core.key.KeyIndicator;
+import com.bgsoftware.superiorskyblock.core.key.KeyMaps;
+import com.bgsoftware.superiorskyblock.core.key.collections.MaterialKeySet;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.values.container.BlockValuesContainer;
@@ -19,7 +22,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import javax.script.Bindings;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
@@ -52,9 +54,9 @@ public class BlockValuesManagerImpl extends Manager implements BlockValuesManage
 
     private static final Bindings bindings = createBindings();
 
-    private static final KeyMap<CustomKeyParser> customKeyParsers = KeyMapImpl.createHashMap();
-    private static final KeySet valuesMenuBlocks = KeySetImpl.createHashSet();
-    private static final KeySet customBlockKeys = KeySetImpl.createHashSet();
+    private static final KeyMap<CustomKeyParser> customKeyParsers = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
+    private static final KeySet valuesMenuBlocks = MaterialKeySet.createHashSet();
+    private static final KeySet customBlockKeys = MaterialKeySet.createHashSet();
 
     private final BlockValuesContainer blockWorthValues;
     private final BlockValuesContainer blockLevels;
@@ -86,7 +88,7 @@ public class BlockValuesManagerImpl extends Manager implements BlockValuesManage
 
         this.blockWorthValues.loadDefaultValues(plugin);
         this.blockLevels.loadDefaultValues(plugin);
-        convertValuesToLevels();
+        plugin.getProviders().addPricesLoadCallback(this::convertValuesToLevels);
     }
 
     @Override
@@ -112,8 +114,10 @@ public class BlockValuesManagerImpl extends Manager implements BlockValuesManage
 
         if (plugin.getSettings().getSyncWorth() != SyncWorthStatus.NONE) {
             BigDecimal price = plugin.getProviders().getPricesProvider().getPrice(key);
-            Log.debugResult(Debug.GET_WORTH, "Return Price", price);
-            return price;
+            if (price.compareTo(BigDecimal.ZERO) >= 0) {
+                Log.debugResult(Debug.GET_WORTH, "Return Price", price);
+                return price;
+            }
         }
 
         BigDecimal value = blockWorthValues.getBlockValue(key);
@@ -157,7 +161,7 @@ public class BlockValuesManagerImpl extends Manager implements BlockValuesManage
     public Key getBlockKey(Key key) {
         Preconditions.checkNotNull(key, "key parameter cannot be null.");
 
-        if (((KeyImpl) key).isAPIKey() || isValuesMenu(key)) {
+        if (((BaseKey<?>) key).isAPIKey() || isValuesMenu(key)) {
             return getValuesKey(key);
         } else if (customBlockKeys.contains(key)) {
             return customBlockKeys.getKey(key);
@@ -249,13 +253,15 @@ public class BlockValuesManagerImpl extends Manager implements BlockValuesManage
         return key == null ? original : key;
     }
 
-    public Key convertKey(Key original) {
+    @Nullable
+    public Pair<Key, ItemStack> convertCustomKeyItem(Key original) {
         for (Map.Entry<Key, CustomKeyParser> entry : customKeyParsers.entrySet()) {
-            if (entry.getValue().isCustomKey(original))
-                return entry.getKey();
+            if (entry.getValue().isCustomKey(original)) {
+                return new Pair<>(entry.getKey(), entry.getValue().getCustomKeyItem(original));
+            }
         }
 
-        return original;
+        return new Pair<>(original, null);
     }
 
     public BigDecimal convertValueToLevel(BigDecimal value) {

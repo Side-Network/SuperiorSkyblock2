@@ -1,17 +1,21 @@
 package com.bgsoftware.superiorskyblock.mission;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.handlers.MissionsManager;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.missions.IMissionsHolder;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.missions.MissionCategory;
+import com.bgsoftware.superiorskyblock.api.service.placeholders.PlaceholdersService;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.Either;
+import com.bgsoftware.superiorskyblock.core.LazyReference;
 import com.bgsoftware.superiorskyblock.core.Manager;
 import com.bgsoftware.superiorskyblock.core.errors.ManagerLoadException;
 import com.bgsoftware.superiorskyblock.core.events.EventResult;
 import com.bgsoftware.superiorskyblock.core.events.EventsBus;
+import com.bgsoftware.superiorskyblock.core.io.FileClassLoader;
 import com.bgsoftware.superiorskyblock.core.io.Files;
 import com.bgsoftware.superiorskyblock.core.io.JarFiles;
 import com.bgsoftware.superiorskyblock.core.itemstack.ItemBuilder;
@@ -30,20 +34,25 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public class MissionsManagerImpl extends Manager implements MissionsManager {
 
     private static final Object DATA_FOLDER_MUTEX = new Object();
+
+    private final LazyReference<PlaceholdersService> placeholdersService = new LazyReference<PlaceholdersService>() {
+        @Override
+        protected PlaceholdersService create() {
+            return plugin.getServices().getService(PlaceholdersService.class);
+        }
+    };
 
     private final MissionsContainer missionsContainer;
     private TemplateItem completePrevious;
@@ -180,7 +189,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         OfflinePlayer offlinePlayer = superiorPlayer.asOfflinePlayer();
 
         return offlinePlayer != null && mission.getRequiredChecks().stream().allMatch(check -> {
-            check = plugin.getServices().getPlaceholdersService().parsePlaceholders(offlinePlayer, check);
+            check = this.placeholdersService.get().parsePlaceholders(offlinePlayer, check);
             try {
                 return Boolean.parseBoolean(plugin.getScriptEngine().eval(check) + "");
             } catch (ScriptException error) {
@@ -452,8 +461,9 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
             if (mission == null) {
                 File missionJar = new File(missionsFolder, missionSection.getString("mission-file") + ".jar");
 
-                Either<Class<?>, Throwable> missionClassLookup = JarFiles.getClass(missionJar.toURL(), Mission.class,
-                        plugin.getPluginClassLoader());
+                FileClassLoader missionClassLoader = new FileClassLoader(missionJar, plugin.getPluginClassLoader());
+
+                Either<Class<?>, Throwable> missionClassLookup = JarFiles.getClass(missionJar.toURL(), Mission.class, missionClassLoader);
 
                 if (missionClassLookup.getLeft() != null)
                     throw new RuntimeException("An unexpected error occurred while reading " + missionJar.getName() + ".", missionClassLookup.getLeft());

@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core;
 
+import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.world.WorldInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -8,6 +9,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class ChunkPosition {
 
@@ -16,6 +18,8 @@ public class ChunkPosition {
     private final int z;
 
     private long pairedXZ = -1;
+    @Nullable
+    private World cachedBukkitWorld;
 
     private ChunkPosition(WorldInfo worldInfo, int x, int z) {
         this.worldInfo = worldInfo;
@@ -24,19 +28,22 @@ public class ChunkPosition {
     }
 
     public static ChunkPosition of(Block block) {
-        return of(WorldInfo.of(block.getWorld()), block.getX() >> 4, block.getZ() >> 4);
+        World world = block.getWorld();
+        return of(WorldInfo.of(world), block.getX() >> 4, block.getZ() >> 4).withBukkitWorld(world);
     }
 
     public static ChunkPosition of(Location location) {
-        return of(WorldInfo.of(location.getWorld()), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+        World world = location.getWorld();
+        return of(WorldInfo.of(world), location.getBlockX() >> 4, location.getBlockZ() >> 4).withBukkitWorld(world);
     }
 
     public static ChunkPosition of(Chunk chunk) {
-        return of(WorldInfo.of(chunk.getWorld()), chunk.getX(), chunk.getZ());
+        World world = chunk.getWorld();
+        return of(WorldInfo.of(world), chunk.getX(), chunk.getZ()).withBukkitWorld(world);
     }
 
     public static ChunkPosition of(World world, int x, int z) {
-        return of(WorldInfo.of(world), x, z);
+        return of(WorldInfo.of(world), x, z).withBukkitWorld(world);
     }
 
     public static ChunkPosition of(WorldInfo worldInfo, int x, int z) {
@@ -44,7 +51,7 @@ public class ChunkPosition {
     }
 
     public World getWorld() {
-        return Bukkit.getWorld(getWorldName());
+        return this.cachedBukkitWorld == null ? (this.cachedBukkitWorld = Bukkit.getWorld(getWorldName())) : this.cachedBukkitWorld;
     }
 
     public WorldInfo getWorldsInfo() {
@@ -75,6 +82,12 @@ public class ChunkPosition {
                 location.getBlockX() >> 4 == x && location.getBlockZ() >> 4 == z;
     }
 
+    public int distanceSquared(ChunkPosition other) {
+        int deltaX = this.x - other.x;
+        int deltaZ = this.z - other.z;
+        return (deltaX * deltaX) + (deltaZ * deltaZ);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(worldInfo.getName(), x, z);
@@ -93,6 +106,17 @@ public class ChunkPosition {
     @Override
     public String toString() {
         return worldInfo.getName() + ", " + x + ", " + z;
+    }
+
+    private ChunkPosition withBukkitWorld(World world) {
+        this.cachedBukkitWorld = world;
+        return this;
+    }
+
+    public static Optional<Chunk> getLoadedChunk(ChunkPosition chunkPosition) {
+        boolean isChunkLoaded = chunkPosition.getWorld().isChunkLoaded(chunkPosition.getX(), chunkPosition.getZ());
+        if (!isChunkLoaded) return Optional.empty();
+        return Optional.of(chunkPosition.getWorld().getChunkAt(chunkPosition.getX(), chunkPosition.getZ()));
     }
 
 }
