@@ -30,7 +30,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Locale;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import java.util.*;
 
 public class NMSPlayersImpl implements NMSPlayers {

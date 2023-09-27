@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_20_1.generator;
 
 import com.bgsoftware.common.annotations.NotNull;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.island.IslandUtils;
 import com.bgsoftware.superiorskyblock.world.generator.IslandsGenerator;
 import org.bukkit.Location;
@@ -28,7 +29,7 @@ public class IslandsGeneratorImpl extends IslandsGenerator {
     @Override
     public void generateSurface(@NotNull WorldInfo worldInfo, @NotNull Random random, int chunkX, int chunkZ,
                                 @NotNull ChunkData chunkData) {
-        if (chunkX == 0 && chunkZ == 0 && worldInfo.getEnvironment() ==
+        if (chunkX == 0 && chunkZ == 0 && Environment.of(worldInfo.getEnvironment()) ==
                 plugin.getSettings().getWorlds().getDefaultWorld()) {
             chunkData.setBlock(0, 99, 0, Material.BEDROCK);
         }
@@ -40,7 +41,7 @@ public class IslandsGeneratorImpl extends IslandsGenerator {
             @Override
             public @NotNull
             Biome getBiome(@NotNull WorldInfo worldInfo, int x, int y, int z) {
-                return IslandUtils.getDefaultWorldBiome(worldInfo.getEnvironment());
+                return IslandUtils.getDefaultWorldBiome(Environment.of(worldInfo.getEnvironment()));
             }
 
             @Override

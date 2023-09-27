@@ -131,11 +131,11 @@ public class NMSWorldImpl implements NMSWorld {
             worldBorder.world = worldServer;
             worldBorder.setSize((islandSize * 2) + 1);
 
-            World.Environment environment = world.getEnvironment();
+            Environment environment = world.getEnvironment();
 
             Location center = island.getCenter(environment);
 
-            if (environment == World.Environment.NETHER) {
+            if (environment == Environment.NETHER) {
                 worldBorder.setCenter(center.getX() * 8, center.getZ() * 8);
             } else {
                 worldBorder.setCenter(center.getX(), center.getZ());

@@ -143,7 +143,7 @@ public class NMSWorldImpl implements NMSWorld {
             worldBorder.world = worldServer;
             worldBorder.setSize((islandSize * 2) + 1);
 
-            org.bukkit.World.Environment environment = world.getEnvironment();
+            Environment environment = world.getEnvironment();
 
             Location center = island.getCenter(environment);
             worldBorder.setCenter(center.getX(), center.getZ());
@@ -219,7 +219,7 @@ public class NMSWorldImpl implements NMSWorld {
         BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         LightEngine lightEngine = ((CraftWorld) location.getWorld()).getHandle().e();
         return new byte[]{
-                location.getWorld().getEnvironment() != org.bukkit.World.Environment.NORMAL ? 0 : (byte) lightEngine.a(EnumSkyBlock.SKY).b(blockPosition),
+                location.getWorld().getEnvironment() != Environment.NORMAL ? 0 : (byte) lightEngine.a(EnumSkyBlock.SKY).b(blockPosition),
                 (byte) lightEngine.a(EnumSkyBlock.BLOCK).b(blockPosition)
         };
     }

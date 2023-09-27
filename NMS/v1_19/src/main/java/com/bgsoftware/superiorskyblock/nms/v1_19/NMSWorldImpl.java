@@ -147,7 +147,7 @@ public class NMSWorldImpl implements NMSWorld {
             worldBorder = new WorldBorder();
             worldBorder.world = serverLevel;
 
-            org.bukkit.World.Environment environment = world.getEnvironment();
+            Environment environment = world.getEnvironment();
             Location center = island.getCenter(environment);
 
             worldBorder.setWarningBlocks(0);
@@ -233,7 +233,7 @@ public class NMSWorldImpl implements NMSWorld {
 
         LevelLightEngine lightEngine = serverLevel.getLightEngine();
         return new byte[]{
-                location.getWorld().getEnvironment() != org.bukkit.World.Environment.NORMAL ? 0 :
+                location.getWorld().getEnvironment() != Environment.NORMAL ? 0 :
                         (byte) lightEngine.getLayerListener(LightLayer.SKY).getLightValue(blockPos),
                 (byte) lightEngine.getLayerListener(LightLayer.BLOCK).getLightValue(blockPos)
         };

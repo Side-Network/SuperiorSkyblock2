@@ -132,7 +132,7 @@ public class NMSWorldImpl implements NMSWorld {
             worldBorder.world = worldServer;
             worldBorder.setSize((islandSize * 2) + 1);
 
-            org.bukkit.World.Environment environment = world.getEnvironment();
+            Environment environment = world.getEnvironment();
 
             Location center = island.getCenter(environment);
             worldBorder.setCenter(center.getX(), center.getZ());

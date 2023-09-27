@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.service.portals;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.events.IslandChangeLevelBonusEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandChangeWorthBonusEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
@@ -99,10 +100,10 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
     private EntityPortalResult handlePlayerPortalInternal(SuperiorPlayer superiorPlayer, Location portalLocation,
                                                           PortalType portalType, boolean checkImmunedPortalsStatus,
                                                           Supplier<EntityPortalResult> entityPortalResultSupplier) {
-        World.Environment targetDestination = getTargetWorld(portalLocation, portalType);
-        if (targetDestination == World.Environment.NETHER && !plugin.getSettings().getWorlds().getNether().isEnabled())
+        Environment targetDestination = getTargetWorld(portalLocation, portalType);
+        if (targetDestination == Environment.NETHER && !plugin.getSettings().getWorlds().getNether().isEnabled())
             return EntityPortalResult.DESTINATION_WORLD_DISABLED;
-        if (targetDestination == World.Environment.THE_END && !plugin.getSettings().getWorlds().getEnd().isEnabled())
+        if (targetDestination == Environment.THE_END && !plugin.getSettings().getWorlds().getEnd().isEnabled())
             return EntityPortalResult.DESTINATION_WORLD_DISABLED;
 
         if (checkImmunedPortalsStatus && superiorPlayer.getPlayerStatus() == PlayerStatus.PORTALS_IMMUNED)
@@ -111,7 +112,7 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
         EntityPortalResult portalResult = entityPortalResultSupplier.get();
 
         if (portalResult == EntityPortalResult.WORLD_NOT_UNLOCKED && !Message.WORLD_NOT_UNLOCKED.isEmpty(superiorPlayer.getUserLocale())) {
-            World.Environment originalDestination = getTargetWorld(portalLocation, portalType);
+            Environment originalDestination = getTargetWorld(portalLocation, portalType);
             Message.SCHEMATICS.send(superiorPlayer, Message.WORLD_NOT_UNLOCKED.getMessage(
                     superiorPlayer.getUserLocale(), Formatters.CAPITALIZED_FORMATTER.format(originalDestination.name())));
         }
@@ -161,7 +162,7 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
 
     private EntityPortalResult simulateEntityPortalFromIsland(Entity entity, Island island, Location portalLocation,
                                                               PortalType portalType) {
-        World.Environment originalDestination = getTargetWorld(portalLocation, portalType);
+        Environment originalDestination = getTargetWorld(portalLocation, portalType);
 
         if (plugin.getGrid().getIslandsWorld(island, originalDestination) == null) {
             return EntityPortalResult.DESTINATION_NOT_ISLAND_WORLD;
@@ -186,7 +187,7 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
             boolean schematicGenerated = island.wasSchematicGenerated(originalDestination);
             SuperiorPlayer superiorPlayer = entity instanceof Player ? plugin.getPlayers().getSuperiorPlayer(entity) : null;
 
-            World.Environment destination;
+            Environment destination;
             Schematic schematic;
             boolean ignoreInvalidSchematic;
 
@@ -266,7 +267,7 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
 
                 Location destinationLocation = island.getIslandHome(destination);
 
-                if (destination == World.Environment.THE_END && superiorPlayer != null) {
+                if (destination == Environment.THE_END && superiorPlayer != null) {
                     plugin.getNMSDragonFight().awardTheEndAchievement((Player) entity);
                     this.dragonBattleService.get().resetEnderDragonBattle(island);
                 }
@@ -289,7 +290,7 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
         return EntityPortalResult.SUCCEED;
     }
 
-    private boolean shouldOffsetSchematic(World.Environment environment) {
+    private boolean shouldOffsetSchematic(Environment environment) {
         switch (environment) {
             case NORMAL:
                 return plugin.getSettings().getWorlds().getNormal().isSchematicOffset();
@@ -302,26 +303,26 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
         }
     }
 
-    private static World.Environment getTargetWorld(Location portalLocation, PortalType portalType) {
-        World.Environment portalEnvironment = portalLocation.getWorld().getEnvironment();
-        World.Environment environment;
+    private static Environment getTargetWorld(Location portalLocation, PortalType portalType) {
+        Environment portalEnvironment = Environment.of(portalLocation.getWorld().getEnvironment());
+        Environment environment;
 
         switch (portalType) {
             case ENDER:
-                environment = World.Environment.THE_END;
+                environment = Environment.THE_END;
                 break;
             case NETHER:
-                environment = World.Environment.NETHER;
+                environment = Environment.NETHER;
                 break;
             default:
-                environment = World.Environment.NORMAL;
+                environment = Environment.NORMAL;
                 break;
         }
 
-        return environment == portalEnvironment ? World.Environment.NORMAL : environment;
+        return environment == portalEnvironment ? Environment.NORMAL : environment;
     }
 
-    private static boolean isIslandWorldEnabled(World.Environment environment, Island island) {
+    private static boolean isIslandWorldEnabled(Environment environment, Island island) {
         switch (environment) {
             case NORMAL:
                 return island.isNormalEnabled();

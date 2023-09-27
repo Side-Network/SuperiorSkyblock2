@@ -72,7 +72,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class ProtectionListener implements Listener {
 
-    // todo: SIDE - revisit to include PORTAL_AREA_BLOCK
     private static final ReflectMethod<Entity> PROJECTILE_HIT_TARGET_ENTITY = new ReflectMethod<>(
             ProjectileHitEvent.class, "getHitEntity");
     private static final ReflectMethod<Block> PROJECTILE_HIT_EVENT_TARGET_BLOCK = new ReflectMethod<>(

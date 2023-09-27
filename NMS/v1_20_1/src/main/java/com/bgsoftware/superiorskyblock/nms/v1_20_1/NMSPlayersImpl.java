@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_20_1;
 import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBar;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.nms.NMSPlayers;
@@ -25,15 +26,16 @@ import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 public class NMSPlayersImpl implements NMSPlayers {
 
     private static final ReflectMethod<Locale> PLAYER_LOCALE = new ReflectMethod<>(ServerPlayer.class, "locale");
 
     private final SuperiorSkyblockPlugin plugin;
+    private final Map<StaticBossBarImpl, Long> bossBarTimers = new HashMap<>();
 
     public NMSPlayersImpl(SuperiorSkyblockPlugin plugin) {
         this.plugin = plugin;
@@ -65,7 +67,7 @@ public class NMSPlayersImpl implements NMSPlayers {
         clearInventory(targetPlayer);
 
         //Setting the entity to the spawn location
-        Location spawnLocation = plugin.getGrid().getSpawnIsland().getCenter(org.bukkit.World.Environment.NORMAL);
+        Location spawnLocation = plugin.getGrid().getSpawnIsland().getCenter(Environment.NORMAL);
 
         if (spawnLocation != null) {
             serverPlayer.setLevel(serverLevel);
@@ -106,6 +108,24 @@ public class NMSPlayersImpl implements NMSPlayers {
         return bossBar;
     }
 
+    @Override
+    public BossBar createStaticBossBar(Player player, String message, BossBar.Color color, double progress, double ticksToRun) {
+        Optional<StaticBossBarImpl> opt = bossBarTimers.keySet().stream().filter(t -> t.bossBar.getPlayers().contains(player)).findFirst();
+
+        if (opt.isPresent()) {
+            StaticBossBarImpl impl = opt.get();
+            impl.bossBar.setTitle(message);
+            impl.bossBar.setProgress(progress);
+            bossBarTimers.put(impl, (long) (System.currentTimeMillis() + ticksToRun * 50));
+            return impl;
+        } else {
+            StaticBossBarImpl bossBar = new StaticBossBarImpl(message, BarColor.valueOf(color.name()), progress);
+            bossBar.addPlayer(player);
+            bossBarTimers.put(bossBar, (long) (System.currentTimeMillis() + ticksToRun * 50));
+            return bossBar;
+        }
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void sendTitle(Player player, String title, String subtitle, int fadeIn, int duration, int fadeOut) {
@@ -128,6 +148,30 @@ public class NMSPlayersImpl implements NMSPlayers {
         } catch (IllegalArgumentException error) {
             return null;
         }
+    }
+
+    @Override
+    public void onLoad() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (bossBarTimers.isEmpty())
+                    return;
+
+                List<StaticBossBarImpl> toRemove = new ArrayList<>();
+                long now = System.currentTimeMillis();
+                for (Map.Entry<StaticBossBarImpl, Long> entry : bossBarTimers.entrySet()) {
+                    if (now > entry.getValue()) {
+                        toRemove.add(entry.getKey());
+                        entry.getKey().removeAll();
+                    }
+                }
+
+                for (StaticBossBarImpl bar : toRemove) {
+                    bossBarTimers.remove(bar);
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 5L);
     }
 
     private static class BossBarImpl implements BossBar {
@@ -164,4 +208,33 @@ public class NMSPlayersImpl implements NMSPlayers {
 
     }
 
+    private static class StaticBossBarImpl implements BossBar {
+
+        private final org.bukkit.boss.BossBar bossBar;
+
+        public StaticBossBarImpl(String message, BarColor color, double progress) {
+            bossBar = Bukkit.createBossBar(message, color, BarStyle.SEGMENTED_10);
+            bossBar.setProgress(progress);
+        }
+
+        @Override
+        public void addPlayer(Player player) {
+            this.bossBar.addPlayer(player);
+        }
+
+        @Override
+        public void removeAll() {
+            this.bossBar.removeAll();
+        }
+
+        @Override
+        public void setProgress(double progress) {
+            this.bossBar.setProgress(progress);
+        }
+
+        @Override
+        public double getProgress() {
+            return this.bossBar.getProgress();
+        }
+    }
 }

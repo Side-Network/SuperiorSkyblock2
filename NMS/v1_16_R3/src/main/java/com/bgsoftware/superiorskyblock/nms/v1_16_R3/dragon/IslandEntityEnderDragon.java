@@ -47,7 +47,7 @@ public class IslandEntityEnderDragon extends EntityEnderDragon {
             return;
 
         Location middleBlock = plugin.getSettings().getWorlds().getEnd().getPortalOffset()
-                .applyToLocation(island.getCenter(org.bukkit.World.Environment.THE_END));
+                .applyToLocation(island.getCenter(Environment.THE_END));
         this.islandBlockPosition = new BlockPosition(middleBlock.getX(), middleBlock.getY(), middleBlock.getZ());
 
         dragonBattleHandler.addDragonBattle(island.getUniqueId(), new IslandEnderDragonBattle(island,

@@ -18,7 +18,6 @@ public class PlayerCommandsMap extends CommandsMap {
         registerCommand(new CmdBorder(), false);
         registerCommand(new CmdChest(), false);
         registerCommand(new CmdClose(), false);
-        // todo: SIDE update config
         if (plugin.getSettings().isCoopMembers()) {
             registerCommand(new CmdCoop(), false);
             registerCommand(new CmdCoops(), false);

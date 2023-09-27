@@ -4,6 +4,7 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.missions.MissionCategory;
 import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBar;
+import com.bgsoftware.superiorskyblock.api.service.bossbar.BossBarsService;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 
@@ -52,6 +53,6 @@ public class SMissionCategory implements MissionCategory {
 
         double fTotal = BigDecimal.valueOf(totalProgress * 100).setScale(2, RoundingMode.HALF_UP).doubleValue();
         String message = Message.MISSION_BOSS_BAR.getMessage(superiorPlayer.getUserLocale(), displayName, action, Math.min(progress, total), total, fTotal);
-        SuperiorSkyblockPlugin.getPlugin().getServices().getBossBarsService().createStaticBossBar(superiorPlayer.asPlayer(), message, BossBar.Color.YELLOW, Math.min(1.0, (double) progress / total),100);
+        SuperiorSkyblockPlugin.getPlugin().getServices().getService(BossBarsService.class).createStaticBossBar(superiorPlayer.asPlayer(), message, BossBar.Color.YELLOW, Math.min(1.0, (double) progress / total),100);
     }
 }

@@ -60,7 +60,7 @@ public class NMSDragonFightImpl implements NMSDragonFight {
     @Nullable
     @Override
     public EnderDragon getEnderDragon(Island island) {
-        WorldServer worldServer = ((CraftWorld) island.getCenter(World.Environment.THE_END).getWorld()).getHandle();
+        WorldServer worldServer = ((CraftWorld) island.getCenter(Environment.THE_END).getWorld()).getHandle();
 
         if (!(worldServer.getDragonBattle() instanceof EndWorldEnderDragonBattleHandler))
             return null;
@@ -89,7 +89,7 @@ public class NMSDragonFightImpl implements NMSDragonFight {
 
     @Override
     public void removeDragonBattle(Island island) {
-        World bukkitWorld = island.getCenter(World.Environment.THE_END).getWorld();
+        World bukkitWorld = island.getCenter(Environment.THE_END).getWorld();
 
         if (bukkitWorld == null)
             return;

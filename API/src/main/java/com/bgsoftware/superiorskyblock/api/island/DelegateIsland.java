@@ -348,7 +348,7 @@ public class DelegateIsland implements Island {
 
     @Override
     @Deprecated
-    public List<Chunk> getAllChunks(World.Environment environment, boolean onlyProtected) {
+    public List<Chunk> getAllChunks(Environment environment, boolean onlyProtected) {
         return this.handle.getAllChunks(environment, onlyProtected);
     }
 
@@ -369,12 +369,12 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(World.Environment environment) {
+    public List<Chunk> getLoadedChunks(Environment environment) {
         return this.handle.getLoadedChunks(environment);
     }
 
     @Override
-    public List<Chunk> getLoadedChunks(World.Environment environment, @IslandChunkFlags int flags) {
+    public List<Chunk> getLoadedChunks(Environment environment, @IslandChunkFlags int flags) {
         return this.handle.getLoadedChunks(environment, flags);
     }
 
@@ -1766,68 +1766,6 @@ public class DelegateIsland implements Island {
     @Override
     public IslandStrike removeStrike(int id) {
         return this.handle.removeStrike(id);
-    }
-
-    // todo: SIDE - all following functions were deleted,
-    // except the last one
-    @Override
-    public void completeMission(Mission<?> mission) {
-        this.handle.completeMission(mission);
-    }
-
-    @Override
-    public void resetMission(Mission<?> mission) {
-        this.handle.resetMission(mission);
-    }
-
-    @Override
-    public boolean hasCompletedMission(Mission<?> mission) {
-        return this.handle.hasCompletedMission(mission);
-    }
-
-    @Override
-    public boolean canCompleteMissionAgain(Mission<?> mission) {
-        return this.handle.canCompleteMissionAgain(mission);
-    }
-
-    @Override
-    public int getAmountMissionCompleted(Mission<?> mission) {
-        return this.handle.getAmountMissionCompleted(mission);
-    }
-
-    @Override
-    public void setAmountMissionCompleted(Mission<?> mission, int finishCount) {
-        this.handle.setAmountMissionCompleted(mission, finishCount);
-    }
-
-    @Override
-    public List<Mission<?>> getCompletedMissions() {
-        return this.handle.getCompletedMissions();
-    }
-
-    @Override
-    public Map<Mission<?>, Integer> getCompletedMissionsWithAmounts() {
-        return this.handle.getCompletedMissionsWithAmounts();
-    }
-
-    @Override
-    public DatabaseBridge getDatabaseBridge() {
-        return this.handle.getDatabaseBridge();
-    }
-
-    @Override
-    public PersistentDataContainer getPersistentDataContainer() {
-        return this.handle.getPersistentDataContainer();
-    }
-
-    @Override
-    public boolean isPersistentDataContainerEmpty() {
-        return this.handle.isPersistentDataContainerEmpty();
-    }
-
-    @Override
-    public void savePersistentDataContainer() {
-        this.handle.savePersistentDataContainer();
     }
 
     @Override

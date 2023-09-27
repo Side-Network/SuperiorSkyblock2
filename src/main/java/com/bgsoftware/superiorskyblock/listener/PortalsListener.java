@@ -86,8 +86,7 @@ public class PortalsListener implements Listener {
 
         // Simulate end portal
         if (Environment.of(world.getEnvironment()) == Environment.THE_END && plugin.getGrid().isIslandsWorld(world)) {
-            Island island = plugin.getGrid().getIslandAt(e.getEntity().getLocation());
-            if (island != null && island.wasSchematicGenerated(Environment.NORMAL)) {
+            if (island.wasSchematicGenerated(Environment.NORMAL)) {
                 /* We teleport the player to his island instead of cancelling the event.
                 Therefore, we must prevent the player from acting like he entered another island or left his island.*/
 
@@ -101,7 +100,7 @@ public class PortalsListener implements Listener {
 
                 BukkitExecutor.sync(() -> {
                     EntityTeleports.teleportUntilSuccess(e.getEntity(), island.getIslandHome(Environment.NORMAL), 5, () -> {
-                        if (teleportedPlayer != null && teleportedPlayer.getPlayerStatus() == PlayerStatus.LEAVING_ISLAND)
+                        if (teleportedPlayer.getPlayerStatus() == PlayerStatus.LEAVING_ISLAND)
                             teleportedPlayer.setPlayerStatus(PlayerStatus.NONE);
                     });
                 }, 5L);
@@ -116,6 +115,8 @@ public class PortalsListener implements Listener {
             return;
 
         Material originalMaterial = e.getLocation().getBlock().getType();
+        PlayerTeleportEvent.TeleportCause teleportCause = originalMaterial == Materials.NETHER_PORTAL.toBukkitType() ?
+                PlayerTeleportEvent.TeleportCause.NETHER_PORTAL : PlayerTeleportEvent.TeleportCause.END_PORTAL;
 
         PortalType portalType = originalMaterial == Materials.NETHER_PORTAL.toBukkitType() ? PortalType.NETHER : PortalType.ENDER;
 

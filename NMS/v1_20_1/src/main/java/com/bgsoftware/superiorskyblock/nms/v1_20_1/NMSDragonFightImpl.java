@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_20_1;
 
 import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.common.reflection.ReflectField;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.nms.NMSDragonFight;
 import com.bgsoftware.superiorskyblock.nms.v1_20_1.dragon.EndWorldEndDragonFightHandler;
@@ -58,7 +59,7 @@ public class NMSDragonFightImpl implements NMSDragonFight {
     @Nullable
     @Override
     public org.bukkit.entity.EnderDragon getEnderDragon(Island island) {
-        World bukkitWorld = island.getCenter(World.Environment.THE_END).getWorld();
+        World bukkitWorld = island.getCenter(Environment.THE_END).getWorld();
 
         if (bukkitWorld == null)
             return null;
@@ -89,7 +90,7 @@ public class NMSDragonFightImpl implements NMSDragonFight {
 
     @Override
     public void removeDragonBattle(Island island) {
-        World bukkitWorld = island.getCenter(World.Environment.THE_END).getWorld();
+        World bukkitWorld = island.getCenter(Environment.THE_END).getWorld();
 
         if (bukkitWorld == null)
             return;

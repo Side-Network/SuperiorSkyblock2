@@ -146,52 +146,52 @@ public class WorldsSection extends SettingsContainerHolder implements SettingsMa
 
         @Override
         public boolean isEnabled() {
-            return container.citadelWorldEnabled;
+            return getContainer().citadelWorldEnabled;
         }
 
         @Override
         public boolean isUnlocked() {
-            return container.citadelWorldUnlocked;
+            return getContainer().citadelWorldUnlocked;
         }
 
         @Override
         public String getName() {
-            return container.citadelWorldName;
+            return getContainer().citadelWorldName;
         }
 
         @Override
         public String getBiome() {
-            return container.citadelBiome;
+            return getContainer().citadelBiome;
         }
 
         @Override
         public int getPortalAreaMinX() {
-            return container.citadelPortalMinXOffset;
+            return getContainer().citadelPortalMinXOffset;
         }
 
         @Override
         public int getPortalAreaMinY() {
-            return container.citadelPortalMinYOffset;
+            return getContainer().citadelPortalMinYOffset;
         }
 
         @Override
         public int getPortalAreaMinZ() {
-            return container.citadelPortalMinZOffset;
+            return getContainer().citadelPortalMinZOffset;
         }
 
         @Override
         public int getPortalAreaMaxX() {
-            return container.citadelPortalMaxXOffset;
+            return getContainer().citadelPortalMaxXOffset;
         }
 
         @Override
         public int getPortalAreaMaxY() {
-            return container.citadelPortalMaxYOffset;
+            return getContainer().citadelPortalMaxYOffset;
         }
 
         @Override
         public int getPortalAreaMaxZ() {
-            return container.citadelPortalMaxZOffset;
+            return getContainer().citadelPortalMaxZOffset;
         }
     }
 

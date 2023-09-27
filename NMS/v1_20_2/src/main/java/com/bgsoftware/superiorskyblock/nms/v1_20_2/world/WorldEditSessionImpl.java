@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_20_2.world;
 
 import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
@@ -277,7 +278,7 @@ public class WorldEditSessionImpl implements WorldEditSession {
 
         private void createChunkSections(Registry<Biome> biomesRegistry) {
             Holder<Biome> biome = CraftBiome.bukkitToMinecraftHolder(
-                    IslandUtils.getDefaultWorldBiome(serverLevel.getWorld().getEnvironment()));
+                    IslandUtils.getDefaultWorldBiome(Environment.of(serverLevel.getWorld().getEnvironment())));
 
             for (int i = 0; i < this.chunkSections.length; ++i) {
                 PalettedContainer<Holder<Biome>> biomesContainer = new PalettedContainer<>(biomesRegistry.asHolderIdMap(),

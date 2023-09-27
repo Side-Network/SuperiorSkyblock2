@@ -68,7 +68,7 @@ public class IslandBuilderImpl implements Island.Builder {
     public long lastTimeUpdated = System.currentTimeMillis() / 1000;
     public final Set<DirtyChunk> dirtyChunks = new LinkedHashSet<>();
     public final KeyMap<BigInteger> blockCounts = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
-    public final EnumMap<World.Environment, Location> islandHomes = new EnumMap<>(Environment.class);
+    public final EnumMap<Environment, Location> islandHomes = new EnumMap<>(Environment.class);
     public final List<SuperiorPlayer> members = new LinkedList<>();
     public final List<SuperiorPlayer> bannedPlayers = new LinkedList<>();
     public final Map<SuperiorPlayer, PlayerPrivilegeNode> playerPermissions = new LinkedHashMap<>();

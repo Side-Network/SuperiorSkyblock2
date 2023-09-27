@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_20_1;
 import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -147,7 +148,7 @@ public class NMSWorldImpl implements NMSWorld {
             worldBorder = new WorldBorder();
             worldBorder.world = serverLevel;
 
-            org.bukkit.World.Environment environment = world.getEnvironment();
+            Environment environment = Environment.of(world.getEnvironment());
             Location center = island.getCenter(environment);
 
             worldBorder.setWarningBlocks(0);
@@ -233,7 +234,7 @@ public class NMSWorldImpl implements NMSWorld {
 
         LevelLightEngine lightEngine = serverLevel.getLightEngine();
         return new byte[]{
-                location.getWorld().getEnvironment() != org.bukkit.World.Environment.NORMAL ? 0 :
+                Environment.of(location.getWorld().getEnvironment()) != Environment.NORMAL ? 0 :
                         (byte) lightEngine.getLayerListener(LightLayer.SKY).getLightValue(blockPos),
                 (byte) lightEngine.getLayerListener(LightLayer.BLOCK).getLightValue(blockPos)
         };

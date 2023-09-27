@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.core.database.loader.v1.deserializer;
 
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
@@ -45,7 +46,7 @@ public class EmptyParameterGuardDeserializer implements IDeserializer {
 
     @Override
     public String[] deserializeHomes(String locationParam) {
-        return checkParam(locationParam, () -> new String[World.Environment.values().length]);
+        return checkParam(locationParam, () -> new String[Environment.values().length]);
     }
 
     @Override
@@ -90,7 +91,7 @@ public class EmptyParameterGuardDeserializer implements IDeserializer {
 
     @Override
     public KeyMap<Integer>[] deserializeGenerators(String generator) {
-        return checkParam(generator, () -> new KeyMap[World.Environment.values().length]);
+        return checkParam(generator, () -> new KeyMap[Environment.values().length]);
     }
 
     @Override
