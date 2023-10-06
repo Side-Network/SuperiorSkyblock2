@@ -105,6 +105,8 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
             return EntityPortalResult.DESTINATION_WORLD_DISABLED;
         if (targetDestination == Environment.THE_END && !plugin.getSettings().getWorlds().getEnd().isEnabled())
             return EntityPortalResult.DESTINATION_WORLD_DISABLED;
+        if (targetDestination == Environment.CITADEL && !plugin.getSettings().getWorlds().getCitadel().isEnabled())
+            return EntityPortalResult.DESTINATION_WORLD_DISABLED;
 
         if (checkImmunedPortalsStatus && superiorPlayer.getPlayerStatus() == PlayerStatus.PORTALS_IMMUNED)
             return EntityPortalResult.PLAYER_IMMUNED_TO_PORTAL;
@@ -291,48 +293,33 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
     }
 
     private boolean shouldOffsetSchematic(Environment environment) {
-        switch (environment) {
-            case NORMAL:
-                return plugin.getSettings().getWorlds().getNormal().isSchematicOffset();
-            case NETHER:
-                return plugin.getSettings().getWorlds().getNether().isSchematicOffset();
-            case THE_END:
-                return plugin.getSettings().getWorlds().getEnd().isSchematicOffset();
-            default:
-                return false;
-        }
+        return switch (environment) {
+            case NORMAL -> plugin.getSettings().getWorlds().getNormal().isSchematicOffset();
+            case NETHER -> plugin.getSettings().getWorlds().getNether().isSchematicOffset();
+            case THE_END -> plugin.getSettings().getWorlds().getEnd().isSchematicOffset();
+            default -> false;
+        };
     }
 
     private static Environment getTargetWorld(Location portalLocation, PortalType portalType) {
         Environment portalEnvironment = Environment.of(portalLocation.getWorld().getEnvironment());
-        Environment environment;
-
-        switch (portalType) {
-            case ENDER:
-                environment = Environment.THE_END;
-                break;
-            case NETHER:
-                environment = Environment.NETHER;
-                break;
-            default:
-                environment = Environment.NORMAL;
-                break;
-        }
+        Environment environment = switch (portalType) {
+            case ENDER -> Environment.THE_END;
+            case NETHER -> Environment.NETHER;
+            case CUSTOM -> Environment.CITADEL;
+            default -> Environment.NORMAL;
+        };
 
         return environment == portalEnvironment ? Environment.NORMAL : environment;
     }
 
     private static boolean isIslandWorldEnabled(Environment environment, Island island) {
-        switch (environment) {
-            case NORMAL:
-                return island.isNormalEnabled();
-            case NETHER:
-                return island.isNetherEnabled();
-            case THE_END:
-                return island.isEndEnabled();
-            default:
-                return true;
-        }
+        return switch (environment) {
+            case NORMAL -> island.isNormalEnabled();
+            case NETHER -> island.isNetherEnabled();
+            case THE_END -> island.isEndEnabled();
+            case CITADEL -> island.isCitadelEnabled();
+        };
     }
 
 }

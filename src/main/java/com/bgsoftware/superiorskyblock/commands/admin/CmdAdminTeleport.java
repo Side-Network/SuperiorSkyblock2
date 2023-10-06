@@ -92,20 +92,17 @@ public class CmdAdminTeleport implements IAdminIslandCommand {
 
         if (environment != plugin.getSettings().getWorlds().getDefaultWorld()) {
             if (!island.wasSchematicGenerated(environment)) {
-                PortalType portalType = environment == Environment.NETHER ? PortalType.NETHER : PortalType.ENDER;
+                PortalType portalType;
+                if (environment == Environment.NETHER)
+                    portalType = PortalType.NETHER;
+                else if (environment == Environment.CITADEL)
+                    portalType = PortalType.CUSTOM;
+                else
+                    portalType = PortalType.ENDER;
+
                 portalsManager.get().handlePlayerPortalFromIsland(superiorPlayer, island, superiorPlayer.getLocation(),
                         portalType, false);
                 return;
-                // todo: SIDE
-                //                 PlayerTeleportEvent.TeleportCause teleportCause;
-                //                switch (environment) {
-                //                    case NETHER -> teleportCause = PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
-                //                    case THE_END -> teleportCause = PlayerTeleportEvent.TeleportCause.END_PORTAL;
-                //                    case CITADEL -> teleportCause = PlayerTeleportEvent.TeleportCause.COMMAND;
-                //                    default -> teleportCause = PlayerTeleportEvent.TeleportCause.PLUGIN;
-                //                }
-                //                plugin.getListener(PortalsListener.class).get()
-                //                        .onPlayerPortal((Player) sender, ((Player) sender).getLocation(), teleportCause, true);
             }
         }
 

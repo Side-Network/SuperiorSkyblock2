@@ -52,6 +52,8 @@ public class PortalsListener implements Listener {
             return;
 
         PortalType portalType = (e.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) ? PortalType.NETHER : PortalType.ENDER;
+        if (portalType == PortalType.ENDER && e.getFrom().getWorld().getEnvironment() == World.Environment.NORMAL)
+            portalType = PortalType.CUSTOM;
 
         EntityPortalResult portalResult = this.portalsManager.get().handlePlayerPortal(superiorPlayer, e.getFrom(),
                 portalType, e.getTo(), true);
@@ -119,6 +121,8 @@ public class PortalsListener implements Listener {
                 PlayerTeleportEvent.TeleportCause.NETHER_PORTAL : PlayerTeleportEvent.TeleportCause.END_PORTAL;
 
         PortalType portalType = originalMaterial == Materials.NETHER_PORTAL.toBukkitType() ? PortalType.NETHER : PortalType.ENDER;
+        if (portalType == PortalType.ENDER && Environment.of(world.getEnvironment()) == Environment.NORMAL)
+            portalType = PortalType.CUSTOM;
 
         if (teleportCause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL ? Bukkit.getAllowNether() : Bukkit.getAllowEnd())
             return;
