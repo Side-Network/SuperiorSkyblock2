@@ -169,9 +169,9 @@ public class IslandUtils {
             chunkCoords.addAll(getAllChunksAsync(island, endWorld, flags, chunkLoadReason, onChunkLoad));
         }
 
-        if (plugin.getProviders().getWorldsProvider().isEndEnabled() && island.wasSchematicGenerated(Environment.CITADEL)) {
-            World endWorld = island.getCenter(Environment.CITADEL).getWorld();
-            chunkCoords.addAll(getAllChunksAsync(island, endWorld, flags, chunkLoadReason, onChunkLoad));
+        if (plugin.getProviders().getWorldsProvider().isCitadelEnabled() && island.wasSchematicGenerated(Environment.CITADEL)) {
+            World citadelWorld = island.getCenter(Environment.CITADEL).getWorld();
+            chunkCoords.addAll(getAllChunksAsync(island, citadelWorld, flags, chunkLoadReason, onChunkLoad));
         }
 
         for (World registeredWorld : plugin.getGrid().getRegisteredWorlds()) {

@@ -16,15 +16,11 @@ import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeEntityLim
 import com.google.common.base.Preconditions;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Deprecated
 public class WorldEventsManagerImpl implements WorldEventsManager {
@@ -51,8 +47,7 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
     public void loadChunk(Chunk chunk) {
         Preconditions.checkNotNull(chunk, "chunk parameter cannot be null.");
 
-        Location firstBlock = chunk.getBlock(0, 100, 0).getLocation();
-        Island island = plugin.getGrid().getIslandAt(firstBlock);
+        Island island = plugin.getGrid().getIslandAt(chunk);
 
         if (island == null || island.isSpawn())
             return;
@@ -76,7 +71,8 @@ public class WorldEventsManagerImpl implements WorldEventsManager {
 
         if (chunk.getX() == (islandCenter.getBlockX() >> 4) && chunk.getZ() == (islandCenter.getBlockZ() >> 4)) {
             if (Environment.of(chunk.getWorld().getEnvironment()) == plugin.getSettings().getWorlds().getDefaultWorld()) {
-                island.setBiome(firstBlock.getWorld().getBiome(firstBlock.getBlockX(), firstBlock.getBlockZ()), false);
+                Block chunkBlock = chunk.getBlock(0, 100, 0);
+                island.setBiome(chunk.getWorld().getBiome(chunkBlock.getX(), chunkBlock.getZ()), false);
             }
 
             if (entityLimitsEnabled)

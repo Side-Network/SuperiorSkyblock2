@@ -131,6 +131,12 @@ public class NMSWorldImpl implements NMSWorld {
             return;
 
         int islandSize = island == null ? 0 : island.getIslandSize();
+        if (island != null) {
+            org.bukkit.World citadelWorld = plugin.getGrid().getIslandsWorld(island, Environment.CITADEL);
+            if (world == citadelWorld) {
+                islandSize = plugin.getSettings().getMaxIslandSize();
+            }
+        }
 
         boolean disabled = !superiorPlayer.hasWorldBorderEnabled() || islandSize < 0;
 

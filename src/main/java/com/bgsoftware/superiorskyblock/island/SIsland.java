@@ -45,6 +45,7 @@ import com.bgsoftware.superiorskyblock.core.key.ConstantKeys;
 import com.bgsoftware.superiorskyblock.core.key.KeyIndicator;
 import com.bgsoftware.superiorskyblock.core.key.KeyMaps;
 import com.bgsoftware.superiorskyblock.core.key.Keys;
+import com.bgsoftware.superiorskyblock.core.key.types.CustomKey;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
 import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
@@ -1259,7 +1260,13 @@ public class SIsland implements Island {
         if (location.getWorld() == null || !plugin.getGrid().isIslandsWorld(location.getWorld()))
             return false;
 
-        IslandArea islandArea = new IslandArea(center, getIslandSize());
+        int islandSize = getIslandSize();
+        World citadelWorld = plugin.getGrid().getIslandsWorld(this, Environment.CITADEL);
+        if (location.getWorld() == citadelWorld) {
+            islandSize = plugin.getSettings().getMaxIslandSize();
+        }
+
+        IslandArea islandArea = new IslandArea(center, islandSize);
         islandArea.expand(extra);
 
         return islandArea.intercepts(location.getBlockX(), location.getBlockZ());
@@ -2974,7 +2981,7 @@ public class SIsland implements Island {
     @Override
     public Map<Key, Integer> getCustomEntitiesLimits() {
         return Collections.unmodifiableMap(this.entityLimits.entrySet().stream()
-                .filter(entry -> !(entry.getValue() instanceof SyncedValue))
+                .filter(entry -> !(entry.getValue() instanceof SyncedValue) && !(entry.getKey() instanceof CustomKey))
                 .collect(KeyMap.getCollector(Map.Entry::getKey, entry -> entry.getValue().get())));
     }
 
