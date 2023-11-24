@@ -17,10 +17,7 @@ import com.bgsoftware.wildstacker.api.events.SpawnerPlaceInventoryEvent;
 import com.bgsoftware.wildstacker.api.events.SpawnerStackEvent;
 import com.bgsoftware.wildstacker.api.events.SpawnerUnstackEvent;
 import com.bgsoftware.wildstacker.api.objects.StackedSnapshot;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -76,10 +73,8 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
 
             if (island.hasReachedBlockLimit(blockKey, increaseAmount)) {
                 e.setCancelled(true);
-                Message.REACHED_BLOCK_LIMIT.send(e.getPlayer(), Formatters.CAPITALIZED_FORMATTER.format(blockKey.toString()));
-            } else {
-                if (increaseAmount <= 1)
-                    increaseAmount = 2;
+                Message.REACHED_BLOCK_LIMIT.send(e.getPlayer(), Formatters.CAPITALIZED_FORMATTER.format(blockKey.getGlobalKey()));
+            } else if (increaseAmount > 1) {
                 island.handleBlockPlace(blockKey, increaseAmount - 1);
             }
         }
@@ -117,12 +112,12 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
             if (island == null)
                 return;
 
-            Key blockKey = Keys.ofSpawner(e.getSpawner().getSpawnedType());
+            Key blockKey = Keys.of(Material.MOB_SPAWNER);
             int increaseAmount = e.getIncreaseAmount();
 
             if (island.hasReachedBlockLimit(blockKey, increaseAmount)) {
                 e.setCancelled(true);
-                Message.REACHED_BLOCK_LIMIT.send(e.getPlayer(), Formatters.CAPITALIZED_FORMATTER.format(blockKey.toString()));
+                Message.REACHED_BLOCK_LIMIT.send(e.getPlayer(), Formatters.CAPITALIZED_FORMATTER.format(blockKey.getGlobalKey()));
             } else {
                 island.handleBlockPlace(blockKey, increaseAmount);
             }

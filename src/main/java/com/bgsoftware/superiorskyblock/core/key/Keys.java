@@ -131,19 +131,19 @@ public class Keys {
     /* Spawner keys */
 
     public static Key ofSpawner(EntityType entityType) {
-        return SpawnerKey.of(of(entityType));
+        return of(Materials.SPAWNER.toBukkitType());
     }
 
     public static Key ofSpawner(EntityType entityType, Location location) {
-        return plugin.getBlockValues().convertKey(ofSpawner(entityType), location);
+        return of(Materials.SPAWNER.toBukkitType());
     }
 
     public static Key ofSpawner(String customType) {
-        return SpawnerKey.of(ofEntityType(customType));
+        return of(Materials.SPAWNER.toBukkitType());
     }
 
     public static Key ofSpawner(String customType, Location location) {
-        return plugin.getBlockValues().convertKey(ofSpawner(customType), location);
+        return of(Materials.SPAWNER.toBukkitType());
     }
 
     /* Custom keys */
