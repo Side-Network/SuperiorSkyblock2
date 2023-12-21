@@ -58,7 +58,7 @@ import com.bgsoftware.superiorskyblock.mission.MissionsManagerImpl;
 import com.bgsoftware.superiorskyblock.mission.container.DefaultMissionsContainer;
 import com.bgsoftware.superiorskyblock.module.ModulesManagerImpl;
 import com.bgsoftware.superiorskyblock.module.container.DefaultModulesContainer;
-import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms;
+import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms2;
 import com.bgsoftware.superiorskyblock.nms.NMSChunks;
 import com.bgsoftware.superiorskyblock.nms.NMSDragonFight;
 import com.bgsoftware.superiorskyblock.nms.NMSDragonFightImpl;
@@ -134,7 +134,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
     /* NMS */
     private String nmsPackageVersion;
-    private NMSAlgorithms nmsAlgorithms;
+    private NMSAlgorithms2 nmsAlgorithms;
     private NMSChunks nmsChunks;
     private NMSDragonFight nmsDragonFight;
     private NMSEntities nmsEntities;
@@ -204,7 +204,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
 
             loadUpgradeCostLoaders();
 
-            GlowEnchantment.registerGlowEnchantment();
+            GlowEnchantment.registerGlowEnchantment(this);
 
             try {
                 settingsHandler.loadData();
@@ -663,7 +663,7 @@ public class SuperiorSkyblockPlugin extends JavaPlugin implements SuperiorSkyblo
         return servicesHandler;
     }
 
-    public NMSAlgorithms getNMSAlgorithms() {
+    public NMSAlgorithms2 getNMSAlgorithms() {
         return nmsAlgorithms;
     }
 

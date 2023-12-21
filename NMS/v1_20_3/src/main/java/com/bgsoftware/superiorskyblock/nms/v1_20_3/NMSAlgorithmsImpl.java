@@ -4,7 +4,7 @@ import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.key.Key;
-import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms;
+import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms2;
 import com.bgsoftware.superiorskyblock.nms.v1_20_3.algorithms.PaperGlowEnchantment;
 import com.bgsoftware.superiorskyblock.nms.v1_20_3.algorithms.SpigotGlowEnchantment;
 import com.bgsoftware.superiorskyblock.nms.v1_20_3.menu.MenuBrewingStandBlockEntity;
@@ -49,7 +49,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class NMSAlgorithmsImpl implements NMSAlgorithms {
+public class NMSAlgorithmsImpl implements NMSAlgorithms2 {
 
     private static final ReflectField<Map<NamespacedKey, Enchantment>> REGISTRY_CACHE =
             new ReflectField<>(CraftRegistry.class, Map.class, "cache");

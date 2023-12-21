@@ -3,7 +3,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_12_R1;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.core.key.ConstantKeys;
-import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms;
+import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms2;
 import com.bgsoftware.superiorskyblock.nms.v1_12_R1.algorithms.GlowEnchantment;
 import com.bgsoftware.superiorskyblock.nms.v1_12_R1.world.KeyBlocksCache;
 import net.minecraft.server.v1_12_R1.Block;
@@ -36,7 +36,7 @@ import org.bukkit.potion.PotionEffect;
 
 import java.util.Optional;
 
-public class NMSAlgorithmsImpl implements NMSAlgorithms {
+public class NMSAlgorithmsImpl implements NMSAlgorithms2 {
 
     private final SuperiorSkyblockPlugin plugin;
 

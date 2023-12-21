@@ -2,7 +2,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_16_R3;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.key.Key;
-import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms;
+import com.bgsoftware.superiorskyblock.nms.NMSAlgorithms2;
 import com.bgsoftware.superiorskyblock.nms.algorithms.PaperGlowEnchantment;
 import com.bgsoftware.superiorskyblock.nms.algorithms.SpigotGlowEnchantment;
 import com.bgsoftware.superiorskyblock.nms.v1_16_R3.menu.MenuTileEntityBrewing;
@@ -42,7 +42,7 @@ import org.bukkit.potion.PotionEffect;
 import java.util.EnumMap;
 import java.util.function.BiFunction;
 
-public class NMSAlgorithmsImpl implements NMSAlgorithms {
+public class NMSAlgorithmsImpl implements NMSAlgorithms2 {
 
     private static final EnumMap<InventoryType, MenuCreator> MENUS_HOLDER_CREATORS = new EnumMap<>(InventoryType.class);
 

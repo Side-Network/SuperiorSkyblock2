@@ -3,6 +3,7 @@ package com.bgsoftware.superiorskyblock.nms.v1_20_3;
 import com.bgsoftware.common.reflection.ReflectField;
 import com.bgsoftware.common.reflection.ReflectMethod;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.enums.Environment;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.key.Key;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
@@ -144,7 +145,7 @@ public class NMSWorldImpl implements NMSWorld {
             worldBorder.world = serverLevel;
 
             org.bukkit.World.Environment environment = world.getEnvironment();
-            Location center = island.getCenter(environment);
+            Location center = island.getCenter(Environment.of(environment));
 
             worldBorder.setWarningBlocks(0);
             worldBorder.setSize((islandSize * 2) + 1);

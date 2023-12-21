@@ -17,7 +17,7 @@ import org.bukkit.potion.PotionEffect;
 
 import java.lang.reflect.Field;
 
-public interface NMSAlgorithms {
+public interface NMSAlgorithms2 {
 
     void registerCommand(BukkitCommand command);
 
