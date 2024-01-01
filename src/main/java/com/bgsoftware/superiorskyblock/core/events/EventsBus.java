@@ -646,6 +646,10 @@ public class EventsBus {
         return callEvent(() -> new PreIslandCreateEvent(superiorPlayer, islandName), "preislandcreateevent");
     }
 
+    public void callAuditOpenEvent(SuperiorPlayer superiorPlayer) {
+        callEvent(new IslandAuditOpenEvent(superiorPlayer));
+    }
+
     public EventResult<IMessageComponent> callSendMessageEvent(CommandSender receiver, String messageType, IMessageComponent messageComponent, Object... args) {
         return callEvent(() -> new SendMessageEvent(receiver, messageType, messageComponent, args),
                 "sendmessageevent", messageComponent, SendMessageEvent::getMessageComponent);
