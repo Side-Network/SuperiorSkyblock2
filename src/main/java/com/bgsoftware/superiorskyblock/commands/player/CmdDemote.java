@@ -96,6 +96,8 @@ public class CmdDemote implements IPermissibleCommand {
 
         targetPlayer.setPlayerRole(previousRole);
 
+        plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, previousRole, superiorPlayer);
+
         Message.DEMOTED_MEMBER.send(superiorPlayer, targetPlayer.getName(), targetPlayer.getPlayerRole());
         Message.GOT_DEMOTED.send(targetPlayer, targetPlayer.getPlayerRole());
     }

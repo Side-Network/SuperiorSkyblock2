@@ -177,8 +177,7 @@ public class EventsBus {
 
     public void callIslandChangePlayerPrivilegeResultEvent(Island island, SuperiorPlayer superiorPlayer,
                                                         SuperiorPlayer privilegedPlayer, IslandPrivilege islandPrivilege, boolean privilegeEnabled) {
-        callEvent(() -> new IslandChangePlayerPrivilegeResultEvent(island, superiorPlayer, privilegedPlayer, islandPrivilege, privilegeEnabled),
-                "islandchangeplayerprivilegeevent");
+        callEvent(new IslandChangePlayerPrivilegeResultEvent(island, superiorPlayer, privilegedPlayer, islandPrivilege, privilegeEnabled));
     }
 
     public EventResult<Integer> callIslandChangeRoleLimitEvent(CommandSender commandSender, Island island, PlayerRole playerRole, int roleLimit) {
@@ -237,8 +236,7 @@ public class EventsBus {
     }
 
     public void callIslandChangeRolePrivilegeResultEvent(Island island, @Nullable SuperiorPlayer superiorPlayer, PlayerRole playerRole, IslandPrivilege islandPrivilege) {
-        callEvent(() -> new IslandChangeRolePrivilegeResultEvent(island, superiorPlayer, playerRole, islandPrivilege),
-                "islandchangeroleprivilegeresultevent");
+        callEvent(new IslandChangeRolePrivilegeResultEvent(island, superiorPlayer, playerRole, islandPrivilege));
     }
 
     public EventResult<String> callIslandChatEvent(Island island, SuperiorPlayer superiorPlayer, String message) {
@@ -596,6 +594,10 @@ public class EventsBus {
 
     public boolean callPlayerChangeRoleEvent(SuperiorPlayer superiorPlayer, PlayerRole newPlayer) {
         return callEvent(() -> new PlayerChangeRoleEvent(superiorPlayer, newPlayer), "playerchangeroleevent");
+    }
+
+    public void callPlayerChangeRoleResultEvent(SuperiorPlayer superiorPlayer, PlayerRole newPlayer, SuperiorPlayer initiator) {
+        callEvent(new PlayerChangeRoleResultEvent(superiorPlayer, newPlayer, initiator));
     }
 
     public EventResult<MenuView<?, ?>> callPlayerCloseMenuEvent(SuperiorPlayer superiorPlayer, MenuView<?, ?> menuView,
