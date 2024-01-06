@@ -9,6 +9,7 @@ import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.events.*;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
+import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.island.container.IslandsContainer;
 import com.bgsoftware.superiorskyblock.api.island.warps.IslandWarp;
@@ -174,6 +175,12 @@ public class EventsBus {
                 "islandchangeplayerprivilegeevent");
     }
 
+    public void callIslandChangePlayerPrivilegeResultEvent(Island island, SuperiorPlayer superiorPlayer,
+                                                        SuperiorPlayer privilegedPlayer, IslandPrivilege islandPrivilege, boolean privilegeEnabled) {
+        callEvent(() -> new IslandChangePlayerPrivilegeResultEvent(island, superiorPlayer, privilegedPlayer, islandPrivilege, privilegeEnabled),
+                "islandchangeplayerprivilegeevent");
+    }
+
     public EventResult<Integer> callIslandChangeRoleLimitEvent(CommandSender commandSender, Island island, PlayerRole playerRole, int roleLimit) {
         return callEvent(() -> new IslandChangeRoleLimitEvent(getSuperiorPlayer(commandSender), island, playerRole, roleLimit),
                 "islandchangerolelimitevent", roleLimit, IslandChangeRoleLimitEvent::getRoleLimit);
@@ -227,6 +234,11 @@ public class EventsBus {
     public boolean callIslandChangeRolePrivilegeEvent(Island island, @Nullable SuperiorPlayer superiorPlayer, PlayerRole playerRole) {
         return callEvent(() -> new IslandChangeRolePrivilegeEvent(island, superiorPlayer, playerRole),
                 "islandchangeroleprivilegeevent");
+    }
+
+    public void callIslandChangeRolePrivilegeResultEvent(Island island, @Nullable SuperiorPlayer superiorPlayer, PlayerRole playerRole, IslandPrivilege islandPrivilege) {
+        callEvent(() -> new IslandChangeRolePrivilegeResultEvent(island, superiorPlayer, playerRole, islandPrivilege),
+                "islandchangeroleprivilegeresultevent");
     }
 
     public EventResult<String> callIslandChatEvent(Island island, SuperiorPlayer superiorPlayer, String message) {
