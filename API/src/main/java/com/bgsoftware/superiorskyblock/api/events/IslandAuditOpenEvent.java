@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorskyblock.api.events;
 
+import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -7,7 +8,7 @@ import org.bukkit.event.HandlerList;
 /**
  * PreIslandCreateEvent is called when a player is trying to open the audit menu.
  */
-public class IslandAuditOpenEvent extends Event {
+public class IslandAuditOpenEvent extends IslandEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
@@ -18,7 +19,8 @@ public class IslandAuditOpenEvent extends Event {
      *
      * @param superiorPlayer The player who created the island.
      */
-    public IslandAuditOpenEvent(SuperiorPlayer superiorPlayer) {
+    public IslandAuditOpenEvent(SuperiorPlayer superiorPlayer, Island island) {
+        super(island);
         this.superiorPlayer = superiorPlayer;
     }
 
