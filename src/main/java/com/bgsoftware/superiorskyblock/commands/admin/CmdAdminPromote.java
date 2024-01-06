@@ -9,6 +9,7 @@ import com.bgsoftware.superiorskyblock.commands.IAdminPlayerCommand;
 import com.bgsoftware.superiorskyblock.core.events.plugin.PluginEventsFactory;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -95,6 +96,11 @@ public class CmdAdminPromote implements IAdminPlayerCommand {
             return;
 
         targetPlayer.setPlayerRole(nextRole);
+
+        if (sender instanceof Player senderPlayer)
+            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, nextRole, plugin.getPlayers().getSuperiorPlayer(senderPlayer));
+        else
+            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, nextRole, null);
 
         Message.PROMOTED_MEMBER.send(sender, targetPlayer.getName(), targetPlayer.getPlayerRole());
         Message.GOT_PROMOTED.send(targetPlayer, targetPlayer.getPlayerRole());

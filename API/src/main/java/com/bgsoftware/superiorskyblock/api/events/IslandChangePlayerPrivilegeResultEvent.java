@@ -3,19 +3,16 @@ package com.bgsoftware.superiorskyblock.api.events;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import org.bukkit.event.Cancellable;
 
 /**
  * IslandChangePlayerPrivilegeEvent is called when a privilege is changed for a player on an island.
  */
-public class IslandChangePlayerPrivilegeResultEvent extends IslandEvent implements Cancellable {
+public class IslandChangePlayerPrivilegeResultEvent extends IslandEvent {
 
     private final SuperiorPlayer superiorPlayer;
     private final SuperiorPlayer privilegedPlayer;
     private final IslandPrivilege islandPrivilege;
     private final boolean privilegeEnabled;
-
-    private boolean cancelled = false;
 
     /**
      * The constructor of the event.
@@ -60,16 +57,6 @@ public class IslandChangePlayerPrivilegeResultEvent extends IslandEvent implemen
      */
     public boolean isPrivilegeEnabled() {
         return privilegeEnabled;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
     }
 
 }

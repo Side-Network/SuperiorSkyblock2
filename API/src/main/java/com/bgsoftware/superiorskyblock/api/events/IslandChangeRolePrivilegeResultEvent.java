@@ -5,18 +5,15 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import org.bukkit.event.Cancellable;
 
 /**
  * IslandChangeRolePrivilegeEvent is called when a privilege is changed for a role on an island.
  */
-public class IslandChangeRolePrivilegeResultEvent extends IslandEvent implements Cancellable {
+public class IslandChangeRolePrivilegeResultEvent extends IslandEvent {
 
     private final SuperiorPlayer superiorPlayer;
     private final PlayerRole playerRole;
     private final IslandPrivilege islandPrivilege;
-
-    private boolean cancelled = false;
 
     /**
      * The constructor of the event.
@@ -55,16 +52,6 @@ public class IslandChangeRolePrivilegeResultEvent extends IslandEvent implements
      */
     public IslandPrivilege getIslandPrivilege() {
         return islandPrivilege;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
     }
 
 }

@@ -14,6 +14,7 @@ import com.bgsoftware.superiorskyblock.island.privilege.IslandPrivileges;
 import com.bgsoftware.superiorskyblock.island.role.SPlayerRole;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -130,6 +131,11 @@ public class CmdSetRole implements IPermissibleCommand {
             return;
 
         targetPlayer.setPlayerRole(playerRole);
+
+        if (sender instanceof Player senderPlayer)
+            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, playerRole, plugin.getPlayers().getSuperiorPlayer(senderPlayer));
+        else
+            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, playerRole, null);
 
         if (currentRole.isLessThan(playerRole)) {
             Message.PROMOTED_MEMBER.send(sender, targetPlayer.getName(), targetPlayer.getPlayerRole());
