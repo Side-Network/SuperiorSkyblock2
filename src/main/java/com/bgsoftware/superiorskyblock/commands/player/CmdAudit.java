@@ -1,8 +1,10 @@
 package com.bgsoftware.superiorskyblock.commands.player;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
+import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
+import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.command.CommandSender;
 
@@ -38,7 +40,7 @@ public class CmdAudit implements ISuperiorCommand {
 
     @Override
     public int getMaxArgs() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -49,7 +51,10 @@ public class CmdAudit implements ISuperiorCommand {
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(sender);
-        plugin.getEventsBus().callAuditOpenEvent(superiorPlayer);
+        Island island = args.length == 1 ? superiorPlayer.getIsland() :
+                CommandArguments.getIsland(plugin, sender, args[1]).getIsland();
+
+        plugin.getEventsBus().callAuditOpenEvent(superiorPlayer, island);
     }
 
     @Override

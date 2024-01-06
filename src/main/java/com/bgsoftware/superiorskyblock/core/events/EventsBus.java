@@ -660,8 +660,8 @@ public class EventsBus {
         return callEvent(() -> new PreIslandCreateEvent(superiorPlayer, islandName), "preislandcreateevent");
     }
 
-    public void callAuditOpenEvent(SuperiorPlayer superiorPlayer) {
-        callEvent(new IslandAuditOpenEvent(superiorPlayer));
+    public void callAuditOpenEvent(SuperiorPlayer superiorPlayer, Island island) {
+        callEvent(new IslandAuditOpenEvent(superiorPlayer, island));
     }
 
     public EventResult<IMessageComponent> callSendMessageEvent(CommandSender receiver, String messageType, IMessageComponent messageComponent, Object... args) {
