@@ -154,6 +154,7 @@ public class IslandPrivilegePagedObjectButton extends AbstractPagedMenuButton<Me
                 island.setPermission(newRole, islandPrivilege);
                 onSuccessfulPermissionChange(button, clickedPlayer,
                         Formatters.CAPITALIZED_FORMATTER.format(islandPrivilege.getName()));
+                PluginEventsFactory.callIslandChangeRolePrivilegeResultEvent(island, clickedPlayer, newRole, islandPrivilege);
             }
         }
 
@@ -248,6 +249,7 @@ public class IslandPrivilegePagedObjectButton extends AbstractPagedMenuButton<Me
             island.setPermission(permissiblePlayer, islandPrivilege, !currentValue);
 
             onSuccessfulPermissionChange(button, clickedPlayer, permissionHolderName);
+            PluginEventsFactory.callIslandChangePlayerPrivilegeResultEvent(island, clickedPlayer, permissionHolder, islandPrivilege, !currentValue);
         }
 
         @Override
