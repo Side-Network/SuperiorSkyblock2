@@ -77,13 +77,13 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
 
         ItemStack itemStack;
         if (!plugin.getMissions().hasAllRequiredMissions(inventoryViewer, missionData.getMission())) {
-//            for (String requiredMission : missionData.getMission().getRequiredMissions()) {
-//                Mission<?> required = plugin.getMissions().getMission(requiredMission);
-//                if (required != null && !plugin.getMissions().hasAllRequiredMissions(inventoryViewer, required)) {
-//                    itemStack = plugin.getMissions().getCompletePrevious().build();
-//                    return itemStack;
-//                }
-//            }
+            for (String requiredMission : missionData.getMission().getRequiredMissions()) {
+                Mission<?> required = plugin.getMissions().getMission(requiredMission);
+                if (required != null && !plugin.getMissions().hasAllRequiredMissions(inventoryViewer, required)) {
+                    itemStack = plugin.getMissions().getCompletePrevious().build();
+                    return itemStack;
+                }
+            }
             itemStack = plugin.getMissions().getCompletePrevious().build();
             return itemStack;
         }

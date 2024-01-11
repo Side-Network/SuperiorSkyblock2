@@ -101,8 +101,10 @@ public class MissionsModule extends BuiltinModule {
 
         updateConfig(plugin);
 
-        if (enabled)
+        if (enabled) {
+            plugin.getMissions().setCompletePrevious(MenuParserImpl.getInstance().getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
             loadMissionCategories(plugin);
+        }
     }
 
     public void onPluginReload(SuperiorSkyblockPlugin plugin) {
