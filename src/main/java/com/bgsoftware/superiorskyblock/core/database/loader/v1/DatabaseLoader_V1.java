@@ -417,8 +417,6 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.DESCRIPTION))
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.GENERATED_SCHEMATICS))
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.UNLOCKED_WORLDS))
-                .setObject(islandAttributes.getValue(IslandAttributes.Field.GENERATED_CITADEL))
-                .setObject(islandAttributes.getValue(IslandAttributes.Field.UNLOCKED_CITADEL))
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.LAST_TIME_UPDATED))
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.DIRTY_CHUNKS))
                 .setObject(islandAttributes.getValue(IslandAttributes.Field.BLOCK_COUNTS))
@@ -605,8 +603,6 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
                 generatedSchematics |= 4;
             if (generatedSchematicsRaw.contains("the_end"))
                 generatedSchematics |= 3;
-            if (generatedSchematicsRaw.contains("citadel"))
-                generatedSchematics |= 4;
         }
 
         int unlockedWorlds = 0;
@@ -618,8 +614,6 @@ public class DatabaseLoader_V1 extends MachineStateDatabaseLoader {
                 unlockedWorlds |= 1;
             if (unlockedWorldsRaw.contains("the_end"))
                 unlockedWorlds |= 2;
-            if (unlockedWorldsRaw.contains("citadel"))
-                unlockedWorlds |= 3;
         }
 
         long currentTime = System.currentTimeMillis();

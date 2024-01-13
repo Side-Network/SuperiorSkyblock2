@@ -340,27 +340,6 @@ worlds:
       # The format is '<offset-x>, <offset-y>, <offset-z>' (may be negative).
       # Having the offset going beyond the island-radius is an undefined behavior!
       portal-offset: '0, 0, 0'
-  citadel:
-    # Should the citadel world be enabled?
-    enabled: false
-    # Should the citadel be unlocked by default to islands?
-    unlock: false
-    # Custom name for the citadel world.
-    # When empty, the name will be "<island-world>_citadel"
-    name: ''
-    # The default biome for the world.
-    # If the biome is invalid, THE_END will be used.
-    biome: THE_END
-    # Area of protected portal to the citadel (offset from center of the island)
-    portal-area:
-      min:
-        x: 1
-        y: 1
-        z: 1
-      max:
-        x: 1
-        y: 1
-        z: 1
 
   # The difficulty of the island worlds.
   difficulty: EASY

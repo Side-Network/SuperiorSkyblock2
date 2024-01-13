@@ -62,13 +62,6 @@ public class IslandUtils {
                     .orElseThrow(IllegalArgumentException::new);
             DEFAULT_WORLD_BIOMES.put(Environment.THE_END, biome);
         }
-
-        {
-            Biome biome = Optional.ofNullable(EnumHelper.getEnum(Biome.class,
-                            plugin.getSettings().getWorlds().getCitadel().getBiome(), "THE_END", "SKY"))
-                    .orElseThrow(IllegalArgumentException::new);
-            DEFAULT_WORLD_BIOMES.put(Environment.CITADEL, biome);
-        }
     }
 
     private IslandUtils() {
@@ -121,13 +114,6 @@ public class IslandUtils {
                 chunkCoords.put(worldInfo, chunkPositions);
         }
 
-        if (plugin.getProviders().getWorldsProvider().isCitadelEnabled() && island.wasSchematicGenerated(Environment.CITADEL)) {
-            WorldInfo worldInfo = plugin.getGrid().getIslandsWorldInfo(island, Environment.CITADEL);
-            List<ChunkPosition> chunkPositions = getChunkCoords(island, worldInfo, flags);
-            if (!chunkPositions.isEmpty())
-                chunkCoords.put(worldInfo, chunkPositions);
-        }
-
         for (World registeredWorld : plugin.getGrid().getRegisteredWorlds()) {
             WorldInfo worldInfo = WorldInfo.of(registeredWorld);
             List<ChunkPosition> chunkPositions = getChunkCoords(island, worldInfo, flags);
@@ -167,11 +153,6 @@ public class IslandUtils {
         if (plugin.getProviders().getWorldsProvider().isEndEnabled() && island.wasSchematicGenerated(Environment.THE_END)) {
             World endWorld = island.getCenter(Environment.THE_END).getWorld();
             chunkCoords.addAll(getAllChunksAsync(island, endWorld, flags, chunkLoadReason, onChunkLoad));
-        }
-
-        if (plugin.getProviders().getWorldsProvider().isCitadelEnabled() && island.wasSchematicGenerated(Environment.CITADEL)) {
-            World citadelWorld = island.getCenter(Environment.CITADEL).getWorld();
-            chunkCoords.addAll(getAllChunksAsync(island, citadelWorld, flags, chunkLoadReason, onChunkLoad));
         }
 
         for (World registeredWorld : plugin.getGrid().getRegisteredWorlds()) {

@@ -20,11 +20,6 @@ public enum InteractionResult {
     ISLAND_RECALCULATE,
 
     /**
-     * The interaction that was made cannot be done inside Citadel.
-     */
-    CITADEL,
-
-    /**
      * The interaction can be done.
      */
     SUCCESS

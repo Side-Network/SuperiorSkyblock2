@@ -545,21 +545,6 @@ public class DelegateIsland implements Island {
     }
 
     @Override
-    public boolean isCitadelEnabled() {
-        return this.handle.isCitadelEnabled();
-    }
-
-    @Override
-    public void setCitadelEnabled(boolean enabled) {
-        this.handle.setCitadelEnabled(enabled);
-    }
-
-    @Override
-    public boolean getCitadelUnlockedFlag() {
-        return this.handle.getCitadelUnlockedFlag();
-    }
-
-    @Override
     public int getUnlockedWorldsFlag() {
         return this.handle.getUnlockedWorldsFlag();
     }
@@ -1721,11 +1706,6 @@ public class DelegateIsland implements Island {
     @Override
     public int getGeneratedSchematicsFlag() {
         return this.handle.getGeneratedSchematicsFlag();
-    }
-
-    @Override
-    public boolean getGeneratedCitadelFlag() {
-        return this.handle.getGeneratedCitadelFlag();
     }
 
     @Override

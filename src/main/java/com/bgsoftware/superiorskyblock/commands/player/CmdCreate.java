@@ -97,7 +97,7 @@ public class CmdCreate implements ISuperiorCommand {
                 args.length == (plugin.getSettings().getIslandNames().isRequiredForCreation() ? 3 : 2)) {
             schematicName = args[plugin.getSettings().getIslandNames().isRequiredForCreation() ? 2 : 1];
             Schematic schematic = plugin.getSchematics().getSchematic(schematicName);
-            if (schematic == null || schematicName.endsWith("_nether") || schematicName.endsWith("_the_end") || schematicName.endsWith("_citadel")) {
+            if (schematic == null || schematicName.endsWith("_nether") || schematicName.endsWith("_the_end")) {
                 Message.INVALID_SCHEMATIC.send(sender, schematicName);
                 return;
             }

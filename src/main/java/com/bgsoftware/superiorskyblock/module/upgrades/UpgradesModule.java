@@ -118,8 +118,6 @@ public class UpgradesModule extends BuiltinModule {
             enabledUpgrades.add(new UpgradeTypeBlockLimits(plugin));
         if (config.getBoolean("entity-limits", true))
             enabledUpgrades.add(new UpgradeTypeEntityLimits(plugin));
-        if (config.getBoolean("citadel", true))
-            enabledUpgrades.add(new UpgradeTypeCitadel(plugin));
 
         if (enabledUpgrades.isEmpty())
             return;

@@ -32,7 +32,7 @@ public class CmdAdminTeleportCenter implements IAdminIslandCommand {
     public String getUsage(java.util.Locale locale) {
         return "admin center <" +
                 Message.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + "/" +
-                Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "> [normal/nether/the_end/citadel]";
+                Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "> [normal/nether/the_end]";
     }
 
     @Override

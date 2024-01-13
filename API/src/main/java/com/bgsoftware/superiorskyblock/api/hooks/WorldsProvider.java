@@ -91,14 +91,4 @@ public interface WorldsProvider {
      */
     boolean isEndUnlocked();
 
-    /**
-     * Check whether or not citadel worlds are enabled.
-     */
-    boolean isCitadelEnabled();
-
-    /**
-     * Check whether or not citadel worlds are unlocked for islands by default.
-     */
-    boolean isCitadelUnlocked();
-
 }

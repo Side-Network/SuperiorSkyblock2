@@ -38,7 +38,7 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
         return "admin resetworld <" +
                 Message.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + "/" +
                 Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "/" +
-                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <normal/nether/the_end/citadel>";
+                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <normal/nether/the_end>";
     }
 
     @Override
@@ -140,9 +140,6 @@ public class CmdAdminResetWorld implements IAdminIslandCommand {
                         break;
                     case THE_END:
                         addEnvironment = plugin.getProviders().getWorldsProvider().isEndEnabled();
-                        break;
-                    case CITADEL:
-                        addEnvironment = plugin.getProviders().getWorldsProvider().isCitadelEnabled();
                         break;
                 }
                 if (addEnvironment)

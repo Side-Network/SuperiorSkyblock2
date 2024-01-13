@@ -123,17 +123,6 @@ public class SettingsContainer {
     public final boolean endDragonFightEnabled;
     public final BlockOffset endDragonFightPortalOffset;
 
-    public final boolean citadelWorldEnabled;
-    public final boolean citadelWorldUnlocked;
-    public final String citadelWorldName;
-    public final String citadelBiome;
-    public final int citadelPortalMinXOffset;
-    public final int citadelPortalMinYOffset;
-    public final int citadelPortalMinZOffset;
-    public final int citadelPortalMaxXOffset;
-    public final int citadelPortalMaxYOffset;
-    public final int citadelPortalMaxZOffset;
-
     public final String worldsDifficulty;
     public final String spawnLocation;
     public final boolean spawnProtection;
@@ -328,18 +317,6 @@ public class SettingsContainer {
             }
         }
         this.endDragonFightPortalOffset = endDragonFightPortalOffset == null ? SBlockOffset.ZERO : endDragonFightPortalOffset;
-
-        citadelWorldEnabled = config.getBoolean("worlds.citadel.enabled", false);
-        citadelWorldUnlocked = config.getBoolean("worlds.citadel.unlock", false);
-        String citadelWorldName = config.getString("worlds.citadel.name", "");
-        this.citadelWorldName = citadelWorldName.isEmpty() ? islandWorldName + "_citadel" : citadelWorldName;
-        citadelBiome = config.getString("worlds.citadel.biome", "THE_END");
-        citadelPortalMinXOffset = config.getInt("worlds.citadel.portal-area.min.x", 1);
-        citadelPortalMinYOffset = config.getInt("worlds.citadel.portal-area.min.y", 1);
-        citadelPortalMinZOffset = config.getInt("worlds.citadel.portal-area.min.z", 1);
-        citadelPortalMaxXOffset = config.getInt("worlds.citadel.portal-area.max.x", 1);
-        citadelPortalMaxYOffset = config.getInt("worlds.citadel.portal-area.max.y", 1);
-        citadelPortalMaxZOffset = config.getInt("worlds.citadel.portal-area.max.z", 1);
 
         String defaultWorldEnvironment = config.getString("worlds.default-world");
         if (defaultWorldEnvironment.equalsIgnoreCase("normal") && normalWorldEnabled) {

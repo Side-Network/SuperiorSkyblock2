@@ -257,7 +257,6 @@ public class SchematicsManagerImpl extends Manager implements SchematicManager {
         switch (environment) {
             case NETHER -> suffix = "_nether";
             case THE_END -> suffix = "_the_end";
-            case CITADEL -> suffix = "citadel";
         }
         for (String schematicName : this.schematicsContainer.getSchematicNames()) {
             if (getSchematic(schematicName + suffix) != null)

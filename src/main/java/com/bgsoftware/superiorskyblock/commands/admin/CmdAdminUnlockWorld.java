@@ -36,7 +36,7 @@ public class CmdAdminUnlockWorld implements IAdminIslandCommand {
         return "admin unlockworld <" +
                 Message.COMMAND_ARGUMENT_PLAYER_NAME.getMessage(locale) + "/" +
                 Message.COMMAND_ARGUMENT_ISLAND_NAME.getMessage(locale) + "/" +
-                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <nether/the_end/normal/citadel> <true/false>";
+                Message.COMMAND_ARGUMENT_ALL_ISLANDS.getMessage(locale) + "> <nether/the_end/normal> <true/false>";
     }
 
     @Override
@@ -96,9 +96,6 @@ public class CmdAdminUnlockWorld implements IAdminIslandCommand {
                     break;
                 case THE_END:
                     island.setEndEnabled(enable);
-                    break;
-                case CITADEL:
-                    island.setCitadelEnabled(enable);
                     break;
             }
         }

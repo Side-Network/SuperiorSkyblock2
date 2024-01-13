@@ -738,21 +738,6 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
     void setEndEnabled(boolean enabled);
 
     /**
-     * Is the citade world enabled for the island?
-     */
-    boolean isCitadelEnabled();
-
-    /**
-     * Enable/disable the citadel world for the island.
-     */
-    void setCitadelEnabled(boolean enabled);
-
-    /**
-     * Get the unlocked citadel flag.
-     */
-    boolean getCitadelUnlockedFlag();
-
-    /**
      * Get the unlocked worlds flag.
      */
     int getUnlockedWorldsFlag();
@@ -2365,11 +2350,6 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
     int getGeneratedSchematicsFlag();
 
     /**
-     * Get the generated citadel flag.
-     */
-    boolean getGeneratedCitadelFlag();
-
-    /**
      * Get the schematic that was used to create the island.
      */
     String getSchematicName();
@@ -2491,10 +2471,6 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
         int getGeneratedSchematicsMask();
 
         Builder setUnlockedWorlds(int unlockedWorldsMask);
-
-        Builder setGeneratedCitadel(boolean generatedCitadel);
-
-        Builder setUnlockedCitadel(boolean unlockedCitadel);
 
         int getUnlockedWorldsMask();
 

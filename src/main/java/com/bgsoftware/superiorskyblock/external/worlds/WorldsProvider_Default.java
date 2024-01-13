@@ -51,8 +51,6 @@ public class WorldsProvider_Default implements WorldsProvider {
             if (plugin.getSettings().getWorlds().getEnd().isDragonFight())
                 dragonBattleService.get().prepareEndWorld(endWorld);
         }
-        if (plugin.getSettings().getWorlds().getCitadel().isEnabled())
-            loadWorld(plugin.getSettings().getWorlds().getCitadel().getName(), difficulty, Environment.CITADEL);
     }
 
     @Override
@@ -150,16 +148,6 @@ public class WorldsProvider_Default implements WorldsProvider {
         return isEndEnabled() && plugin.getSettings().getWorlds().getEnd().isUnlocked();
     }
 
-    @Override
-    public boolean isCitadelEnabled() {
-        return plugin.getSettings().getWorlds().getCitadel().isEnabled();
-    }
-
-    @Override
-    public boolean isCitadelUnlocked() {
-        return isCitadelEnabled() && plugin.getSettings().getWorlds().getCitadel().isUnlocked();
-    }
-
     private BlockFace getIslandFace(Location location) {
         //Possibilities: North / East
         if (location.getX() >= location.getZ()) {
@@ -180,7 +168,7 @@ public class WorldsProvider_Default implements WorldsProvider {
 
         World world = WorldCreator.name(worldName)
                 .type(WorldType.NORMAL)
-                .environment(environment != Environment.CITADEL ? World.Environment.valueOf(environment.name()) : World.Environment.THE_END)
+                .environment(World.Environment.valueOf(environment.name()))
                 .generator(plugin.getGenerator())
                 .createWorld();
 

@@ -11,7 +11,6 @@ public class WorldsSection extends SettingsContainerHolder implements SettingsMa
     private final Normal normal = new NormalSection();
     private final Nether nether = new NetherSection();
     private final End end = new EndSection();
-    private final Citadel citadel = new CitadelSection();
 
     @Override
     public Environment getDefaultWorld() {
@@ -41,11 +40,6 @@ public class WorldsSection extends SettingsContainerHolder implements SettingsMa
     @Override
     public End getEnd() {
         return this.end;
-    }
-
-    @Override
-    public Citadel getCitadel() {
-        return this.citadel;
     }
 
     @Override
@@ -139,59 +133,6 @@ public class WorldsSection extends SettingsContainerHolder implements SettingsMa
         @Override
         public BlockOffset getPortalOffset() {
             return getContainer().endDragonFightPortalOffset;
-        }
-    }
-
-    private class CitadelSection implements Citadel {
-
-        @Override
-        public boolean isEnabled() {
-            return getContainer().citadelWorldEnabled;
-        }
-
-        @Override
-        public boolean isUnlocked() {
-            return getContainer().citadelWorldUnlocked;
-        }
-
-        @Override
-        public String getName() {
-            return getContainer().citadelWorldName;
-        }
-
-        @Override
-        public String getBiome() {
-            return getContainer().citadelBiome;
-        }
-
-        @Override
-        public int getPortalAreaMinX() {
-            return getContainer().citadelPortalMinXOffset;
-        }
-
-        @Override
-        public int getPortalAreaMinY() {
-            return getContainer().citadelPortalMinYOffset;
-        }
-
-        @Override
-        public int getPortalAreaMinZ() {
-            return getContainer().citadelPortalMinZOffset;
-        }
-
-        @Override
-        public int getPortalAreaMaxX() {
-            return getContainer().citadelPortalMaxXOffset;
-        }
-
-        @Override
-        public int getPortalAreaMaxY() {
-            return getContainer().citadelPortalMaxYOffset;
-        }
-
-        @Override
-        public int getPortalAreaMaxZ() {
-            return getContainer().citadelPortalMaxZOffset;
         }
     }
 

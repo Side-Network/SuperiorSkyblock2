@@ -8,8 +8,7 @@ import java.util.Map;
 public enum Environment {
     NORMAL(0),
     NETHER(-1),
-    THE_END(1),
-    CITADEL(2);
+    THE_END(1);
 
     private final int id;
     private static final Map<Integer, Environment> lookup = new HashMap();

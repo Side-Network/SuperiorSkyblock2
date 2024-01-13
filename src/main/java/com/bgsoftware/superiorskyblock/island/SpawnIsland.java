@@ -681,21 +681,6 @@ public class SpawnIsland implements Island {
     }
 
     @Override
-    public boolean isCitadelEnabled() {
-        return false;
-    }
-
-    @Override
-    public void setCitadelEnabled(boolean enabled) {
-        // Do nothing.
-    }
-
-    @Override
-    public boolean getCitadelUnlockedFlag() {
-        return false;
-    }
-
-    @Override
     public int getUnlockedWorldsFlag() {
         return 0;
     }
@@ -1806,11 +1791,6 @@ public class SpawnIsland implements Island {
     @Override
     public int getGeneratedSchematicsFlag() {
         return 0;
-    }
-
-    @Override
-    public boolean getGeneratedCitadelFlag() {
-        return false;
     }
 
     @Override

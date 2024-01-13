@@ -105,8 +105,6 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
             return EntityPortalResult.DESTINATION_WORLD_DISABLED;
         if (targetDestination == Environment.THE_END && !plugin.getSettings().getWorlds().getEnd().isEnabled())
             return EntityPortalResult.DESTINATION_WORLD_DISABLED;
-        if (targetDestination == Environment.CITADEL && !plugin.getSettings().getWorlds().getCitadel().isEnabled())
-            return EntityPortalResult.DESTINATION_WORLD_DISABLED;
 
         if (checkImmunedPortalsStatus && superiorPlayer.getPlayerStatus() == PlayerStatus.PORTALS_IMMUNED)
             return EntityPortalResult.PLAYER_IMMUNED_TO_PORTAL;
@@ -306,7 +304,6 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
         Environment environment = switch (portalType) {
             case ENDER -> Environment.THE_END;
             case NETHER -> Environment.NETHER;
-            case CUSTOM -> Environment.CITADEL;
             default -> Environment.NORMAL;
         };
 
@@ -318,7 +315,6 @@ public class PortalsManagerServiceImpl implements PortalsManagerService, IServic
             case NORMAL -> island.isNormalEnabled();
             case NETHER -> island.isNetherEnabled();
             case THE_END -> island.isEndEnabled();
-            case CITADEL -> island.isCitadelEnabled();
         };
     }
 

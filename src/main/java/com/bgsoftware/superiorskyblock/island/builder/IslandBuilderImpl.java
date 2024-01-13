@@ -63,8 +63,6 @@ public class IslandBuilderImpl implements Island.Builder {
     public String description = "";
     public int generatedSchematicsMask = 0;
     public int unlockedWorldsMask = 0;
-    public boolean generatedCitadel = false;
-    public boolean unlockedCitadel = false;
     public long lastTimeUpdated = System.currentTimeMillis() / 1000;
     public final Set<DirtyChunk> dirtyChunks = new LinkedHashSet<>();
     public final KeyMap<BigInteger> blockCounts = KeyMaps.createHashMap(KeyIndicator.MATERIAL);
@@ -275,18 +273,6 @@ public class IslandBuilderImpl implements Island.Builder {
     @Override
     public Island.Builder setUnlockedWorlds(int unlockedWorldsMask) {
         this.unlockedWorldsMask = unlockedWorldsMask;
-        return this;
-    }
-
-    @Override
-    public Island.Builder setGeneratedCitadel(boolean generatedCitadel) {
-        this.generatedCitadel = generatedCitadel;
-        return this;
-    }
-
-    @Override
-    public Island.Builder setUnlockedCitadel(boolean unlockedCitadel) {
-        this.unlockedCitadel = unlockedCitadel;
         return this;
     }
 

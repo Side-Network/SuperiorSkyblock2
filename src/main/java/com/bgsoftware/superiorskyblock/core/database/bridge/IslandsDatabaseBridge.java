@@ -121,10 +121,6 @@ public class IslandsDatabaseBridge {
                     createFilter("uuid", island),
                     new Pair<>("unlocked_worlds", island.getUnlockedWorldsFlag())
             );
-            databaseBridge.updateObject("islands",
-                    createFilter("uuid", island),
-                    new Pair<>("unlocked_citadel", island.getCitadelUnlockedFlag())
-            );
         });
     }
 
@@ -467,10 +463,6 @@ public class IslandsDatabaseBridge {
             databaseBridge.updateObject("islands",
                 createFilter("uuid", island),
                 new Pair<>("generated_schematics", island.getGeneratedSchematicsFlag())
-            );
-            databaseBridge.updateObject("islands",
-                    createFilter("uuid", island),
-                    new Pair<>("generated_citadel", island.getGeneratedCitadelFlag())
             );
         });
     }

@@ -150,7 +150,6 @@ public class SIsland implements Island {
     private final long creationTime;
     @Nullable
     private final String schemName;
-    private final IslandArea3 citadelPortalArea;
     /*
      * Island Upgrade Values
      */
@@ -201,8 +200,6 @@ public class SIsland implements Island {
     private final Synchronized<CompletableFuture<Biome>> biomeGetterTask = Synchronized.of(null);
     private final AtomicInteger generatedSchematics = new AtomicInteger(0);
     private final AtomicInteger unlockedWorlds = new AtomicInteger(0);
-    private final AtomicBoolean citadelGenerated = new AtomicBoolean(false);
-    private final AtomicBoolean unlockedCitadel = new AtomicBoolean(false);
     private final List<IslandStrike> strikes = new ArrayList<>();
     @Nullable
     private PersistentDataContainer persistentDataContainer;
@@ -254,8 +251,6 @@ public class SIsland implements Island {
         this.description = builder.description;
         this.generatedSchematics.set(builder.generatedSchematicsMask);
         this.unlockedWorlds.set(builder.unlockedWorldsMask);
-        this.citadelGenerated.set(builder.generatedCitadel);
-        this.unlockedCitadel.set(builder.unlockedCitadel);
         this.lastTimeUpdate = builder.lastTimeUpdated;
         this.islandHomes.write(islandHomes -> islandHomes.putAll(builder.islandHomes));
         this.members.write(members -> {
@@ -351,12 +346,6 @@ public class SIsland implements Island {
         }
 
         this.databaseBridge.setDatabaseBridgeMode(DatabaseBridgeMode.SAVE_DATA);
-
-        SettingsManager.Worlds.Citadel c = plugin.getSettings().getWorlds().getCitadel();
-        this.citadelPortalArea = new IslandArea3(
-                center.getX() + c.getPortalAreaMinX(), c.getPortalAreaMinY(), center.getZ() + c.getPortalAreaMinZ(),
-                center.getX() + c.getPortalAreaMaxX(), c.getPortalAreaMaxY(), center.getZ() + c.getPortalAreaMaxZ()
-        );
     }
 
     /*
@@ -859,11 +848,7 @@ public class SIsland implements Island {
     public void setIslandHome(Location homeLocation) {
         Preconditions.checkNotNull(homeLocation, "homeLocation parameter cannot be null.");
         Preconditions.checkNotNull(homeLocation.getWorld(), "homeLocation's world cannot be null.");
-        Environment env;
-        if (homeLocation.getWorld().getName().equalsIgnoreCase(plugin.getSettings().getWorlds().getCitadel().getName()))
-            env = Environment.CITADEL;
-        else
-            env = Environment.of(homeLocation.getWorld().getEnvironment());
+        Environment env = Environment.of(homeLocation.getWorld().getEnvironment());
         setIslandHome(env, homeLocation);
     }
 
@@ -1261,10 +1246,6 @@ public class SIsland implements Island {
             return false;
 
         int islandSize = getIslandSize();
-        World citadelWorld = plugin.getGrid().getIslandsWorld(this, Environment.CITADEL);
-        if (location.getWorld() == citadelWorld) {
-            islandSize = plugin.getSettings().getMaxIslandSize();
-        }
 
         IslandArea islandArea = new IslandArea(center, islandSize);
         islandArea.expand(extra);
@@ -1350,30 +1331,6 @@ public class SIsland implements Island {
 
         if (updatedUnlockedWorlds.getValue())
             IslandsDatabaseBridge.saveUnlockedWorlds(this);
-    }
-
-    @Override
-    public boolean isCitadelEnabled() {
-        return plugin.getProviders().getWorldsProvider().isCitadelUnlocked() || unlockedCitadel.get();
-    }
-
-    @Override
-    public void setCitadelEnabled(boolean enabled) {
-        Log.debug(Debug.SET_END_ENABLED, "SIsland", "setCitadelEnabled", owner.getName(), enabled);
-
-        this.unlockedCitadel.set(enabled);
-        if (enabled) {
-            Schematic portal = plugin.getSchematics().getSchematic("citadel_portal");
-            if (portal != null)
-                portal.pasteSchematic(this, getCenter(plugin.getSettings().getWorlds().getDefaultWorld()), () -> {}, Throwable::printStackTrace);
-        }
-
-        IslandsDatabaseBridge.saveUnlockedWorlds(this);
-    }
-
-    @Override
-    public boolean getCitadelUnlockedFlag() {
-        return this.unlockedCitadel.get();
     }
 
     @Override
@@ -4003,9 +3960,6 @@ public class SIsland implements Island {
     public boolean wasSchematicGenerated(Environment environment) {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
-        if (environment == Environment.CITADEL)
-            return citadelGenerated.get();
-
         int generateBitChange = getGeneratedSchematicBitMask(environment);
 
         if (generateBitChange == 0)
@@ -4025,12 +3979,6 @@ public class SIsland implements Island {
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
 
         Log.debug(Debug.SET_SCHEMATIC, environment, generated);
-
-        if (environment == Environment.CITADEL) {
-            citadelGenerated.set(generated);
-            IslandsDatabaseBridge.saveGeneratedSchematics(this);
-            return;
-        }
 
         int generateBitChange = getGeneratedSchematicBitMask(environment);
 
@@ -4058,11 +4006,6 @@ public class SIsland implements Island {
     @Override
     public int getGeneratedSchematicsFlag() {
         return this.generatedSchematics.get();
-    }
-
-    @Override
-    public boolean getGeneratedCitadelFlag() {
-        return this.citadelGenerated.get();
     }
 
     @Override
@@ -4830,10 +4773,6 @@ public class SIsland implements Island {
                 islandMemberConsumer.accept(islandMember);
             }
         }
-    }
-
-    public IslandArea3 getCitadelPortalArea() {
-        return citadelPortalArea;
     }
 
     private void notifyCropGrowthChange(double newCropGrowth) {

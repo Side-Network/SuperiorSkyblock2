@@ -347,12 +347,6 @@ public class RegionManagerServiceImpl implements RegionManagerService, IService 
                 return InteractionResult.MISSING_PRIVILEGE;
 
             if (checkRecalculation && island.isBeingRecalculated()) return InteractionResult.ISLAND_RECALCULATE;
-
-            // todo: not working
-            World citadelWorld = plugin.getGrid().getIslandsWorld(island, Environment.CITADEL);
-            if (location.getWorld() == citadelWorld) {
-                return InteractionResult.CITADEL;
-            }
         }
 
         return InteractionResult.SUCCESS;

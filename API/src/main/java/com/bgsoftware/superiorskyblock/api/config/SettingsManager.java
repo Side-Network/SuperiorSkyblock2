@@ -920,12 +920,6 @@ public interface SettingsManager {
         End getEnd();
 
         /**
-         * All settings related to the citadel world.
-         * Config-path: worlds.citadel
-         */
-        Citadel getCitadel();
-
-        /**
          * The difficulty of the islands worlds.
          * Config-path: worlds.difficulty
          */
@@ -1034,42 +1028,6 @@ public interface SettingsManager {
              */
             BlockOffset getPortalOffset();
 
-        }
-
-        interface Citadel {
-
-            /**
-             * Whether the Citadel world is enabled or not.
-             * Config-path: worlds.citadel.enabled
-             */
-            boolean isEnabled();
-
-            /**
-             * Whether the Citadel world is unlocked by default or not.
-             * Config-path: worlds.citadel.unlock
-             */
-            boolean isUnlocked();
-
-            /**
-             * Custom name for the Citadel world.
-             * Config-path: worlds.citadel.name
-             */
-            String getName();
-
-            /**
-             * Get the default biome for the world.
-             */
-            String getBiome();
-
-            /**
-             * Get the portal area details (offset from the center)
-             */
-            int getPortalAreaMinX();
-            int getPortalAreaMinY();
-            int getPortalAreaMinZ();
-            int getPortalAreaMaxX();
-            int getPortalAreaMaxY();
-            int getPortalAreaMaxZ();
         }
 
     }

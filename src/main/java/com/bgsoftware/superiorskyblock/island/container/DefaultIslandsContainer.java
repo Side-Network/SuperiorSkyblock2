@@ -65,10 +65,6 @@ public class DefaultIslandsContainer implements IslandsContainer {
                 runWithCustomWorld(defaultWorld, center, island, Environment.THE_END,
                         islandPosition -> this.islandsByPositions.put(islandPosition, island));
             }
-            if (plugin.getProviders().getWorldsProvider().isCitadelEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, Environment.CITADEL,
-                        islandPosition -> this.islandsByPositions.put(islandPosition, island));
-            }
         }
 
         this.islandsByUUID.put(island.getUniqueId(), island);
@@ -98,10 +94,6 @@ public class DefaultIslandsContainer implements IslandsContainer {
             }
             if (plugin.getProviders().getWorldsProvider().isEndEnabled()) {
                 runWithCustomWorld(defaultWorld, center, island, Environment.THE_END,
-                        islandPosition -> this.islandsByPositions.remove(islandPosition, island));
-            }
-            if (plugin.getProviders().getWorldsProvider().isCitadelEnabled()) {
-                runWithCustomWorld(defaultWorld, center, island, Environment.CITADEL,
                         islandPosition -> this.islandsByPositions.remove(islandPosition, island));
             }
         }
