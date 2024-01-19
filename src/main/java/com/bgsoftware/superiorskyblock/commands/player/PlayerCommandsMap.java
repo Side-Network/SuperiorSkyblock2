@@ -68,6 +68,7 @@ public class PlayerCommandsMap extends CommandsMap {
         registerCommand(new CmdWarps());
         registerCommand(new CmdStrikes());
         registerCommand(new CmdAudit());
+        registerCommand(new CmdInspect());
     }
 
 }
