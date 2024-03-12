@@ -269,6 +269,8 @@ public class ItemBuilder {
     }
 
     public ItemStack build() {
+        if (itemMeta != null)
+            itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
         itemStack.setItemMeta(itemMeta);
         return textureValue.isEmpty() ? itemStack : ItemSkulls.getPlayerHead(itemStack, textureValue);
     }
