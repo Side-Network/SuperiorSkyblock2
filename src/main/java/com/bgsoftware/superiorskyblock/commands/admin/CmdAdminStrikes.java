@@ -101,7 +101,7 @@ public class CmdAdminStrikes implements IAdminIslandCommand {
             island.addStrike(reason.toString(), sender.getName());
 
             Message.STRIKE_GIVEN.send(sender, islandName, reason);
-            Message.STRIKE_GIVEN_INFO.broadcast(locale, reason);
+            Message.STRIKE_GIVEN_INFO.broadcast(locale, islandName, reason);
             return;
         }
 
