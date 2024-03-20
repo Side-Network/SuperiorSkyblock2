@@ -32,18 +32,17 @@ public class ChunksListener implements Listener {
 
     @EventHandler
     private void onChunkLoad(ChunkLoadEvent e) {
-        if (!e.isNewChunk() || e.getWorld().getEnvironment() != World.Environment.NORMAL)
-            return;
+        if (e.isNewChunk() && e.getWorld().getEnvironment() == World.Environment.NORMAL) {
+            List<Island> chunkIslands = plugin.getGrid().getIslandsAt(e.getChunk());
 
-        List<Island> chunkIslands = plugin.getGrid().getIslandsAt(e.getChunk());
-
-        chunkIslands.forEach(island -> {
-            if (!island.getBiome().name().equals(plugin.getSettings().getWorlds().getNormal().getBiome())) {
-                List<Player> playersToUpdate = new SequentialListBuilder<Player>()
-                        .build(island.getAllPlayersInside(), SuperiorPlayer::asPlayer);
-                plugin.getNMSChunks().setBiome(Collections.singletonList(ChunkPosition.of(e.getChunk())), island.getBiome(), playersToUpdate);
-            }
-        });
+            chunkIslands.forEach(island -> {
+                if (!island.getBiome().name().equals(plugin.getSettings().getWorlds().getNormal().getBiome())) {
+                    List<Player> playersToUpdate = new SequentialListBuilder<Player>()
+                            .build(island.getAllPlayersInside(), SuperiorPlayer::asPlayer);
+                    plugin.getNMSChunks().setBiome(Collections.singletonList(ChunkPosition.of(e.getChunk())), island.getBiome(), playersToUpdate);
+                }
+            });
+        }
 
         // noinspection deprecation
         plugin.getWorldEventsManager().loadChunk(e.getChunk());
