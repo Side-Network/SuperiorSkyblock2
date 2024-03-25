@@ -27,7 +27,7 @@ public class IslandSigns {
     public static Result handleSignPlace(SuperiorPlayer superiorPlayer, Location warpLocation, String[] warpLines,
                                          boolean sendMessage) {
         Island island = plugin.getGrid().getIslandAt(warpLocation);
-        if (island == null)
+        if (island == null || island != superiorPlayer.getIsland())
             return new Result(Reason.NOT_IN_ISLAND, false);
 
         Location playerLocation = superiorPlayer.getLocation();
