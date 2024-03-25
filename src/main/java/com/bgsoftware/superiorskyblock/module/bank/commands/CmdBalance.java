@@ -64,14 +64,15 @@ public class CmdBalance implements ISuperiorCommand {
             return;
 
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(sender);
-        SuperiorPlayer targetPlayer = arguments.getSuperiorPlayer();
 
         if (island == superiorPlayer.getIsland())
             Message.ISLAND_BANK_SHOW.send(sender, island.getIslandBank().getBalance());
-        else if (targetPlayer == null)
-            Message.CREATE_ISLAND.send(sender);
-        else
-            Message.ISLAND_BANK_SHOW.send(sender, island.getIslandBank().getBalance());
+        else if (superiorPlayer.hasIsland()) {
+            if (sender.hasPermission("superior.admin.show-balance"))
+                Message.ISLAND_BANK_SHOW_OTHER_NAME.send(sender, island.getName(), island.getIslandBank().getBalance());
+            else
+                Message.ISLAND_BANK_SHOW.send(sender, superiorPlayer.getIsland().getIslandBank().getBalance());
+        }
     }
 
     @Override
