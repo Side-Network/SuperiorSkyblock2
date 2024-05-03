@@ -57,7 +57,7 @@ public class GeneratorsListener implements Listener {
                 e.getNewState().getType() == BASALT_MATERIAL ? Environment.NETHER :
                 Environment.of(blockLocation.getWorld().getEnvironment());
 
-        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true, module.getBonusGenerators().contains(island));
+        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true);
 
         if (generatedBlock != null && !generatedBlock.equals(ConstantKeys.COBBLESTONE))
             e.setCancelled(true);
@@ -94,7 +94,7 @@ public class GeneratorsListener implements Listener {
                 generatorType == GeneratorType.BASALT ? Environment.NETHER :
                 Environment.of(blockLocation.getWorld().getEnvironment());
 
-        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true, module.getBonusGenerators().contains(island));
+        Key generatedBlock = island.generateBlock(blockLocation, worldEnvironment, true);
 
         if (generatedBlock != null && !generatedBlock.equals(ConstantKeys.COBBLESTONE))
             e.setCancelled(true);

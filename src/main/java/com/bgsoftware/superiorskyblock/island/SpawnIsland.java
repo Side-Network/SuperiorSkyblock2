@@ -1769,7 +1769,7 @@ public class SpawnIsland implements Island {
 
     @Nullable
     @Override
-    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed) {
+    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone) {
         return null;
     }
 

@@ -3874,11 +3874,11 @@ public class SIsland implements Island {
     public Key generateBlock(Location location, boolean optimizeCobblestone) {
         Preconditions.checkNotNull(location, "location parameter cannot be null.");
         Preconditions.checkNotNull(location.getWorld(), "location's world cannot be null.");
-        return generateBlock(location, Environment.of(location.getWorld().getEnvironment()), optimizeCobblestone, false);
+        return generateBlock(location, Environment.of(location.getWorld().getEnvironment()), optimizeCobblestone);
     }
 
     @Override
-    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed) {
+    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone) {
         Preconditions.checkNotNull(location, "location parameter cannot be null.");
         Preconditions.checkNotNull(location.getWorld(), "location's world cannot be null.");
         Preconditions.checkNotNull(environment, "environment parameter cannot be null.");
@@ -3889,11 +3889,6 @@ public class SIsland implements Island {
 
         if (totalGeneratorAmounts == 0) {
             Log.debugResult(Debug.GENERATE_BLOCK, "Return No Generator Rates", "null");
-            return null;
-        }
-
-        if (environment == Environment.NETHER && !netherAllowed) {
-            Log.debugResult(Debug.GENERATE_BLOCK, "Nether generator not allowed for this island", "null");
             return null;
         }
 

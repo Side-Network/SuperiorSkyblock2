@@ -1684,8 +1684,8 @@ public class DelegateIsland implements Island {
 
     @Nullable
     @Override
-    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed) {
-        return this.handle.generateBlock(location, environment, optimizeCobblestone, netherAllowed);
+    public Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone) {
+        return this.handle.generateBlock(location, environment, optimizeCobblestone);
     }
 
     @Override

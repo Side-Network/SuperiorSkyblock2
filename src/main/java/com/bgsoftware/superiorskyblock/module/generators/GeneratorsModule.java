@@ -20,7 +20,6 @@ public class GeneratorsModule extends BuiltinModule {
 
     private boolean enabled = true;
     private boolean matchGeneratorWorld = true;
-    private final List<Island> bonusGenerators = new ArrayList<>();
 
     public GeneratorsModule() {
         super("generators");
@@ -93,9 +92,5 @@ public class GeneratorsModule extends BuiltinModule {
 
     public boolean isMatchGeneratorWorld() {
         return matchGeneratorWorld;
-    }
-
-    public List<Island> getBonusGenerators() {
-        return bonusGenerators;
     }
 }

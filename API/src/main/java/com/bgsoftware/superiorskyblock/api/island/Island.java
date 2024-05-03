@@ -2316,7 +2316,7 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @return The block type that was generated, null if failed.
      */
     @Nullable
-    Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone, boolean netherAllowed);
+    Key generateBlock(Location location, Environment environment, boolean optimizeCobblestone);
 
     /*
      *  Schematic methods
