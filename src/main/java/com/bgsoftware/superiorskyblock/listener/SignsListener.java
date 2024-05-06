@@ -30,12 +30,11 @@ public class SignsListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     private void onSignPlace(SignChangeEvent e) {
         SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(e.getPlayer());
-        String[] signLines = e.getLines();
+        String[] signLines = e.getLines().clone();
 
         IslandSigns.Result result = IslandSigns.handleSignPlace(superiorPlayer, e.getBlock().getLocation(), signLines, true);
         switch (result.getReason()) {
             case NOT_IN_ISLAND:
-                e.setCancelled(true);
                 return;
             case SUCCESS:
                 break;
