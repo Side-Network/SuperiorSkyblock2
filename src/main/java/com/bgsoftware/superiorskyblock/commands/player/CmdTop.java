@@ -1,11 +1,10 @@
 package com.bgsoftware.superiorskyblock.commands.player;
 
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
-import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
-import com.bgsoftware.superiorskyblock.core.menu.view.MenuViewWrapper;
-import com.bgsoftware.superiorskyblock.core.messages.Message;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
-import com.bgsoftware.superiorskyblock.island.top.SortingTypes;
+import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
+import com.bgsoftware.superiorskyblock.commands.arguments.NumberArgument;
+import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.command.CommandSender;
 
 import java.util.Collections;
@@ -40,7 +39,7 @@ public class CmdTop implements ISuperiorCommand {
 
     @Override
     public int getMaxArgs() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -50,8 +49,18 @@ public class CmdTop implements ISuperiorCommand {
 
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, String[] args) {
-        SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(sender);
-        plugin.getMenus().openTopIslands(superiorPlayer, MenuViewWrapper.fromView(superiorPlayer.getOpenedView()), SortingTypes.getDefaultSorting());
+        if (args.length == 2) {
+            NumberArgument<Integer> pageArguments = CommandArguments.getPage(sender, args[1]);
+            if (!pageArguments.isSucceed())
+                return;
+
+            int page = pageArguments.getNumber();
+            plugin.getEventsBus().callIslandTopOpenEvent(sender, page);
+
+            return;
+        }
+
+        plugin.getEventsBus().callIslandTopOpenEvent(sender, 1);
     }
 
     @Override

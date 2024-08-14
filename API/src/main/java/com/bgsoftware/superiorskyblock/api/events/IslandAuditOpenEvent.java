@@ -6,7 +6,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * PreIslandCreateEvent is called when a player is trying to open the audit menu.
+ * IslandAuditOpenEvent is called when a player is trying to open the audit menu.
  */
 public class IslandAuditOpenEvent extends IslandEvent {
 
@@ -17,7 +17,7 @@ public class IslandAuditOpenEvent extends IslandEvent {
     /**
      * The constructor of the event.
      *
-     * @param superiorPlayer The player who created the island.
+     * @param superiorPlayer The player who opened the audit.
      */
     public IslandAuditOpenEvent(SuperiorPlayer superiorPlayer, Island island) {
         super(island);
@@ -29,7 +29,7 @@ public class IslandAuditOpenEvent extends IslandEvent {
     }
 
     /**
-     * Get the player who created the island.
+     * Get the player who opened the audit.
      */
     public SuperiorPlayer getPlayer() {
         return superiorPlayer;

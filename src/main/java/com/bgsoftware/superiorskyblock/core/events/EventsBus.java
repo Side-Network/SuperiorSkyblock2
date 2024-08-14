@@ -31,7 +31,6 @@ import com.bgsoftware.superiorskyblock.core.logging.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
-import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -662,6 +661,10 @@ public class EventsBus {
 
     public void callAuditOpenEvent(SuperiorPlayer superiorPlayer, Island island) {
         callEvent(new IslandAuditOpenEvent(superiorPlayer, island));
+    }
+
+    public void callIslandTopOpenEvent(CommandSender sender, int page) {
+        callEvent(new IslandTopOpenEvent(sender, page));
     }
 
     public EventResult<IMessageComponent> callSendMessageEvent(CommandSender receiver, String messageType, IMessageComponent messageComponent, Object... args) {
