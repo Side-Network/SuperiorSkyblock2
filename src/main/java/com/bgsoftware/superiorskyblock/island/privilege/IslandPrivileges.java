@@ -11,6 +11,7 @@ public class IslandPrivileges {
 
     public static final IslandPrivilege ALL = register("ALL");
     public static final IslandPrivilege ACTIVATE_TOTEMS = register("ACTIVATE_TOTEMS");
+    public static final IslandPrivilege ACCESS_CUBES = register("ACCESS_CUBES");
     public static final IslandPrivilege ANIMAL_BREED = register("ANIMAL_BREED");
     public static final IslandPrivilege ANIMAL_DAMAGE = register("ANIMAL_DAMAGE");
     public static final IslandPrivilege ANIMAL_SHEAR = register("ANIMAL_SHEAR");
