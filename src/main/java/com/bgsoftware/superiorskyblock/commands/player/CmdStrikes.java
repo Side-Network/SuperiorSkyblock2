@@ -10,6 +10,7 @@ import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.command.CommandSender;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +19,7 @@ public class CmdStrikes implements ISuperiorCommand {
 
     @Override
     public List<String> getAliases() {
-        return List.of("strikes");
+        return Arrays.asList("strikes");
     }
 
     @Override
@@ -58,7 +59,7 @@ public class CmdStrikes implements ISuperiorCommand {
         if (island == null)
             return;
 
-        String islandName = island.getName().isBlank() ? sender.getName() : island.getName();
+        String islandName = island.getName().isEmpty() ? sender.getName() : island.getName();
         Message.STRIKE_LIST.send(sender, islandName, island.getStrikes().size());
 
         int i = 1;

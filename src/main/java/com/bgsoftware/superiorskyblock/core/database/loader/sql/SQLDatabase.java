@@ -2,6 +2,7 @@ package com.bgsoftware.superiorskyblock.core.database.loader.sql;
 
 import com.bgsoftware.common.databasebridge.sql.query.Column;
 import com.bgsoftware.common.databasebridge.sql.query.QueryResult;
+import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v0.DatabaseUpgrade_V0;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v1.DatabaseUpgrade_V1;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v2.DatabaseUpgrade_V2;
@@ -231,6 +232,13 @@ public class SQLDatabase {
                 new Column("location", "TEXT"),
                 new Column("private", "BOOLEAN"),
                 new Column("icon", "TEXT")
+        );
+
+        DBSession.createTable("islands_strikes",
+                new Column("island", "UUID"),
+                new Column("reason", "TEXT"),
+                new Column("given_by", "TEXT"),
+                new Column("given_at", "BIGINT")
         );
     }
 

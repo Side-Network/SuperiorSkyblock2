@@ -61,7 +61,7 @@ public class CmdAdminStrikes implements IAdminIslandCommand {
     @Override
     public void execute(SuperiorSkyblockPlugin plugin, CommandSender sender, SuperiorPlayer targetPlayer, Island island, String[] args) {
         Locale locale = PlayerLocales.getLocale(sender);
-        String islandName = island.getName().isBlank() ? (targetPlayer != null ? targetPlayer.getName() : island.getName()) : island.getName();
+        String islandName = island.getName().isEmpty() ? (targetPlayer != null ? targetPlayer.getName() : island.getName()) : island.getName();
 
         if (args.length == 4) {
             if (args[3].equalsIgnoreCase("give")) {
