@@ -97,6 +97,15 @@ public interface MissionsManager {
     boolean hasAllRequiredMissions(SuperiorPlayer superiorPlayer, Mission<?> mission);
 
     /**
+     * Check whether or not a mission is locked by the current time.
+     *
+     * @param superiorPlayer The player to check.
+     * @param mission        The mission to check.
+     * @return True if mission is locked, otherwise false.
+     */
+    boolean isMissionLocked(SuperiorPlayer superiorPlayer, Mission<?> mission);
+
+    /**
      * Check whether or not a player can pass all the checks to complete a mission.
      *
      * @param superiorPlayer The player to check.

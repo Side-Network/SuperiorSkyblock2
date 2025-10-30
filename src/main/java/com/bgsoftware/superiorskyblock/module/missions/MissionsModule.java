@@ -103,12 +103,14 @@ public class MissionsModule extends BuiltinModule {
 
         if (enabled) {
             plugin.getMissions().setCompletePrevious(MenuParserImpl.getInstance().getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
+            plugin.getMissions().setLockedUntil(MenuParserImpl.getInstance().getItemStack("config.yml", config.getConfigurationSection("icons.locked-until")));
             loadMissionCategories(plugin);
         }
     }
 
     public void onPluginReload(SuperiorSkyblockPlugin plugin) {
         plugin.getMissions().setCompletePrevious(MenuParserImpl.getInstance().getItemStack("config.yml", config.getConfigurationSection("icons.complete-previous")));
+        plugin.getMissions().setLockedUntil(MenuParserImpl.getInstance().getItemStack("config.yml", config.getConfigurationSection("icons.locked-until")));
         ConfigurationSection categoriesSection = config.getConfigurationSection("categories");
 
         if (categoriesSection != null) {

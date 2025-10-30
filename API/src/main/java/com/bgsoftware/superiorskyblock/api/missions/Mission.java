@@ -23,6 +23,7 @@ public abstract class Mission<V> {
 
     private final List<String> requiredMissions = new LinkedList<>();
     private final List<String> requiredChecks = new LinkedList<>();
+    private long lockedUntil = -1;
     private final Map<SuperiorPlayer, V> missionData = new ConcurrentHashMap<>();
 
     private String name = null;
@@ -113,6 +114,15 @@ public abstract class Mission<V> {
     }
 
     /**
+     * Add a locked time, the mission won't start until the time is reached.
+     *
+     * @param until Unix seconds
+     */
+    public void addLockedUntil(long until) {
+        this.lockedUntil = until;
+    }
+
+    /**
      * Get the required missions for completing this mission.
      */
     public List<String> getRequiredMissions() {
@@ -124,6 +134,13 @@ public abstract class Mission<V> {
      */
     public List<String> getRequiredChecks() {
         return Collections.unmodifiableList(requiredChecks);
+    }
+
+    /**
+     * Get locked until time, -1 if not set
+     */
+    public long getLockedUntil() {
+        return lockedUntil;
     }
 
     /**

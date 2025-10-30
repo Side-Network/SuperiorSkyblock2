@@ -56,6 +56,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
 
     private final MissionsContainer missionsContainer;
     private TemplateItem completePrevious;
+    private TemplateItem lockedUntil;
 
     public MissionsManagerImpl(SuperiorSkyblockPlugin plugin, MissionsContainer missionsContainer) {
         super(plugin);
@@ -148,7 +149,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
         Preconditions.checkNotNull(mission, "mission parameter cannot be null.");
         return canCompleteAgain(superiorPlayer, mission) && hasAllRequiredMissions(superiorPlayer, mission) &&
-                canPassAllChecks(superiorPlayer, mission);
+                canPassAllChecks(superiorPlayer, mission) && !isMissionLocked(superiorPlayer, mission);
     }
 
     @Override
@@ -183,6 +184,12 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
             Mission<?> missionToCheck = _mission == null ? null : plugin.getMissions().getMission(_mission);
             return missionToCheck != null && hasCompleted(superiorPlayer, missionToCheck);
         });
+    }
+
+    @Override
+    public boolean isMissionLocked(SuperiorPlayer superiorPlayer, Mission<?> mission) {
+        long now = System.currentTimeMillis() / 1000;
+        return mission.getLockedUntil() != -1 && mission.getLockedUntil() > now;
     }
 
     @Override
@@ -443,6 +450,9 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
 
             if (!canPassAllChecks(superiorPlayer, mission))
                 return false;
+
+            if (isMissionLocked(superiorPlayer, mission))
+                return false;
         }
 
         if (removeCompleted) {
@@ -480,11 +490,12 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
                 boolean islandMission = missionSection.getBoolean("island", false);
                 List<String> requiredMissions = missionSection.getStringList("required-missions");
                 List<String> requiredChecks = missionSection.getStringList("required-checks");
+                long lockedUntil = missionSection.getLong("locked-until", -1);
 
                 boolean onlyShowIfRequiredCompleted = missionSection.contains("only-show-if-required-completed") &&
                         missionSection.getBoolean("only-show-if-required-completed");
 
-                mission = createInstance(missionClass, missionName, islandMission, requiredMissions, requiredChecks, onlyShowIfRequiredCompleted);
+                mission = createInstance(missionClass, missionName, islandMission, requiredMissions, requiredChecks, lockedUntil, onlyShowIfRequiredCompleted);
                 mission.load(plugin, missionSection);
                 this.missionsContainer.addMission(mission);
                 newMission = mission;
@@ -527,7 +538,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         return missionDataOptional.isPresent() && missionDataOptional.get().isAutoReward();
     }
 
-    private Mission<?> createInstance(Class<?> clazz, String name, boolean islandMission, List<String> requiredMissions, List<String> requiredChecks, boolean onlyShowIfRequiredCompleted) throws Exception {
+    private Mission<?> createInstance(Class<?> clazz, String name, boolean islandMission, List<String> requiredMissions, List<String> requiredChecks, long lockedUntil, boolean onlyShowIfRequiredCompleted) throws Exception {
         Preconditions.checkArgument(Mission.class.isAssignableFrom(clazz), "Class " + clazz + " is not a Mission.");
 
         for (Constructor<?> constructor : clazz.getConstructors()) {
@@ -540,6 +551,7 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
                 mission.setIslandMission(islandMission);
                 mission.addRequiredMission(requiredMissions.toArray(new String[0]));
                 mission.addRequiredCheck(requiredChecks.toArray(new String[0]));
+                mission.addLockedUntil(lockedUntil);
                 if (onlyShowIfRequiredCompleted)
                     mission.toggleOnlyShowIfRequiredCompleted();
 
@@ -608,5 +620,13 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
 
     public void setCompletePrevious(TemplateItem completePrevious) {
         this.completePrevious = completePrevious;
+    }
+
+    public TemplateItem getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(TemplateItem lockedUntil) {
+        this.lockedUntil = lockedUntil;
     }
 }

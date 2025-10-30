@@ -8,6 +8,7 @@ import com.bgsoftware.superiorskyblock.api.missions.Mission;
 import com.bgsoftware.superiorskyblock.api.world.GameSound;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.GameSoundImpl;
+import com.bgsoftware.superiorskyblock.core.formatting.Formatters;
 import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.menu.button.AbstractPagedMenuButton;
 import com.bgsoftware.superiorskyblock.core.menu.button.PagedMenuTemplateButtonImpl;
@@ -17,6 +18,8 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.time.Duration;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +49,8 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
                 getTemplate().canCompleteSound : getTemplate().notCompletedSound;
         GameSoundImpl.playSound(clickEvent.getWhoClicked(), soundToPlay);
 
-        if (!canComplete || !plugin.getMissions().hasAllRequiredMissions(clickedPlayer, pagedObject))
+        if (!canComplete || !plugin.getMissions().hasAllRequiredMissions(clickedPlayer, pagedObject) ||
+                plugin.getMissions().isMissionLocked(clickedPlayer, pagedObject))
             return;
 
         plugin.getMissions().rewardMission(pagedObject, clickedPlayer, false, false, result -> {
@@ -74,8 +78,18 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
         int percentage = calculatePercentage(pagedObject.getProgress(target));
         int progressValue = pagedObject.getProgressValue(target);
         int amountCompleted = missionsHolder.getAmountMissionCompleted(pagedObject);
+        long lockedUntil = missionData.getMission().getLockedUntil();
 
         ItemStack itemStack;
+        long now = System.currentTimeMillis() / 1000;
+        if (lockedUntil != -1 && lockedUntil > now) {
+            itemStack = plugin.getMissions().getLockedUntil().getBuilder()
+                    .replaceAll("{0}", Formatters.DATE_FORMATTER.format(new Date(lockedUntil * 1000)))
+                    .replaceAll("{1}", Formatters.TIME_FORMATTER.format(Duration.ofSeconds(lockedUntil - now), target.getUserLocale()))
+                    .build();
+            return itemStack;
+        }
+
         if (!plugin.getMissions().hasAllRequiredMissions(target, missionData.getMission())) {
             for (String requiredMission : missionData.getMission().getRequiredMissions()) {
                 Mission<?> required = plugin.getMissions().getMission(requiredMission);
