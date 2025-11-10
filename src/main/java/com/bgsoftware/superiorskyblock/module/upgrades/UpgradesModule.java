@@ -33,13 +33,7 @@ import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdAdminSetUpgra
 import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdAdminSyncUpgrades;
 import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdRankup;
 import com.bgsoftware.superiorskyblock.module.upgrades.commands.CmdUpgrade;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.IUpgradeType;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeBlockLimits;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeCropGrowth;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeEntityLimits;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeIslandEffects;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeMobDrops;
-import com.bgsoftware.superiorskyblock.module.upgrades.type.UpgradeTypeSpawnerRates;
+import com.bgsoftware.superiorskyblock.module.upgrades.type.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffectType;
@@ -185,6 +179,8 @@ public class UpgradesModule extends BuiltinModule<UpgradesModule.Configuration> 
                 enabledUpgrades.add(new UpgradeTypeBlockLimits(plugin));
             if (config.getBoolean("entity-limits", true))
                 enabledUpgrades.add(new UpgradeTypeEntityLimits(plugin));
+            if (config.getBoolean("citadel", true))
+                enabledUpgrades.add(new UpgradeTypeCitadel(plugin));
 
             plugin.getUpgrades().clearUpgrades();
 
