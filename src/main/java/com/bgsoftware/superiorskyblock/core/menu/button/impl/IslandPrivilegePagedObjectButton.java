@@ -249,7 +249,7 @@ public class IslandPrivilegePagedObjectButton extends AbstractPagedMenuButton<Me
             island.setPermission(permissiblePlayer, islandPrivilege, !currentValue);
 
             onSuccessfulPermissionChange(button, clickedPlayer, permissionHolderName);
-            PluginEventsFactory.callIslandChangePlayerPrivilegeResultEvent(island, clickedPlayer, permissionHolder, islandPrivilege, !currentValue);
+            PluginEventsFactory.callIslandChangePlayerPrivilegeResultEvent(island, clickedPlayer, permissiblePlayer, islandPrivilege, !currentValue);
         }
 
         @Override

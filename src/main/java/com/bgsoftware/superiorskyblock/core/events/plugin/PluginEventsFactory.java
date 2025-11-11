@@ -7,6 +7,7 @@ import com.bgsoftware.superiorskyblock.api.enums.Rating;
 import com.bgsoftware.superiorskyblock.api.events.*;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
+import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.island.warps.IslandWarp;
 import com.bgsoftware.superiorskyblock.api.island.warps.WarpCategory;
@@ -307,6 +308,17 @@ public class PluginEventsFactory {
         return !fireEvent(ISLAND_CHANGE_PLAYER_PRIVILEGE_EVENT, islandChangePlayerPrivilege).isCancelled();
     }
 
+    public static boolean callIslandChangePlayerPrivilegeResultEvent(Island island, SuperiorPlayer superiorPlayer,
+                                                           SuperiorPlayer privilegedPlayer, IslandPrivilege islandPrivilege, boolean privilegeEnabled) {
+        IslandChangePlayerPrivilegeResult islandChangePlayerPrivilegeResult = new IslandChangePlayerPrivilegeResult();
+        islandChangePlayerPrivilegeResult.island = island;
+        islandChangePlayerPrivilegeResult.superiorPlayer = superiorPlayer;
+        islandChangePlayerPrivilegeResult.privilegedPlayer = privilegedPlayer;
+        islandChangePlayerPrivilegeResult.islandPrivilege = islandPrivilege;
+        islandChangePlayerPrivilegeResult.privilegeEnabled = privilegeEnabled;
+        return !fireEvent(ISLAND_CHANGE_PLAYER_PRIVILEGE_RESULT_EVENT, islandChangePlayerPrivilegeResult).isCancelled();
+    }
+
     public static PluginEvent<IslandChangeRoleLimit> callIslandChangeRoleLimitEvent(Island island, CommandSender commandSender,
                                                                                     PlayerRole playerRole, int roleLimit) {
         return callIslandChangeRoleLimitEvent(island, commandSenderToSuperiorPlayer(commandSender), playerRole, roleLimit);
@@ -417,6 +429,15 @@ public class PluginEventsFactory {
         islandChangeRolePrivilege.superiorPlayer = superiorPlayer;
         islandChangeRolePrivilege.playerRole = playerRole;
         return !fireEvent(ISLAND_CHANGE_ROLE_PRIVILEGE_EVENT, islandChangeRolePrivilege).isCancelled();
+    }
+
+    public static boolean callIslandChangeRolePrivilegeResultEvent(Island island, @Nullable SuperiorPlayer superiorPlayer, PlayerRole playerRole, IslandPrivilege islandPrivilege) {
+        IslandChangeRolePrivilegeResult islandChangeRolePrivilegeResult = new IslandChangeRolePrivilegeResult();
+        islandChangeRolePrivilegeResult.island = island;
+        islandChangeRolePrivilegeResult.superiorPlayer = superiorPlayer;
+        islandChangeRolePrivilegeResult.playerRole = playerRole;
+        islandChangeRolePrivilegeResult.islandPrivilege = islandPrivilege;
+        return !fireEvent(ISLAND_CHANGE_ROLE_PRIVILEGE_RESULT_EVENT, islandChangeRolePrivilegeResult).isCancelled();
     }
 
     public static PluginEvent<IslandChat> callIslandChatEvent(Island island, SuperiorPlayer superiorPlayer, String message) {

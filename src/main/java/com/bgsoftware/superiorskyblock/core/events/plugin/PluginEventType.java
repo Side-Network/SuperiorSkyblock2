@@ -4,6 +4,8 @@ import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.api.events.*;
 import com.bgsoftware.superiorskyblock.core.events.EventType;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs;
+import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangePlayerPrivilegeResult;
+import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeRolePrivilegeResult;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
@@ -388,6 +390,12 @@ public abstract class PluginEventType<Args extends PluginEventArgs> extends Even
             return new IslandChangePlayerPrivilegeEvent(args.island, args.superiorPlayer, args.privilegedPlayer, args.privilegeEnabled);
         }
     };
+    public static final PluginEventType<IslandChangePlayerPrivilegeResult> ISLAND_CHANGE_PLAYER_PRIVILEGE_RESULT_EVENT = new PluginEventType<IslandChangePlayerPrivilegeResult>(IslandChangePlayerPrivilegeResultEvent.class) {
+        @Override
+        public Event createBukkitEvent(IslandChangePlayerPrivilegeResult args) {
+            return new IslandChangePlayerPrivilegeResultEvent(args.island, args.superiorPlayer, args.privilegedPlayer, args.islandPrivilege, args.privilegeEnabled);
+        }
+    };
     public static final PluginEventType<IslandChangeRoleLimit> ISLAND_CHANGE_ROLE_LIMIT_EVENT = new PluginEventType<IslandChangeRoleLimit>(IslandChangeRoleLimitEvent.class) {
         @Override
         public Event createBukkitEvent(IslandChangeRoleLimit args) {
@@ -488,6 +496,12 @@ public abstract class PluginEventType<Args extends PluginEventArgs> extends Even
         @Override
         public Event createBukkitEvent(IslandChangeRolePrivilege args) {
             return new IslandChangeRolePrivilegeEvent(args.island, args.superiorPlayer, args.playerRole);
+        }
+    };
+    public static final PluginEventType<IslandChangeRolePrivilegeResult> ISLAND_CHANGE_ROLE_PRIVILEGE_RESULT_EVENT = new PluginEventType<IslandChangeRolePrivilegeResult>(IslandChangeRolePrivilegeResultEvent.class) {
+        @Override
+        public Event createBukkitEvent(IslandChangeRolePrivilegeResult args) {
+            return new IslandChangeRolePrivilegeResultEvent(args.island, args.superiorPlayer, args.playerRole, args.islandPrivilege);
         }
     };
     public static final PluginEventType<IslandChat> ISLAND_CHAT_EVENT = new PluginEventType<IslandChat>(IslandChatEvent.class) {

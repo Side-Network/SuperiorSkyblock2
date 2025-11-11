@@ -14,6 +14,7 @@ import com.bgsoftware.superiorskyblock.api.events.IslandUncoopPlayerEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandUpgradeEvent;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
+import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
 import com.bgsoftware.superiorskyblock.api.island.container.IslandsContainer;
 import com.bgsoftware.superiorskyblock.api.island.warps.IslandWarp;
@@ -193,6 +194,15 @@ public class PluginEventArgs {
 
     }
 
+    public static class IslandChangePlayerPrivilegeResult extends IslandDoActionArgs {
+
+        public SuperiorPlayer superiorPlayer;
+        public SuperiorPlayer privilegedPlayer;
+        public IslandPrivilege islandPrivilege;
+        public boolean privilegeEnabled;
+
+    }
+
     public static class IslandChangeRoleLimit extends IslandDoActionArgs {
 
         public PlayerRole playerRole;
@@ -247,6 +257,14 @@ public class PluginEventArgs {
     public static class IslandChangeRolePrivilege extends IslandDoActionArgs {
 
         public PlayerRole playerRole;
+
+    }
+
+    public static class IslandChangeRolePrivilegeResult extends IslandDoActionArgs {
+
+        public SuperiorPlayer superiorPlayer;
+        public PlayerRole playerRole;
+        public IslandPrivilege islandPrivilege;
 
     }
 
