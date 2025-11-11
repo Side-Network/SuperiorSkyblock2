@@ -561,6 +561,7 @@ LOCK_WORLD_ANNOUNCEMENT: '&e&lWorlds | &7The world {0} is now locked for {1}''s 
 MATERIAL_NOT_SOLID: '&c&lError | &7You must provide a solid material.'
 MAXIMUM_LEVEL: '&c&lError | &7The maximum level for this upgrade is {0}.'
 MESSAGE_SENT: '&e&lIsland | &7Successfully sent {0} the message!'
+MISSION_BOSS_BAR: '&e{0}: &f{1} {2}/{3} (total &6{4}%&f)'
 MISSION_CANNOT_COMPLETE: '&c&lError | &7You cannot complete this mission yet.'
 MISSION_NO_AUTO_REWARD: '&e&lMission | &7You have all the required materials to finish {0} - use /is missions to complete!'
 MISSION_NOT_COMPLETE_REQUIRED_MISSIONS: '&c&lError | &7You must complete {0} before completing this mission.'
