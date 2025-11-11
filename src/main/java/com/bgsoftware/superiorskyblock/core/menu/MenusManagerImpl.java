@@ -33,11 +33,7 @@ import com.bgsoftware.superiorskyblock.core.menu.layout.RegularMenuLayoutImpl;
 import com.bgsoftware.superiorskyblock.core.menu.view.MenuViewWrapper;
 import com.google.common.base.Preconditions;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class MenusManagerImpl extends Manager implements MenusManager {
 
@@ -295,8 +291,10 @@ public class MenusManagerImpl extends Manager implements MenusManager {
     @Override
     public void openMissionsCategory(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu, MissionCategory missionCategory) {
         if (missionMenuTargets.containsKey(targetPlayer.getUniqueId())) {
+            System.out.println("opening1");
             openMissionsCategory(targetPlayer, missionMenuTargets.get(targetPlayer.getUniqueId()), previousMenu, missionCategory);
         } else {
+            System.out.println("opening2");
             plugin.getProviders().getMenusProvider().openMissionsCategory(targetPlayer, previousMenu, missionCategory);
         }
     }

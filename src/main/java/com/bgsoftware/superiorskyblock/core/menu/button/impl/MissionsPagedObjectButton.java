@@ -89,25 +89,25 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
         if (!missionDataOptional.isPresent())
             return buttonItem;
 
-        SuperiorPlayer inventoryViewer = menuView.getInventoryViewer();
+        SuperiorPlayer target = menuView.getTarget();
 
         MissionData missionData = missionDataOptional.get();
-        IMissionsHolder missionsHolder = mission.getIslandMission() ? inventoryViewer.getIsland() : inventoryViewer;
+        IMissionsHolder missionsHolder = mission.getIslandMission() ? target.getIsland() : target;
 
         if (missionsHolder == null)
             return new ItemStack(Material.AIR);
 
-        int percentage = calculatePercentage(mission.getProgress(inventoryViewer));
-        int progressValue = mission.getProgressValue(inventoryViewer);
+        int percentage = calculatePercentage(mission.getProgress(target));
+        int progressValue = mission.getProgressValue(target);
         int amountCompleted = missionsHolder.getAmountMissionCompleted(mission);
 
         ItemBuilder itemBuilder;
 
         if (!missionsHolder.canCompleteMissionAgain(mission))
             itemBuilder = missionData.getCompleted();
-        else if (missionData.hasLocked() && !plugin.getMissions().hasAllRequirements(mission, inventoryViewer))
+        else if (missionData.hasLocked() && !plugin.getMissions().hasAllRequirements(mission, target))
             itemBuilder = missionData.getLocked();
-        else if (plugin.getMissions().canComplete(inventoryViewer, mission))
+        else if (plugin.getMissions().canComplete(target, mission))
             itemBuilder = missionData.getCanComplete();
         else
             itemBuilder = missionData.getNotCompleted();
@@ -116,9 +116,9 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
                 .replaceAll("{0}", percentage + "")
                 .replaceAll("{1}", progressValue + "")
                 .replaceAll("{2}", amountCompleted + "")
-                .build(inventoryViewer);
+                .build(target);
 
-        mission.formatItem(inventoryViewer, itemStack);
+        mission.formatItem(target, itemStack);
 
         return itemStack;
     }
