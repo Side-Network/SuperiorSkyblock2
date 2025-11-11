@@ -692,6 +692,12 @@ public class PluginEventArgs {
 
     }
 
+    public static class IslandAuditOpen extends PluginEventArgs {
+
+        public SuperiorPlayer superiorPlayer;
+
+    }
+
     public static class SendMessage extends PluginEventArgs {
 
         public CommandSender receiver;

@@ -4,15 +4,7 @@ import com.bgsoftware.common.annotations.Nullable;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.enums.BorderColor;
 import com.bgsoftware.superiorskyblock.api.enums.Rating;
-import com.bgsoftware.superiorskyblock.api.events.IslandChangeLevelBonusEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandChangeWorthBonusEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandEnterEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandJoinEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandLeaveEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandRestrictMoveEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandSetHomeEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandUncoopPlayerEvent;
-import com.bgsoftware.superiorskyblock.api.events.IslandUpgradeEvent;
+import com.bgsoftware.superiorskyblock.api.events.*;
 import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.PlayerRole;
@@ -31,6 +23,7 @@ import com.bgsoftware.superiorskyblock.api.world.Dimension;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.ChunkPosition;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.PortalType;
 import org.bukkit.block.Biome;
@@ -1158,6 +1151,12 @@ public class PluginEventsFactory {
         preIslandCreate.superiorPlayer = superiorPlayer;
         preIslandCreate.islandName = islandName;
         return !fireEvent(PRE_ISLAND_CREATE_EVENT, preIslandCreate).isCancelled();
+    }
+
+    public static void callAuditOpenEvent(SuperiorPlayer superiorPlayer) {
+        IslandAuditOpen islandAuditOpen = new IslandAuditOpen();
+        islandAuditOpen.superiorPlayer = superiorPlayer;
+        fireEvent(AUDIT_OPEN_EVENT, islandAuditOpen);
     }
 
     public static PluginEvent<SendMessage> callSendMessageEvent(CommandSender receiver, String messageType,
