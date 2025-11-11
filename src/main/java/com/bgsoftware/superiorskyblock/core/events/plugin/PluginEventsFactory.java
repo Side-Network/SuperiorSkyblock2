@@ -1077,6 +1077,14 @@ public class PluginEventsFactory {
         return !fireEvent(PLAYER_CHANGE_ROLE_EVENT, playerChangeRole).isCancelled();
     }
 
+    public static boolean callPlayerChangeRoleResultEvent(SuperiorPlayer superiorPlayer, PlayerRole newRole, SuperiorPlayer initiator) {
+        PlayerChangeRoleResult playerChangeRoleResult = new PlayerChangeRoleResult();
+        playerChangeRoleResult.superiorPlayer = superiorPlayer;
+        playerChangeRoleResult.newRole = newRole;
+        playerChangeRoleResult.initiator = initiator;
+        return !fireEvent(PLAYER_CHANGE_ROLE_RESULT_EVENT, playerChangeRoleResult).isCancelled();
+    }
+
     public static PluginEvent<PlayerCloseMenu> callPlayerCloseMenuEvent(SuperiorPlayer superiorPlayer, MenuView<?, ?> menuView,
                                                                         @Nullable MenuView<?, ?> newMenuView) {
         PlayerCloseMenu playerCloseMenu = new PlayerCloseMenu();

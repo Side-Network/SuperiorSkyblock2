@@ -6,6 +6,7 @@ import com.bgsoftware.superiorskyblock.core.events.EventType;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangePlayerPrivilegeResult;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeRolePrivilegeResult;
+import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.PlayerChangeRoleResult;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
@@ -993,6 +994,12 @@ public abstract class PluginEventType<Args extends PluginEventArgs> extends Even
         @Override
         public Event createBukkitEvent(PlayerChangeRole args) {
             return new PlayerChangeRoleEvent(args.superiorPlayer, args.newRole);
+        }
+    };
+    public static final PluginEventType<PlayerChangeRoleResult> PLAYER_CHANGE_ROLE_RESULT_EVENT = new PluginEventType<PlayerChangeRoleResult>(PlayerChangeRoleResultEvent.class) {
+        @Override
+        public Event createBukkitEvent(PlayerChangeRoleResult args) {
+            return new PlayerChangeRoleResultEvent(args.superiorPlayer, args.newRole, args.initiator);
         }
     };
     public static final PluginEventType<PlayerCloseMenu> PLAYER_CLOSE_MENU_EVENT = new PluginEventType<PlayerCloseMenu>(PlayerCloseMenuEvent.class) {

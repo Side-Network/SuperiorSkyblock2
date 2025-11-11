@@ -97,10 +97,10 @@ public class CmdAdminPromote implements IAdminPlayerCommand {
 
         targetPlayer.setPlayerRole(nextRole);
 
-        if (sender instanceof Player senderPlayer)
-            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, nextRole, plugin.getPlayers().getSuperiorPlayer(senderPlayer));
+        if (sender instanceof Player)
+            PluginEventsFactory.callPlayerChangeRoleResultEvent(targetPlayer, nextRole, plugin.getPlayers().getSuperiorPlayer((Player) sender));
         else
-            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, nextRole, null);
+            PluginEventsFactory.callPlayerChangeRoleResultEvent(targetPlayer, nextRole, null);
 
         Message.PROMOTED_MEMBER.send(sender, targetPlayer.getName(), targetPlayer.getPlayerRole());
         Message.GOT_PROMOTED.send(targetPlayer, targetPlayer.getPlayerRole());

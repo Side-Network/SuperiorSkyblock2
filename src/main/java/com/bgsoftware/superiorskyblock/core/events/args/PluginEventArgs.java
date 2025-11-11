@@ -637,6 +637,13 @@ public class PluginEventArgs {
 
     }
 
+    public static class PlayerChangeRoleResult extends PlayerDoActionArgs {
+
+        public PlayerRole newRole;
+        public SuperiorPlayer initiator;
+
+    }
+
     public static class PlayerCloseMenu extends PlayerDoActionArgs {
 
         public MenuView<?, ?> menuView;

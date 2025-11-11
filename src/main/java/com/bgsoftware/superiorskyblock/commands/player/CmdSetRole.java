@@ -132,10 +132,10 @@ public class CmdSetRole implements IPermissibleCommand {
 
         targetPlayer.setPlayerRole(playerRole);
 
-        if (sender instanceof Player senderPlayer)
-            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, playerRole, plugin.getPlayers().getSuperiorPlayer(senderPlayer));
+        if (sender instanceof Player)
+            PluginEventsFactory.callPlayerChangeRoleResultEvent(targetPlayer, playerRole, plugin.getPlayers().getSuperiorPlayer((Player) sender));
         else
-            plugin.getEventsBus().callPlayerChangeRoleResultEvent(targetPlayer, playerRole, null);
+            PluginEventsFactory.callPlayerChangeRoleResultEvent(targetPlayer, playerRole, null);
 
         if (currentRole.isLessThan(playerRole)) {
             Message.PROMOTED_MEMBER.send(sender, targetPlayer.getName(), targetPlayer.getPlayerRole());
