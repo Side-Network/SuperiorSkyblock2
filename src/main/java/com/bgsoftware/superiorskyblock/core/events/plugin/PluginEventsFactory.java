@@ -1182,8 +1182,9 @@ public class PluginEventsFactory {
         return !fireEvent(PRE_ISLAND_CREATE_EVENT, preIslandCreate).isCancelled();
     }
 
-    public static void callAuditOpenEvent(SuperiorPlayer superiorPlayer) {
+    public static void callAuditOpenEvent(SuperiorPlayer superiorPlayer, Island island) {
         IslandAuditOpen islandAuditOpen = new IslandAuditOpen();
+        islandAuditOpen.island = island;
         islandAuditOpen.superiorPlayer = superiorPlayer;
         fireEvent(AUDIT_OPEN_EVENT, islandAuditOpen);
     }

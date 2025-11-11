@@ -1111,7 +1111,7 @@ public abstract class PluginEventType<Args extends PluginEventArgs> extends Even
     public static final PluginEventType<IslandAuditOpen> AUDIT_OPEN_EVENT = new PluginEventType<IslandAuditOpen>(IslandAuditOpenEvent.class) {
         @Override
         public Event createBukkitEvent(IslandAuditOpen args) {
-            return new IslandAuditOpenEvent(args.superiorPlayer);
+            return new IslandAuditOpenEvent(args.superiorPlayer, args.island);
         }
     };
     public static final PluginEventType<SendMessage> SEND_MESSAGE_EVENT = new PluginEventType<SendMessage>(SendMessageEvent.class) {
