@@ -4,6 +4,7 @@ import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.commands.ISuperiorCommand;
 import com.bgsoftware.superiorskyblock.commands.arguments.CommandArguments;
 import com.bgsoftware.superiorskyblock.commands.arguments.NumberArgument;
+import com.bgsoftware.superiorskyblock.core.events.plugin.PluginEventsFactory;
 import com.bgsoftware.superiorskyblock.core.messages.Message;
 import org.bukkit.command.CommandSender;
 
@@ -55,12 +56,12 @@ public class CmdTop implements ISuperiorCommand {
                 return;
 
             int page = pageArguments.getNumber();
-            plugin.getEventsBus().callIslandTopOpenEvent(sender, page);
+            PluginEventsFactory.callIslandTopOpenEvent(sender, page);
 
             return;
         }
 
-        plugin.getEventsBus().callIslandTopOpenEvent(sender, 1);
+        PluginEventsFactory.callIslandTopOpenEvent(sender, 1);
     }
 
     @Override

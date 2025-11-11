@@ -1189,6 +1189,13 @@ public class PluginEventsFactory {
         fireEvent(AUDIT_OPEN_EVENT, islandAuditOpen);
     }
 
+    public static void callIslandTopOpenEvent(CommandSender sender, int page) {
+        IslandTopOpen islandTopOpen = new IslandTopOpen();
+        islandTopOpen.sender = sender;
+        islandTopOpen.page = page;
+        fireEvent(TOP_OPEN_EVENT, islandTopOpen);
+    }
+
     public static PluginEvent<SendMessage> callSendMessageEvent(CommandSender receiver, String messageType,
                                                                 IMessageComponent messageComponent, Object... args) {
         SendMessage pluginInitialize = new SendMessage();

@@ -721,6 +721,13 @@ public class PluginEventArgs {
 
     }
 
+    public static class IslandTopOpen extends PluginEventArgs {
+
+        public CommandSender sender;
+        public int page;
+
+    }
+
     public static class SendMessage extends PluginEventArgs {
 
         public CommandSender receiver;

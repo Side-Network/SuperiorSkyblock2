@@ -6,6 +6,7 @@ import com.bgsoftware.superiorskyblock.core.events.EventType;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangePlayerPrivilegeResult;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeRolePrivilegeResult;
+import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandTopOpen;
 import com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.PlayerChangeRoleResult;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -1112,6 +1113,12 @@ public abstract class PluginEventType<Args extends PluginEventArgs> extends Even
         @Override
         public Event createBukkitEvent(IslandAuditOpen args) {
             return new IslandAuditOpenEvent(args.superiorPlayer, args.island);
+        }
+    };
+    public static final PluginEventType<IslandTopOpen> TOP_OPEN_EVENT = new PluginEventType<IslandTopOpen>(IslandTopOpenEvent.class) {
+        @Override
+        public Event createBukkitEvent(IslandTopOpen args) {
+            return new IslandTopOpenEvent(args.sender, args.page);
         }
     };
     public static final PluginEventType<SendMessage> SEND_MESSAGE_EVENT = new PluginEventType<SendMessage>(SendMessageEvent.class) {
