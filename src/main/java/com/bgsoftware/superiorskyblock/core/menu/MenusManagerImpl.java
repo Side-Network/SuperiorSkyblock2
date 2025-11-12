@@ -270,8 +270,23 @@ public class MenusManagerImpl extends Manager implements MenusManager {
 
     @Override
     public void openMissions(SuperiorPlayer targetPlayer, @Nullable ISuperiorMenu previousMenu) {
-        missionMenuTargets.remove(targetPlayer.getUniqueId());
-        plugin.getProviders().getMenusProvider().openMissions(targetPlayer, previousMenu);
+        SuperiorPlayer target = missionMenuTargets.get(targetPlayer.getUniqueId());
+        if (target != null) {
+            // There's a target player, so we're viewing someone else's missions
+            // Handle skip-one-item case to preserve the target
+            if (Menus.MENU_MISSIONS.isSkipOneItem()) {
+                List<MissionCategory> missionCategories = plugin.getMissions().getMissionCategories();
+                if (missionCategories.size() == 1) {
+                    openMissionsCategory(targetPlayer, target, previousMenu, missionCategories.get(0));
+                    return;
+                }
+            }
+            plugin.getProviders().getMenusProvider().openMissions(targetPlayer, previousMenu);
+        } else {
+            // Normal case - viewing own missions
+            missionMenuTargets.remove(targetPlayer.getUniqueId());
+            plugin.getProviders().getMenusProvider().openMissions(targetPlayer, previousMenu);
+        }
     }
 
     @Override
@@ -282,7 +297,7 @@ public class MenusManagerImpl extends Manager implements MenusManager {
 
     public void openIslandMainMissionsMenu(SuperiorPlayer superiorPlayer, SuperiorPlayer target) {
         missionMenuTargets.put(superiorPlayer.getUniqueId(), target);
-        plugin.getProviders().getMenusProvider().openMissions(superiorPlayer, null);
+        openMissions(superiorPlayer, null);
     }
 
     // The menu system is way too complex to understand how to achieve this otherwise...

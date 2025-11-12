@@ -74,6 +74,11 @@ public class CmdAdminMission implements IAdminPlayerCommand {
                     return;
 
                 SuperiorPlayer superiorPlayer = plugin.getPlayers().getSuperiorPlayer(sender);
+                if (superiorPlayer == null) {
+                    Message.COMMAND_USAGE.send(sender, plugin.getCommands().getLabel() + " " + getUsage(PlayerLocales.getLocale(sender)));
+                    return;
+                }
+
                 plugin.getMenus().openIslandMainMissionsMenu(superiorPlayer, targetPlayer);
 
                 return;
