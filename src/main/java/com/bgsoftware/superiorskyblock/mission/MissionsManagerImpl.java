@@ -19,6 +19,7 @@ import com.bgsoftware.superiorskyblock.core.events.plugin.PluginEventsFactory;
 import com.bgsoftware.superiorskyblock.core.io.FileClassLoader;
 import com.bgsoftware.superiorskyblock.core.io.Files;
 import com.bgsoftware.superiorskyblock.core.io.JarFiles;
+import com.bgsoftware.superiorskyblock.core.io.MenuParserImpl;
 import com.bgsoftware.superiorskyblock.core.io.loader.FilesLookup;
 import com.bgsoftware.superiorskyblock.core.itemstack.ItemBuilder;
 import com.bgsoftware.superiorskyblock.core.logging.Debug;
@@ -34,6 +35,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -468,6 +470,9 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
                 }
             }
         }
+
+        plugin.getMissions().setCompletePrevious(MenuParserImpl.getInstance().getItemStack("config.yml", BuiltinModules.MISSIONS.getConfiguration().getCompletePreviousIcon()));
+        plugin.getMissions().setLockedUntil(MenuParserImpl.getInstance().getItemStack("config.yml", BuiltinModules.MISSIONS.getConfiguration().getLockedUntilIcon()));
     }
 
     public void convertPlayerData(SuperiorPlayer oldPlayer, SuperiorPlayer newPlayer) {

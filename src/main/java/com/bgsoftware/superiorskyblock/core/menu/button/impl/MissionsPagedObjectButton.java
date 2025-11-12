@@ -47,22 +47,22 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
         if (!missionDataOptional.isPresent())
             return;
 
-        SuperiorPlayer inventoryViewer = menuView.getInventoryViewer();
+        SuperiorPlayer target = menuView.getTarget();
 
         MissionData missionData = missionDataOptional.get();
-        IMissionsHolder missionsHolder = mission.getIslandMission() ? inventoryViewer.getIsland() : inventoryViewer;
+        IMissionsHolder missionsHolder = mission.getIslandMission() ? target.getIsland() : target;
 
         if (missionsHolder == null)
             return;
 
-        boolean canComplete = plugin.getMissions().canComplete(inventoryViewer, mission);
+        boolean canComplete = plugin.getMissions().canComplete(target, mission);
 
         GameSound gameSound;
 
         if (!missionsHolder.canCompleteMissionAgain(mission))
             gameSound = getTemplate().completedSound;
         else if (getTemplate().lockedSound != null && missionData.hasLocked()
-                && !plugin.getMissions().hasAllRequirements(mission, inventoryViewer))
+                && !plugin.getMissions().hasAllRequirements(mission, target))
             gameSound = getTemplate().lockedSound;
         else if (canComplete)
             gameSound = getTemplate().canCompleteSound;
@@ -71,11 +71,11 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
 
         GameSoundImpl.playSound(clickEvent.getWhoClicked(), gameSound);
 
-        if (!canComplete || !plugin.getMissions().hasAllRequiredMissions(clickedPlayer, pagedObject) ||
-                plugin.getMissions().isMissionLocked(clickedPlayer, pagedObject))
+        if (!canComplete || !plugin.getMissions().hasAllRequiredMissions(target, mission) ||
+                plugin.getMissions().isMissionLocked(target, mission))
             return;
 
-        plugin.getMissions().rewardMission(mission, inventoryViewer, false, false, result -> {
+        plugin.getMissions().rewardMission(mission, target, false, false, result -> {
             if (result)
                 menuView.refreshView();
         });
@@ -104,7 +104,7 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
         int percentage = calculatePercentage(mission.getProgress(target));
         int progressValue = mission.getProgressValue(target);
         int amountCompleted = missionsHolder.getAmountMissionCompleted(mission);
-        long lockedUntil = missionData.getMission().getLockedUntil();
+        long lockedUntil = mission.getLockedUntil();
 
         ItemBuilder itemBuilder;
 
@@ -116,8 +116,8 @@ public class MissionsPagedObjectButton extends AbstractPagedMenuButton<MenuMissi
                     .build();
         } else if (!missionsHolder.canCompleteMissionAgain(mission))
             itemBuilder = missionData.getCompleted();
-        else if (missionData.hasLocked() && !plugin.getMissions().hasAllRequirements(mission, target))
-            itemBuilder = missionData.getLocked();
+        else if (!plugin.getMissions().hasAllRequirements(mission, target))
+            itemBuilder = plugin.getMissions().getCompletePrevious().getBuilder();
         else if (plugin.getMissions().canComplete(target, mission))
             itemBuilder = missionData.getCanComplete();
         else

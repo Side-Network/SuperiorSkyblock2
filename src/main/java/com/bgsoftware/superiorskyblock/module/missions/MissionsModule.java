@@ -121,11 +121,15 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
 
         private final boolean enabled;
         private final boolean autoRewardOutsideIslands;
+        private final ConfigurationSection completePreviousIcon;
+        private final ConfigurationSection lockedUntilIcon;
         private final List<Mission<?>> missionsToLoad = new LinkedList<>();
 
         Configuration(CommentedConfiguration config) {
             this.enabled = config.getBoolean("enabled");
             this.autoRewardOutsideIslands = config.getBoolean("auto-reward-outside-islands");
+            this.completePreviousIcon = config.getConfigurationSection("icons.complete-previous");
+            this.lockedUntilIcon = config.getConfigurationSection("icons.locked-until");
             if (this.enabled) {
                 loadMissionCategories(config);
             }
@@ -138,6 +142,14 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
 
         public boolean isAutoRewardOutsideIslands() {
             return this.autoRewardOutsideIslands;
+        }
+
+        public ConfigurationSection getCompletePreviousIcon() {
+            return completePreviousIcon;
+        }
+
+        public ConfigurationSection getLockedUntilIcon() {
+            return lockedUntilIcon;
         }
 
         private void loadMissionCategories(CommentedConfiguration config) {

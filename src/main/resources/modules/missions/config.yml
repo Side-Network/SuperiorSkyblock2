@@ -36,3 +36,20 @@ categories:
   explorer:
     name: 'Explorer'
     slot: 24
+
+icons:
+  complete-previous:
+    type: RED_CANDLE
+    name: '&c&lLocked Mission'
+    amount:
+    lore:
+      - '&7Complete all previous missions'
+      - '&7to unlock this mission!'
+  locked-until:
+    type: BEDROCK
+    name: '&c&lLocked Mission'
+    amount:
+    lore:
+      - '&7Locked until &f{0}'
+      - ''
+      - '&fUnlocks in: &c{1}'
