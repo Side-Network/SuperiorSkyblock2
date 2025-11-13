@@ -70,6 +70,11 @@ public class PortalsListener extends AbstractGameEventListener {
         if (island == null)
             return;
 
+        // Only handle portal teleportation if the entity is in an island world
+        World entityWorld = entity.getWorld();
+        if (entityWorld == null || !plugin.getGrid().isIslandsWorld(entityWorld))
+            return;
+
         Location portalLocation = e.getArgs().portalLocation;
 
         World world = portalLocation.getWorld();
