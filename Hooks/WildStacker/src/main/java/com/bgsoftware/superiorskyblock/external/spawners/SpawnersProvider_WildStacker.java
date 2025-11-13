@@ -34,7 +34,8 @@ import java.util.Map;
 
 public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpawnerType, SpawnersSnapshotProvider {
 
-    private static boolean registered = false;
+    private static StackerListener stackerListener = null;
+    private static WildStackerListener wildStackerListener = null;
 
     private final SuperiorSkyblockPlugin plugin;
     private final LazyReference<RegionManagerService> protectionManager = new LazyReference<RegionManagerService>() {
@@ -46,12 +47,19 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
 
     public SpawnersProvider_WildStacker(SuperiorSkyblockPlugin plugin) {
         this.plugin = plugin;
-        if (!registered) {
-            Bukkit.getPluginManager().registerEvents(new StackerListener(), plugin);
-            Bukkit.getPluginManager().registerEvents(new WildStackerListener(), plugin);
-            registered = true;
-            Log.info("Using WildStacker as a spawners provider.");
+        // Unregister old listeners if they exist (for reload support)
+        if (stackerListener != null) {
+            org.bukkit.event.HandlerList.unregisterAll(stackerListener);
         }
+        if (wildStackerListener != null) {
+            org.bukkit.event.HandlerList.unregisterAll(wildStackerListener);
+        }
+        // Register new listeners
+        stackerListener = new StackerListener();
+        wildStackerListener = new WildStackerListener();
+        Bukkit.getPluginManager().registerEvents(stackerListener, plugin);
+        Bukkit.getPluginManager().registerEvents(wildStackerListener, plugin);
+        Log.info("Using WildStacker as a spawners provider.");
     }
 
     @Override
@@ -87,13 +95,15 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
                 return;
 
             Key blockKey = Keys.ofSpawner(e.getSpawner().getSpawnedType());
-            int increaseAmount = e.getSpawner().getStackAmount();
+            int stackAmount = e.getSpawner().getStackAmount();
 
-            if (island.hasReachedBlockLimit(blockKey, increaseAmount)) {
+            if (island.hasReachedBlockLimit(blockKey, stackAmount)) {
                 e.setCancelled(true);
                 Message.REACHED_BLOCK_LIMIT.send(e.getPlayer(), Formatters.CAPITALIZED_FORMATTER.format(blockKey.toString()));
-            } else if (increaseAmount > 1) {
-                island.handleBlockPlace(blockKey, increaseAmount - 1);
+            } else if (stackAmount > 1) {
+                // Vanilla listener counts 1, so adjust to count the full stack amount
+                island.handleBlockBreak(blockKey, 1);
+                island.handleBlockPlace(blockKey, stackAmount);
             }
         }
 
@@ -105,15 +115,20 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
                 return;
 
             Key blockKey = Keys.ofSpawner(e.getSpawner().getSpawnedType());
-            int increaseAmount = e.getTarget().getStackAmount();
-
-            if (increaseAmount < 0) {
-                island.handleBlockBreak(blockKey, -increaseAmount);
-            } else if (island.hasReachedBlockLimit(blockKey, increaseAmount)) {
-                e.setCancelled(true);
-            } else {
-                island.handleBlockPlace(blockKey, increaseAmount);
+            
+            int sourceAmount = e.getSpawner().getStackAmount();
+            int targetAmount = e.getTarget().getStackAmount();
+            int currentCount = island.getBlockCountAsBigInteger(blockKey).intValue();
+            int expectedCount = sourceAmount + targetAmount;
+            
+            if (currentCount < expectedCount) {
+                // New spawner wasn't counted yet, add the difference
+                island.handleBlockPlace(blockKey, expectedCount - currentCount);
+            } else if (currentCount > expectedCount) {
+                // Multiple stacks exist, WildStacker intercepted the new spawner
+                island.handleBlockPlace(blockKey, targetAmount);
             }
+            // else: currentCount == expectedCount, both already counted (vanilla counted first)
         }
 
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
