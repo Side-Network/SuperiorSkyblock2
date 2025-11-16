@@ -139,28 +139,33 @@ public abstract class AbstractNMSWorld implements NMSWorld {
             if (dimension == null)
                 return;
 
-            Location center = island.getCenter(dimension);
+            // Disable custom world borders for non-overworld dimensions (Nether, End)
+            if (dimension.getEnvironment() != World.Environment.NORMAL) {
+                worldBorder = serverLevel.getWorldBorder();
+            } else {
+                Location center = island.getCenter(dimension);
 
-            worldBorder = new WorldBorder();
-            try {
-                worldBorder.world = serverLevel;
-            } catch (Throwable ignored) {
-            }
-            worldBorder.setWarningBlocks(0);
-            worldBorder.setCenter(center.getX(), center.getZ());
+                worldBorder = new WorldBorder();
+                try {
+                    worldBorder.world = serverLevel;
+                } catch (Throwable ignored) {
+                }
+                worldBorder.setWarningBlocks(0);
+                worldBorder.setCenter(center.getX(), center.getZ());
 
-            switch (superiorPlayer.getBorderColor()) {
-                case BLUE:
-                    worldBorder.setSize((islandSize * 2) + 1D);
-                    break;
-                case GREEN:
-                    worldBorder.setSize((islandSize * 2) + 1.001D);
-                    worldBorder.lerpSizeBetween(worldBorder.getSize() - 0.001D, worldBorder.getSize(), Long.MAX_VALUE);
-                    break;
-                case RED:
-                    worldBorder.setSize((islandSize * 2) + 1D);
-                    worldBorder.lerpSizeBetween(worldBorder.getSize(), worldBorder.getSize() - 0.001D, Long.MAX_VALUE);
-                    break;
+                switch (superiorPlayer.getBorderColor()) {
+                    case BLUE:
+                        worldBorder.setSize((islandSize * 2) + 1D);
+                        break;
+                    case GREEN:
+                        worldBorder.setSize((islandSize * 2) + 1.001D);
+                        worldBorder.lerpSizeBetween(worldBorder.getSize() - 0.001D, worldBorder.getSize(), Long.MAX_VALUE);
+                        break;
+                    case RED:
+                        worldBorder.setSize((islandSize * 2) + 1D);
+                        worldBorder.lerpSizeBetween(worldBorder.getSize(), worldBorder.getSize() - 0.001D, Long.MAX_VALUE);
+                        break;
+                }
             }
         }
 

@@ -127,27 +127,32 @@ public class NMSWorldImpl implements NMSWorld {
             if (dimension == null)
                 return;
 
-            Location center = island.getCenter(dimension);
+            // Disable custom world borders for non-overworld dimensions (Nether, End)
+            if (dimension.getEnvironment() != org.bukkit.World.Environment.NORMAL) {
+                worldBorder = worldServer.getWorldBorder();
+            } else {
+                Location center = island.getCenter(dimension);
 
-            worldBorder = new WorldBorder();
-            worldBorder.world = worldServer;
-            worldBorder.setWarningDistance(0);
-            worldBorder.setCenter(center.getX(), center.getZ());
+                worldBorder = new WorldBorder();
+                worldBorder.world = worldServer;
+                worldBorder.setWarningDistance(0);
+                worldBorder.setCenter(center.getX(), center.getZ());
 
-            switch (superiorPlayer.getBorderColor()) {
-                case BLUE: {
-                    worldBorder.setSize((islandSize * 2) + 1D);
-                    break;
-                }
-                case GREEN: {
-                    worldBorder.setSize((islandSize * 2) + 1.001D);
-                    worldBorder.transitionSizeBetween(worldBorder.getSize() - 0.001D, worldBorder.getSize(), Long.MAX_VALUE);
-                    break;
-                }
-                case RED: {
-                    worldBorder.setSize((islandSize * 2) + 1D);
-                    worldBorder.transitionSizeBetween(worldBorder.getSize(), worldBorder.getSize() - 0.001D, Long.MAX_VALUE);
-                    break;
+                switch (superiorPlayer.getBorderColor()) {
+                    case BLUE: {
+                        worldBorder.setSize((islandSize * 2) + 1D);
+                        break;
+                    }
+                    case GREEN: {
+                        worldBorder.setSize((islandSize * 2) + 1.001D);
+                        worldBorder.transitionSizeBetween(worldBorder.getSize() - 0.001D, worldBorder.getSize(), Long.MAX_VALUE);
+                        break;
+                    }
+                    case RED: {
+                        worldBorder.setSize((islandSize * 2) + 1D);
+                        worldBorder.transitionSizeBetween(worldBorder.getSize(), worldBorder.getSize() - 0.001D, Long.MAX_VALUE);
+                        break;
+                    }
                 }
             }
         }
