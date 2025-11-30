@@ -94,11 +94,7 @@ public class CmdAdminMission implements IAdminPlayerCommand {
             return;
 
         if (args[3].equalsIgnoreCase("complete")) {
-            missions.forEach(mission -> plugin.getMissions().rewardMission(mission, targetPlayer, false, true));
-            if (missions.size() == 1)
-                Message.MISSION_STATUS_COMPLETE.send(sender, missions.get(0).getName(), targetPlayer.getName());
-            else
-                Message.MISSION_STATUS_COMPLETE_ALL.send(sender, targetPlayer.getName());
+            rewardMissionsSequentially(plugin, missions, targetPlayer, 0, sender);
             return;
         } else if (args[3].equalsIgnoreCase("reset")) {
             Island island = targetPlayer.getIsland();
@@ -147,6 +143,24 @@ public class CmdAdminMission implements IAdminPlayerCommand {
         }
 
         return Collections.emptyList();
+    }
+
+    private void rewardMissionsSequentially(SuperiorSkyblockPlugin plugin, List<Mission<?>> missions,
+                                           SuperiorPlayer targetPlayer, int currentIndex, CommandSender sender) {
+        if (currentIndex >= missions.size()) {
+            if (missions.size() == 1)
+                Message.MISSION_STATUS_COMPLETE.send(sender, missions.get(0).getName(), targetPlayer.getName());
+            else
+                Message.MISSION_STATUS_COMPLETE_ALL.send(sender, targetPlayer.getName());
+            return;
+        }
+
+        int missionIndex = missions.size() - 1 - currentIndex;
+        Mission<?> currentMission = missions.get(missionIndex);
+        
+        plugin.getMissions().rewardMission(currentMission, targetPlayer, false, true, result -> {
+            rewardMissionsSequentially(plugin, missions, targetPlayer, currentIndex + 1, sender);
+        });
     }
 
 }

@@ -150,7 +150,7 @@ public class CommandArguments {
         List<Mission<?>> missions = new LinkedList<>();
 
         if (argument.equals("*")) {
-            missions = plugin.getMissions().getAllMissions();
+            missions = plugin.getMissions().getAllMissionsSorted();
         } else {
             Mission<?> mission = getMission(plugin, sender, argument);
             if (mission != null)

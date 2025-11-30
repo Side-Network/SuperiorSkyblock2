@@ -46,6 +46,7 @@ import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -574,6 +575,15 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
         }
 
         return newMission;
+    }
+
+    public List<Mission<?>> getAllMissionsSorted() {
+        // Returns missions sorted by category and weight order (as displayed to players)
+        List<Mission<?>> sortedMissions = new LinkedList<>();
+        for (MissionCategory category : plugin.getMissions().getSortedMissionCategories()) {
+            sortedMissions.addAll(category.getMissions());
+        }
+        return sortedMissions;
     }
 
     public Optional<MissionData> getMissionData(Mission<?> mission) {
