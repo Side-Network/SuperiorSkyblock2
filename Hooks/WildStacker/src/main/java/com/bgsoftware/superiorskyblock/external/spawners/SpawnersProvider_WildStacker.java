@@ -107,6 +107,22 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
             }
         }
 
+        @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+        public void onSpawnerStackCheckLimit(SpawnerStackEvent e) {
+            Island island = plugin.getGrid().getIslandAt(e.getSpawner().getLocation());
+
+            if (island == null)
+                return;
+
+            Key blockKey = Keys.ofSpawner(e.getSpawner().getSpawnedType());
+            int targetAmount = e.getTarget().getStackAmount();
+            
+            // Check if adding the target spawner would exceed the limit
+            if (island.hasReachedBlockLimit(blockKey, targetAmount)) {
+                e.setCancelled(true);
+            }
+        }
+
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
         public void onSpawnerStack(SpawnerStackEvent e) {
             Island island = plugin.getGrid().getIslandAt(e.getSpawner().getLocation());
@@ -138,8 +154,8 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
                 island.handleBlockBreak(Keys.ofSpawner(e.getSpawner().getSpawnedType()), e.getAmount());
         }
 
-        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onSpawnerPlaceInventoryMonitor(SpawnerPlaceInventoryEvent e) {
+        @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+        public void onSpawnerPlaceInventoryCheckLimit(SpawnerPlaceInventoryEvent e) {
             Island island = plugin.getGrid().getIslandAt(e.getSpawner().getLocation());
 
             if (island == null)
@@ -151,9 +167,20 @@ public class SpawnersProvider_WildStacker implements SpawnersProviderItemMetaSpa
             if (island.hasReachedBlockLimit(blockKey, increaseAmount)) {
                 e.setCancelled(true);
                 Message.REACHED_BLOCK_LIMIT.send(e.getPlayer(), Formatters.CAPITALIZED_FORMATTER.format(blockKey.toString()));
-            } else {
-                island.handleBlockPlace(blockKey, increaseAmount);
             }
+        }
+
+        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+        public void onSpawnerPlaceInventoryMonitor(SpawnerPlaceInventoryEvent e) {
+            Island island = plugin.getGrid().getIslandAt(e.getSpawner().getLocation());
+
+            if (island == null)
+                return;
+
+            Key blockKey = Keys.ofSpawner(e.getSpawner().getSpawnedType());
+            int increaseAmount = e.getIncreaseAmount();
+
+            island.handleBlockPlace(blockKey, increaseAmount);
         }
 
         /* Protection Listener */
