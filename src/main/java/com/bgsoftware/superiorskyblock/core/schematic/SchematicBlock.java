@@ -147,7 +147,10 @@ public class SchematicBlock {
             if (i < plugin.getSettings().getDefaultSign().size()) {
                 line = plugin.getSettings().getDefaultSign().get(i);
             } else {
-                line = ((StringTag) messages.getValue().get(realIndex)).getValue();
+                if (messages.getValue().get(realIndex) instanceof CompoundTag)
+                    line = "";
+                else
+                    line = ((StringTag) messages.getValue().get(realIndex)).getValue();
             }
 
             line = line.replace("{player}", island.getOwner().getName())
