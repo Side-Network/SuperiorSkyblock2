@@ -1724,7 +1724,16 @@ public class SIsland implements Island {
     public void disbandIsland() {
         long profilerId = Profiler.start(ProfileType.DISBAND_ISLAND, 2);
 
+        plugin.getMissions().getIslandMissions().forEach(this::resetMission);
+
         forEachIslandMember(EMPTY_IGNORED_MEMBERS, false, islandMember -> {
+            for (Mission<?> mission : plugin.getMissions().getPlayerMissions()) {
+                MissionData missionData = plugin.getMissions().getMissionData(mission).orElse(null);
+                if (missionData != null && missionData.isDisbandReset()) {
+                    islandMember.resetMission(mission);
+                }
+            }
+
             if (islandMember.equals(owner)) {
                 owner.setIsland(null);
             } else {
@@ -1732,13 +1741,6 @@ public class SIsland implements Island {
             }
 
             ClearActions.runClearActions(islandMember.asOfflinePlayer(), true, plugin.getSettings().getClearActionsOnDisband());
-
-            for (Mission<?> mission : plugin.getMissions().getPlayerMissions()) {
-                MissionData missionData = plugin.getMissions().getMissionData(mission).orElse(null);
-                if (missionData != null && missionData.isDisbandReset()) {
-                    islandMember.resetMission(mission);
-                }
-            }
         });
 
         this.activeTasks.write(activeTasks -> {
@@ -1753,8 +1755,6 @@ public class SIsland implements Island {
             BigDecimal disbandRefund = BuiltinModules.BANK.getConfiguration().getDisbandRefund();
             plugin.getProviders().depositMoney(getOwner(), islandBank.getBalance().multiply(disbandRefund));
         }
-
-        plugin.getMissions().getIslandMissions().forEach(this::resetMission);
 
         resetChunks(IslandChunkFlags.ONLY_PROTECTED, () -> Profiler.end(profilerId));
 
