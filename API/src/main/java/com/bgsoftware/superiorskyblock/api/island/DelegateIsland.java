@@ -1580,6 +1580,11 @@ public class DelegateIsland implements Island {
     }
 
     @Override
+    public int getPeakMemberCount() {
+        return this.handle.getPeakMemberCount();
+    }
+
+    @Override
     public void setTeamLimit(int teamLimit) {
         this.handle.setTeamLimit(teamLimit);
     }

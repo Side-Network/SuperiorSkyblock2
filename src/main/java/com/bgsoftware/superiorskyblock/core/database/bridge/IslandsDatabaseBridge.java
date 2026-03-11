@@ -313,6 +313,13 @@ public class IslandsDatabaseBridge {
         ));
     }
 
+    public static void savePeakMemberCount(Island island) {
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.updateObject("islands_settings",
+                createFilter("island", island),
+                new Pair<>("peak_member_count", island.getPeakMemberCount())
+        ));
+    }
+
     public static void saveWarpsLimit(Island island) {
         runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.updateObject("islands_settings",
                 createFilter("island", island),
@@ -674,7 +681,8 @@ public class IslandsDatabaseBridge {
                     new Pair<>("warps_limit", island.getWarpsLimitRaw()),
                     new Pair<>("crop_growth_multiplier", island.getCropGrowthRaw()),
                     new Pair<>("spawner_rates_multiplier", island.getSpawnerRatesRaw()),
-                    new Pair<>("mob_drops_multiplier", island.getMobDropsRaw())
+                    new Pair<>("mob_drops_multiplier", island.getMobDropsRaw()),
+                    new Pair<>("peak_member_count", island.getPeakMemberCount())
             );
         });
     }

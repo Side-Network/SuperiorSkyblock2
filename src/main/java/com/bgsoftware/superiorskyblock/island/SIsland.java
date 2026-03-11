@@ -198,6 +198,7 @@ public class SIsland implements Island {
     private final Synchronized<IntValue> warpsLimit = Synchronized.of(IntValue.syncedFixed(-1));
     private final Synchronized<IntValue> teamLimit = Synchronized.of(IntValue.syncedFixed(-1));
     private final Synchronized<IntValue> coopLimit = Synchronized.of(IntValue.syncedFixed(-1));
+    private volatile int peakMemberCount = 1;
     private final Synchronized<DoubleValue> cropGrowth = Synchronized.of(DoubleValue.syncedFixed(-1D));
     private final Synchronized<DoubleValue> spawnerRates = Synchronized.of(DoubleValue.syncedFixed(-1D));
     private final Synchronized<DoubleValue> mobDrops = Synchronized.of(DoubleValue.syncedFixed(-1D));
@@ -320,6 +321,7 @@ public class SIsland implements Island {
         this.islandSize.set(builder.islandSize);
         this.teamLimit.set(builder.teamLimit);
         this.warpsLimit.set(builder.warpsLimit);
+        this.peakMemberCount = builder.peakMemberCount;
         this.cropGrowth.set(builder.cropGrowth);
         this.spawnerRates.set(builder.spawnerRates);
         this.mobDrops.set(builder.mobDrops);
@@ -576,6 +578,12 @@ public class SIsland implements Island {
         if (superiorPlayer.isOnline()) {
             updateIslandFly(superiorPlayer);
             setCurrentlyActive();
+        }
+
+        int currentCount = this.members.readAndGet(Set::size) + 1; // +1 for owner
+        if (currentCount > this.peakMemberCount) {
+            this.peakMemberCount = currentCount;
+            IslandsDatabaseBridge.savePeakMemberCount(this);
         }
 
         IslandsDatabaseBridge.addMember(this, superiorPlayer, System.currentTimeMillis());
@@ -3313,6 +3321,11 @@ public class SIsland implements Island {
     @Override
     public int getTeamLimit() {
         return this.teamLimit.readAndGet(IntValue::get);
+    }
+
+    @Override
+    public int getPeakMemberCount() {
+        return this.peakMemberCount;
     }
 
     @Override

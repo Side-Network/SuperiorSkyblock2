@@ -106,6 +106,7 @@ public class IslandBuilderImpl implements Island.Builder {
     public IntValue warpsLimit = IntValue.syncedFixed(-1);
     public IntValue teamLimit = IntValue.syncedFixed(-1);
     public IntValue coopLimit = IntValue.syncedFixed(-1);
+    public int peakMemberCount = 1;
     public DoubleValue cropGrowth = DoubleValue.syncedFixed(-1D);
     public DoubleValue spawnerRates = DoubleValue.syncedFixed(-1D);
     public DoubleValue mobDrops = DoubleValue.syncedFixed(-1D);
@@ -692,6 +693,17 @@ public class IslandBuilderImpl implements Island.Builder {
     @Override
     public int getTeamLimit() {
         return this.teamLimit.get();
+    }
+
+    @Override
+    public Island.Builder setPeakMemberCount(int peakMemberCount) {
+        this.peakMemberCount = Math.max(1, peakMemberCount);
+        return this;
+    }
+
+    @Override
+    public int getPeakMemberCount() {
+        return this.peakMemberCount;
     }
 
     @Override

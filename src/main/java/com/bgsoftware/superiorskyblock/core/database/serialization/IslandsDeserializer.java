@@ -723,6 +723,7 @@ public class IslandsDeserializer {
             builder.setMobDrops(islandSettings.getDouble("mob_drops_multiplier").orElse(-1D));
             builder.setCoopLimit(islandSettings.getInt("coops_limit").orElse(-1));
             builder.setBankLimit(islandSettings.getBigDecimal("bank_limit").orElse(SYNCED_BANK_LIMIT_VALUE));
+            builder.setPeakMemberCount(islandSettings.getInt("peak_member_count").orElse(1));
         });
     }
 

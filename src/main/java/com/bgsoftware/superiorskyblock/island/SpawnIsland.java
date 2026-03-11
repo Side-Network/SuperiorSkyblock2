@@ -1720,6 +1720,11 @@ public class SpawnIsland implements Island {
     }
 
     @Override
+    public int getPeakMemberCount() {
+        return 0;
+    }
+
+    @Override
     public void setTeamLimit(int teamLimit) {
         // Do nothing.
     }

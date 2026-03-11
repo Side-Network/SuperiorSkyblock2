@@ -2,10 +2,10 @@ package com.bgsoftware.superiorskyblock.core.database.loader.sql;
 
 import com.bgsoftware.common.databasebridge.sql.query.Column;
 import com.bgsoftware.common.databasebridge.sql.query.QueryResult;
-import com.bgsoftware.superiorskyblock.api.objects.Pair;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v0.DatabaseUpgrade_V0;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v1.DatabaseUpgrade_V1;
 import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v2.DatabaseUpgrade_V2;
+import com.bgsoftware.superiorskyblock.core.database.loader.sql.upgrade.v3.DatabaseUpgrade_V3;
 import com.bgsoftware.superiorskyblock.core.database.sql.DBSession;
 import com.bgsoftware.superiorskyblock.core.mutable.MutableInt;
 
@@ -16,7 +16,8 @@ public class SQLDatabase {
     private static final Runnable[] DATABASE_UPGRADES = new Runnable[]{
             DatabaseUpgrade_V0.INSTANCE,
             DatabaseUpgrade_V1.INSTANCE,
-            DatabaseUpgrade_V2.INSTANCE
+            DatabaseUpgrade_V2.INSTANCE,
+            DatabaseUpgrade_V3.INSTANCE
     };
 
     private SQLDatabase() {
@@ -197,7 +198,8 @@ public class SQLDatabase {
                 new Column("warps_limit", "INTEGER"),
                 new Column("crop_growth_multiplier", "DECIMAL"),
                 new Column("spawner_rates_multiplier", "DECIMAL"),
-                new Column("mob_drops_multiplier", "DECIMAL")
+                new Column("mob_drops_multiplier", "DECIMAL"),
+                new Column("peak_member_count", "INTEGER")
         );
 
         DBSession.createTable("islands_upgrades",

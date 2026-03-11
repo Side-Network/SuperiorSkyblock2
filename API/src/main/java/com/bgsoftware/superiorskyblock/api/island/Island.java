@@ -2229,6 +2229,11 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
     int getTeamLimit();
 
     /**
+     * Get the peak (historical maximum) number of members the island has had at any point, including the owner.
+     */
+    int getPeakMemberCount();
+
+    /**
      * Set the team limit of the island.
      *
      * @param teamLimit The team limit to set.
@@ -2975,6 +2980,10 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
         Builder setTeamLimit(int teamLimit);
 
         int getTeamLimit();
+
+        Builder setPeakMemberCount(int peakMemberCount);
+
+        int getPeakMemberCount();
 
         Builder setWarpsLimit(int warpsLimit);
 
