@@ -14,6 +14,12 @@ enabled: true
 # automatically claimed only in island worlds.
 auto-reward-outside-islands: false
 
+# Multipliers based on the island's peak (historical max) member count.
+peak-member-multipliers: {}
+#  '1': 0.3
+#  '2': 1.5
+#  '5': 2.0
+
 # Settings related to mission categories.
 # A tutorial about configuring missions can be found here:
 # https://wiki.bg-software.com/superiorskyblock/missions

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorskyblock.api.missions;
 
 import com.bgsoftware.common.annotations.Nullable;
+import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.google.common.base.Preconditions;
 import org.bukkit.configuration.ConfigurationSection;
@@ -191,6 +192,18 @@ public abstract class Mission<V> {
      */
     public int getProgressValue(SuperiorPlayer superiorPlayer) {
         return 0;
+    }
+
+    /**
+     * Get the peak member multiplier for the player's island.
+     * This looks up the multiplier based on the island's historical peak member count.
+     * Returns 1.0 if no applicable multiplier is found or the player has no island.
+     *
+     * @param superiorPlayer The player whose island to check.
+     * @return The multiplier for the island's peak member count, or 1.0 if none applies.
+     */
+    public double getPeakMemberMultiplier(SuperiorPlayer superiorPlayer) {
+        return SuperiorSkyblockAPI.getMissions().getPeakMemberMultiplier(superiorPlayer);
     }
 
     /**

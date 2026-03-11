@@ -162,4 +162,24 @@ public interface MissionsManager {
      */
     void loadMissionsData(List<Mission<?>> missionsList);
 
+    /**
+     * Get the peak member multiplier for a player's island.
+     * This looks up the multiplier based on the island's historical peak member count.
+     * Returns 1.0 if no applicable multiplier is found or the player has no island.
+     *
+     * @param superiorPlayer The player whose island to check.
+     * @return The multiplier for the island's peak member count, or 1.0 if none applies.
+     */
+    double getPeakMemberMultiplier(SuperiorPlayer superiorPlayer);
+
+    /**
+     * Get the peak member multiplier for a specific peak member count.
+     * This looks up the multiplier from the missions module configuration.
+     * Returns 1.0 if no applicable multiplier is found.
+     *
+     * @param peakMemberCount The peak member count to look up.
+     * @return The configured multiplier, or 1.0 if none applies.
+     */
+    double getPeakMemberMultiplier(int peakMemberCount);
+
 }

@@ -694,4 +694,20 @@ public class MissionsManagerImpl extends Manager implements MissionsManager {
     public void setLockedUntil(TemplateItem lockedUntil) {
         this.lockedUntil = lockedUntil;
     }
+
+    @Override
+    public double getPeakMemberMultiplier(SuperiorPlayer superiorPlayer) {
+        Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
+
+        Island island = superiorPlayer.getIsland();
+        if (island == null)
+            return 1.0;
+
+        return getPeakMemberMultiplier(island.getPeakMemberCount());
+    }
+
+    @Override
+    public double getPeakMemberMultiplier(int peakMemberCount) {
+        return BuiltinModules.MISSIONS.getConfiguration().getMultiplierForPeakMemberCount(peakMemberCount);
+    }
 }

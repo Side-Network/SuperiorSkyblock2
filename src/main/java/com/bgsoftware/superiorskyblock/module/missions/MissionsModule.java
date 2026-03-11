@@ -3,7 +3,9 @@ package com.bgsoftware.superiorskyblock.module.missions;
 import com.bgsoftware.common.config.CommentedConfiguration;
 import com.bgsoftware.superiorskyblock.SuperiorSkyblockPlugin;
 import com.bgsoftware.superiorskyblock.api.commands.SuperiorCommand;
+import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.missions.Mission;
+import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.bgsoftware.superiorskyblock.core.collections.ArrayMap;
 import com.bgsoftware.superiorskyblock.core.io.Files;
 import com.bgsoftware.superiorskyblock.core.io.MenuParserImpl;
@@ -28,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +109,22 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
         return new SuperiorCommand[]{new CmdAdminMission()};
     }
 
+    /**
+     * Get the peak member multiplier for a player's island.
+     * This is a convenience method that looks up the island's peak member count
+     * and returns the corresponding multiplier from the configuration.
+     *
+     * @param superiorPlayer The player to check
+     * @return The configured multiplier for the island's peak member count, or 1.0 if none
+     */
+    public double getPeakMemberMultiplier(SuperiorPlayer superiorPlayer) {
+        Island island = superiorPlayer.getIsland();
+        if (island == null)
+            return 1.0;
+
+        return this.configuration.getMultiplierForPeakMemberCount(island.getPeakMemberCount());
+    }
+
     @Override
     protected String[] getIgnoredSections() {
         return IGNORED_SECTIONS;
@@ -122,6 +141,7 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
         private final boolean autoRewardOutsideIslands;
         private final ConfigurationSection completePreviousIcon;
         private final ConfigurationSection lockedUntilIcon;
+        private final Map<Integer, Double> peakMemberMultipliers;
         private final List<Mission<?>> missionsToLoad = new LinkedList<>();
 
         Configuration(CommentedConfiguration config) {
@@ -129,6 +149,7 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
             this.autoRewardOutsideIslands = config.getBoolean("auto-reward-outside-islands");
             this.completePreviousIcon = config.getConfigurationSection("icons.complete-previous");
             this.lockedUntilIcon = config.getConfigurationSection("icons.locked-until");
+            this.peakMemberMultipliers = loadPeakMemberMultipliers(config);
             if (this.enabled) {
                 loadMissionCategories(config);
             }
@@ -149,6 +170,10 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
 
         public ConfigurationSection getLockedUntilIcon() {
             return lockedUntilIcon;
+        }
+
+        public Map<Integer, Double> getPeakMemberMultipliers() {
+            return peakMemberMultipliers;
         }
 
         private void loadMissionCategories(CommentedConfiguration config) {
@@ -241,6 +266,36 @@ public class MissionsModule extends BuiltinModule<MissionsModule.Configuration> 
             return true;
         }
 
+        private Map<Integer, Double> loadPeakMemberMultipliers(CommentedConfiguration config) {
+            Map<Integer, Double> multipliers = new HashMap<>();
+            ConfigurationSection section = config.getConfigurationSection("peak-member-multipliers");
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    try {
+                        int memberCount = Integer.parseInt(key);
+                        double multiplier = section.getDouble(key, 1.0);
+                        multipliers.put(memberCount, multiplier);
+                    } catch (NumberFormatException ignored) {
+                        // Skip invalid keys
+                    }
+                }
+            }
+            return multipliers;
+        }
+
+        /**
+         * Get the multiplier for a given peak member count.
+         * Finds the highest configured threshold that is <= the actual peak count.
+         *
+         * @param peakMemberCount The island's peak member count
+         * @return The configured multiplier, or 1.0 if none applies
+         */
+        public double getMultiplierForPeakMemberCount(int peakMemberCount) {
+            if (peakMemberMultipliers.isEmpty())
+                return 1.0;
+
+            return peakMemberMultipliers.getOrDefault(peakMemberCount, 1.0);
+        }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
