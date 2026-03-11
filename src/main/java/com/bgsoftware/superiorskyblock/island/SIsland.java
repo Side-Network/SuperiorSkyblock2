@@ -580,10 +580,12 @@ public class SIsland implements Island {
             setCurrentlyActive();
         }
 
-        int currentCount = this.members.readAndGet(Set::size) + 1; // +1 for owner
-        if (currentCount > this.peakMemberCount) {
-            this.peakMemberCount = currentCount;
-            IslandsDatabaseBridge.savePeakMemberCount(this);
+        if (!superiorPlayer.isOnline() || !superiorPlayer.asPlayer().hasPermission("superior.admin.bypasspeakmembercount")) {
+            int currentCount = this.members.readAndGet(Set::size) + 1; // +1 for owner
+            if (currentCount > this.peakMemberCount) {
+                this.peakMemberCount = currentCount;
+                IslandsDatabaseBridge.savePeakMemberCount(this);
+            }
         }
 
         IslandsDatabaseBridge.addMember(this, superiorPlayer, System.currentTimeMillis());
