@@ -888,12 +888,16 @@ public class IslandsDatabaseBridge {
     }
 
     public static void removeStrike(Island island, IslandStrike strike) {
-        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> databaseBridge.deleteObject("islands_strikes",
-                createFilter("island", island,
-                        new Pair<>("reason", strike.getReason()),
-                        new Pair<>("given_by", strike.getGivenBy()),
-                        new Pair<>("given_at", strike.getGivenAt())
-                )));
+        runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> {
+            try (ObjectsPools.Batch<DBColumn> pool = ObjectsPools.DB_COLUMN_BATCH.obtain()) {
+                databaseBridge.deleteObject("islands_strikes",
+                        createFilter(pool, "island", island,
+                                pool.obtain().withNameAndValue("reason", strike.getReason()),
+                                pool.obtain().withNameAndValue("given_by", strike.getGivenBy()),
+                                pool.obtain().withNameAndValue("given_at", strike.getGivenAt())
+                        ));
+            }
+        });
     }
 
     public static void clearStrikes(Island island) {

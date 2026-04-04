@@ -796,7 +796,7 @@ public class IslandsDeserializer {
 
             long givenAt = strike.getLong("given_at").orElse(System.currentTimeMillis() / 1000L);
 
-            Island.Builder builder = databaseCache.computeIfAbsentInfo(uuid.get(), IslandBuilderImpl::new);
+            Island.Builder builder = lookupIsland(databaseCache, uuid.get(), "islands_strikes");
             builder.addStrike(reason.get(), givenAt, givenBy.get());
         });
     }
