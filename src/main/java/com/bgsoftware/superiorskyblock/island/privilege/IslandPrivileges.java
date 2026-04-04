@@ -15,6 +15,7 @@ import java.util.Objects;
 public class IslandPrivileges {
 
     public static final IslandPrivilege ALL = register("ALL");
+    public static final IslandPrivilege ALLAY_INTERACT = register("ALLAY_INTERACT", ServerVersion.isAtLeast(ServerVersion.v1_19));
     public static final IslandPrivilege ACTIVATE_TOTEMS = register("ACTIVATE_TOTEMS");
     public static final IslandPrivilege ACCESS_CUBES = register("ACCESS_CUBES");
     public static final IslandPrivilege ANIMAL_BREED = register("ANIMAL_BREED");
@@ -62,6 +63,7 @@ public class IslandPrivileges {
     public static final IslandPrivilege MINECART_PLACE = register("MINECART_PLACE");
     public static final IslandPrivilege MONSTER_DAMAGE = register("MONSTER_DAMAGE");
     public static final IslandPrivilege MONSTER_SPAWN = register("MONSTER_SPAWN");
+    public static final IslandPrivilege NAUTILUS_INTERACT = register("NAUTILUS_INTERACT", EnumHelper.getEnum(EntityType.class, "NAUTILUS") != null);
     public static final IslandPrivilege NAME_ENTITY = register("NAME_ENTITY");
     public static final IslandPrivilege OPEN_ISLAND = register("OPEN_ISLAND", IslandPrivilege.Type.COMMAND);
     public static final IslandPrivilege PAINTING = register("PAINTING");

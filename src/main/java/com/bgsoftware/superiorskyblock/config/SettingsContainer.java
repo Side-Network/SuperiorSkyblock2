@@ -33,6 +33,7 @@ import com.bgsoftware.superiorskyblock.core.logging.Log;
 import com.bgsoftware.superiorskyblock.core.menu.TemplateItem;
 import com.bgsoftware.superiorskyblock.core.serialization.Serializers;
 import com.bgsoftware.superiorskyblock.core.values.BlockValuesManagerImpl;
+import com.bgsoftware.superiorskyblock.island.upgrade.IslandUpgradeConstants;
 import com.bgsoftware.superiorskyblock.tag.CompoundTag;
 import com.bgsoftware.superiorskyblock.tag.ListTag;
 import com.bgsoftware.superiorskyblock.world.Dimensions;
@@ -120,6 +121,7 @@ public class SettingsContainer {
     public final String visitorsSignLine;
     public final String visitorsSignActive;
     public final String visitorsSignInactive;
+    public final String visitorsSignDescriptionLineFormat;
     public final Dimension defaultWorldDimension;
     public final String defaultWorldName;
     public final String islandWorldName;
@@ -236,6 +238,8 @@ public class SettingsContainer {
     public final BigInteger blockCountsSaveThreshold;
     public final boolean chatSigningSupport;
     public final int commandsPerPage;
+    public final boolean helpOnNoPermission;
+    public final boolean helpOnInvalidCommand;
     public final boolean cacheSchematics;
     public final Map<String, KeySet> entityCategories;
 
@@ -256,41 +260,50 @@ public class SettingsContainer {
         calcInterval = config.getLong("calc-interval", 6000);
         islandCommand = config.getString("island-command", "island,is,islands");
         maxIslandSize = config.getInt("max-island-size", 200);
-        defaultIslandSize = config.getInt("default-values.island-size", 20);
+        defaultIslandSize = Math.max(config.getInt("default-values.island-size", 20), 1);
         KeyMap<Integer> defaultBlockLimits = KeyMaps.createArrayMap(KeyIndicator.MATERIAL);
         loadListOrSection(config, "default-values.block-limits", "block limit", (key, limit) -> {
-            Key blockKey = Keys.ofMaterialAndData(key);
-            defaultBlockLimits.put(blockKey, limit);
-            plugin.getBlockValues().addCustomBlockKey(blockKey);
+            if (limit >= 0) {
+                Key blockKey = Keys.ofMaterialAndData(key);
+                defaultBlockLimits.put(blockKey, limit);
+                plugin.getBlockValues().addCustomBlockKey(blockKey);
+            }
         });
         this.defaultBlockLimits = KeyMaps.unmodifiableKeyMap(defaultBlockLimits);
         KeyMap<Integer> defaultEntityLimits = KeyMaps.createArrayMap(KeyIndicator.ENTITY_TYPE);
-        loadListOrSection(config, "default-values.entity-limits", "entity limit", (entityType, limit) ->
-                defaultEntityLimits.put(Keys.ofEntityType(entityType), limit));
+        loadListOrSection(config, "default-values.entity-limits", "entity limit", (entityType, limit) -> {
+            if (limit >= 0) {
+                defaultEntityLimits.put(Keys.ofEntityType(entityType), limit);
+            }
+        });
         this.defaultEntityLimits = KeyMaps.unmodifiableKeyMap(defaultEntityLimits);
         Map<PotionEffectType, Integer> defaultIslandEffects = new ArrayMap<>();
         loadListOrSection(config, "default-values.island-effects", "island effect", (effectName, effectLevel) -> {
-            PotionEffectType potionEffectType = PotionEffectType.getByName(effectName);
-            if (potionEffectType == null) {
-                Log.errorFromFile("config.yml", "Invalid potion effect " + effectName + ", skipping...");
-            } else {
-                defaultIslandEffects.put(potionEffectType, effectLevel - 1);
+            if (effectLevel >= 1) {
+                PotionEffectType potionEffectType = PotionEffectType.getByName(effectName);
+                if (potionEffectType == null) {
+                    Log.errorFromFile("config.yml", "Invalid potion effect " + effectName + ", skipping...");
+                } else {
+                    defaultIslandEffects.put(potionEffectType, effectLevel - 1);
+                }
             }
         });
         this.defaultIslandEffects = Collections.unmodifiableMap(defaultIslandEffects);
-        defaultTeamLimit = config.getInt("default-values.team-limit", 4);
-        defaultWarpsLimit = config.getInt("default-values.warps-limit", 3);
-        defaultCoopLimit = config.getInt("default-values.coop-limit", 8);
-        defaultCropGrowth = config.getInt("default-values.crop-growth", 1);
-        defaultSpawnerRates = config.getDouble("default-values.spawner-rates", 1D);
-        defaultMobDrops = config.getDouble("default-values.mob-drops", 1D);
-        defaultBankLimit = new BigDecimal(config.getString("default-values.bank-limit", "-1"));
+        defaultTeamLimit = Math.max(config.getInt("default-values.team-limit", 4), IslandUpgradeConstants.NO_LIMIT_VALUE);
+        defaultWarpsLimit = Math.max(config.getInt("default-values.warps-limit", 3), IslandUpgradeConstants.NO_LIMIT_VALUE);
+        defaultCoopLimit = Math.max(config.getInt("default-values.coop-limit", 8), IslandUpgradeConstants.NO_LIMIT_VALUE);
+        defaultCropGrowth = Math.max(config.getInt("default-values.crop-growth", 1), IslandUpgradeConstants.NO_LIMIT_VALUE);
+        defaultSpawnerRates = Math.max(config.getDouble("default-values.spawner-rates", 1D), IslandUpgradeConstants.NO_LIMIT_VALUE);
+        defaultMobDrops = Math.max(config.getDouble("default-values.mob-drops", 1D), IslandUpgradeConstants.NO_LIMIT_VALUE);
+        defaultBankLimit = new BigDecimal(config.getString("default-values.bank-limit", "-1")).max(IslandUpgradeConstants.NO_BANK_LIMIT_VALUE);
         defaultRoleLimits = CollectionsFactory.createInt2IntHashMap();
         loadListOrSection(config, "default-values.role-limits", "role limit", (role, limit) -> {
-            try {
-                defaultRoleLimits.put(Integer.parseInt(role), limit);
-            } catch (NumberFormatException error) {
-                Log.warnFromFile("config.yml", "Invalid role id for limit: " + role);
+            if (limit >= 0) {
+                try {
+                    defaultRoleLimits.put(Integer.parseInt(role), limit);
+                } catch (NumberFormatException error) {
+                    Log.warnFromFile("config.yml", "Invalid role id for limit: " + role);
+                }
             }
         });
         islandsHeight = config.getInt("islands-height", 100);
@@ -342,6 +355,7 @@ public class SettingsContainer {
         visitorsSignLine = config.getString("visitors-sign.line", "[Welcome]");
         visitorsSignActive = Formatters.COLOR_FORMATTER.format(config.getString("visitors-sign.active", "&a[Welcome]"));
         visitorsSignInactive = Formatters.COLOR_FORMATTER.format(config.getString("visitors-sign.inactive", "&c[Welcome]"));
+        visitorsSignDescriptionLineFormat = Formatters.COLOR_FORMATTER.format(config.getString("visitors-sign.description-line-format", "{0}"));
         islandWorldName = config.getString("worlds.world-name", "SuperiorWorld");
 
         {
@@ -573,7 +587,7 @@ public class SettingsContainer {
         if (config.isConfigurationSection("island-previews.locations")) {
             for (String schematic : config.getConfigurationSection("island-previews.locations").getKeys(false)) {
                 try {
-                    islandPreviewsLocations.put(schematic.toLowerCase(Locale.ENGLISH), Serializers.LOCATION_SERIALIZER
+                    islandPreviewsLocations.put(schematic.toLowerCase(Locale.ENGLISH), Serializers.LOCATION_SPACED_CENTERED_SERIALIZER
                             .deserialize(config.getString("island-previews.locations." + schematic)));
                 } catch (Exception error) {
                     Log.warnFromFile("config.yml", "Cannot deserialize island preview for ", schematic, ", skipping...");
@@ -615,6 +629,8 @@ public class SettingsContainer {
         blockCountsSaveThreshold = BigInteger.valueOf(config.getInt("block-counts-save-threshold", 100));
         chatSigningSupport = config.getBoolean("chat-signing-support", true);
         commandsPerPage = config.getInt("commands-per-page", 7);
+        helpOnInvalidCommand = config.getBoolean("help-on-invalid-command", true);
+        helpOnNoPermission = config.getBoolean("help-on-no-permission", false);
         cacheSchematics = config.getBoolean("cache-schematics", true);
         entityCategories = parseEntityCategories(config.getConfigurationSection("entity-categories"));
     }
@@ -687,8 +703,10 @@ public class SettingsContainer {
     private void loadGenerator(YamlConfiguration config, String path, Dimension dimension) {
         KeyMap<Integer> defaultGenerator = KeyMaps.createArrayMap(KeyIndicator.MATERIAL);
         loadListOrSection(config, path, "generator-rates", (key, percentage) -> {
-            Key blockKey = Keys.ofMaterialAndData(key);
-            defaultGenerator.put(blockKey, percentage);
+            if (percentage >= 0) {
+                Key blockKey = Keys.ofMaterialAndData(key);
+                defaultGenerator.put(blockKey, percentage);
+            }
         });
         this.defaultGenerator.put(dimension, KeyMaps.unmodifiableKeyMap(defaultGenerator));
     }
