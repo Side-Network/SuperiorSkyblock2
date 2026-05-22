@@ -265,6 +265,21 @@ public class DelegateSuperiorPlayer implements SuperiorPlayer {
     }
 
     @Override
+    public void addAltInvite(Island island) {
+        this.handle.addAltInvite(island);
+    }
+
+    @Override
+    public void removeAltInvite(Island island) {
+        this.handle.removeAltInvite(island);
+    }
+
+    @Override
+    public List<Island> getAltInvites() {
+        return this.handle.getAltInvites();
+    }
+
+    @Override
     public void addCoop(Island island) {
         this.handle.addCoop(island);
     }

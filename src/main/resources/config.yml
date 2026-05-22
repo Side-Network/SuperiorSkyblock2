@@ -72,6 +72,9 @@ default-values:
   # Set the default coop limit of all islands.
   coop-limit: 8
 
+  # Set the default alt limit of all islands.
+  alt-limit: 2
+
   # Set the default crop-growth multiplier of all islands.
   crop-growth: 1
 
@@ -180,6 +183,9 @@ global-warps-order: 'WORTH'
 # Whether coop members should be enabled or not.
 coop-members: true
 
+# Whether island alt members should be enabled or not.
+alt-members: true
+
 # Should players be able to edit island privileges for other players?
 # When set to false, island privileges could be edited only to island roles.
 edit-player-permissions: true
@@ -192,6 +198,13 @@ island-roles:
     # A custom name for the role.
     name: 'Guest'
     # A list of default permissions for guests.
+    permissions: [ ]
+
+  # This role is given to players that are island alts.
+  alt:
+    id: 4
+    name: 'Alt'
+    weight: -3
     permissions: [ ]
 
   # This role is given to players that are co-op.
@@ -272,6 +285,7 @@ island-roles:
         - DELETE_WARP
         - EXPEL_PLAYERS
         - INVITE_MEMBER
+        - INVITE_ALT
         - KICK_MEMBER
         - OPEN_ISLAND
         - RATINGS_SHOW

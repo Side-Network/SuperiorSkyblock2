@@ -141,6 +141,26 @@ public class DelegateIsland implements Island {
     }
 
     @Override
+    public void inviteAlt(SuperiorPlayer superiorPlayer) {
+        this.handle.inviteAlt(superiorPlayer);
+    }
+
+    @Override
+    public void revokeAltInvite(SuperiorPlayer superiorPlayer) {
+        this.handle.revokeAltInvite(superiorPlayer);
+    }
+
+    @Override
+    public boolean isAltInvited(SuperiorPlayer superiorPlayer) {
+        return this.handle.isAltInvited(superiorPlayer);
+    }
+
+    @Override
+    public List<SuperiorPlayer> getAltInvitedPlayers() {
+        return this.handle.getAltInvitedPlayers();
+    }
+
+    @Override
     public void addMember(SuperiorPlayer superiorPlayer, PlayerRole playerRole) {
         this.handle.addMember(superiorPlayer, playerRole);
     }
@@ -214,6 +234,36 @@ public class DelegateIsland implements Island {
     @Override
     public void setCoopLimit(int coopLimit) {
         this.handle.setCoopLimit(coopLimit);
+    }
+
+    @Override
+    public int getAltLimit() {
+        return this.handle.getAltLimit();
+    }
+
+    @Override
+    public int getAltLimitRaw() {
+        return this.handle.getAltLimitRaw();
+    }
+
+    @Override
+    public void setAltLimit(int altLimit) {
+        this.handle.setAltLimit(altLimit);
+    }
+
+    @Override
+    public int getIslandAltCount() {
+        return this.handle.getIslandAltCount();
+    }
+
+    @Override
+    public int getTeamMemberCount() {
+        return this.handle.getTeamMemberCount();
+    }
+
+    @Override
+    public List<SuperiorPlayer> getIslandAlts() {
+        return this.handle.getIslandAlts();
     }
 
     @Override

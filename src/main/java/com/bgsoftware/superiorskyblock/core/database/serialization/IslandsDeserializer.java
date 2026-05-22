@@ -721,6 +721,7 @@ public class IslandsDeserializer {
             builder.setSpawnerRates(islandSettings.getDouble("spawner_rates_multiplier").orElse((double) SYNCED_VALUE));
             builder.setMobDrops(islandSettings.getDouble("mob_drops_multiplier").orElse((double) SYNCED_VALUE));
             builder.setCoopLimit(islandSettings.getInt("coops_limit").orElse(SYNCED_VALUE));
+            builder.setAltLimit(islandSettings.getInt("alts_limit").orElse(plugin.getSettings().getDefaultValues().getAltLimit()));
             builder.setBankLimit(islandSettings.getBigDecimal("bank_limit").orElse(SYNCED_BANK_LIMIT_VALUE));
             builder.setPeakMemberCount(islandSettings.getInt("peak_member_count").orElse(1));
         });

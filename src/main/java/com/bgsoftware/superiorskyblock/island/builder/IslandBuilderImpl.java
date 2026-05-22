@@ -108,6 +108,7 @@ public class IslandBuilderImpl implements Island.Builder {
     public IntValue warpsLimit = IntValue.syncedFixed(SYNCED_VALUE);
     public IntValue teamLimit = IntValue.syncedFixed(SYNCED_VALUE);
     public IntValue coopLimit = IntValue.syncedFixed(SYNCED_VALUE);
+    public IntValue altLimit = IntValue.fixed(plugin.getSettings().getDefaultValues().getAltLimit());
     public int peakMemberCount = 1;
     public DoubleValue cropGrowth = DoubleValue.syncedFixed(SYNCED_VALUE);
     public DoubleValue spawnerRates = DoubleValue.syncedFixed(SYNCED_VALUE);
@@ -761,6 +762,17 @@ public class IslandBuilderImpl implements Island.Builder {
     @Override
     public int getCoopLimit() {
         return this.coopLimit.get();
+    }
+
+    @Override
+    public Island.Builder setAltLimit(int altLimit) {
+        this.altLimit = IntValue.fixed(altLimit);
+        return this;
+    }
+
+    @Override
+    public int getAltLimit() {
+        return this.altLimit.get();
     }
 
     @Override

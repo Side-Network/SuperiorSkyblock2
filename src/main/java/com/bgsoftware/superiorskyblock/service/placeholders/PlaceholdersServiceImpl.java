@@ -317,6 +317,8 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
                             island.getSpawnerRatesRaw() + "")
                     .put("raw_team_limit", (island, superiorPlayer) ->
                             island.getTeamLimitRaw() + "")
+                    .put("raw_alt_limit", (island, superiorPlayer) ->
+                            island.getAltLimitRaw() + "")
                     .put("raw_warps_limit", (island, superiorPlayer) ->
                             island.getWarpsLimitRaw() + "")
                     .put("raw_worth", (island, superiorPlayer) ->
@@ -344,6 +346,12 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
                             island.getSpawnerRatesMultiplier() + "")
                     .put("team_limit", (island, superiorPlayer) ->
                             island.getTeamLimit() + "")
+                    .put("alt_limit", (island, superiorPlayer) ->
+                            island.getAltLimit() + "")
+                    .put("alt_count", (island, superiorPlayer) ->
+                            island.getIslandAltCount() + "")
+                    .put("team_member_count", (island, superiorPlayer) ->
+                            island.getTeamMemberCount() + "")
                     .put("team_list", (island, superiorPlayer) -> {
                         StringBuilder teamBuilder = new StringBuilder();
                         List<SuperiorPlayer> players = island.getIslandMembers(true);
@@ -356,9 +364,10 @@ public class PlaceholdersServiceImpl implements PlaceholdersService, IService {
                         return teamBuilder.substring(2);
                     })
                     .put("team_size", (island, superiorPlayer) ->
-                            island.getIslandMembers(true).size() + "")
+                            island.getTeamMemberCount() + "")
                     .put("team_size_online", (island, superiorPlayer) ->
-                            island.getIslandMembers(true).stream().filter(SuperiorPlayer::isShownAsOnline).count() + "")
+                            island.getIslandMembers(true).stream().filter(player -> !player.getPlayerRole().isAltRole())
+                                    .filter(SuperiorPlayer::isShownAsOnline).count() + "")
                     .put("unique_visitors_count", (island, superiorPlayer) ->
                             island.getUniqueVisitors().size() + "")
                     .put("unique_visitors_list", (island, superiorPlayer) -> {

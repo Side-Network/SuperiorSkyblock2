@@ -177,6 +177,18 @@ public class PluginEventsFactory {
         return fireEvent(ISLAND_CHANGE_COOP_LIMIT_EVENT, islandChangeCoopLimit);
     }
 
+    public static PluginEvent<IslandChangeAltLimit> callIslandChangeAltLimitEvent(Island island, CommandSender commandSender, int altLimit) {
+        return callIslandChangeAltLimitEvent(island, commandSenderToSuperiorPlayer(commandSender), altLimit);
+    }
+
+    public static PluginEvent<IslandChangeAltLimit> callIslandChangeAltLimitEvent(Island island, @Nullable SuperiorPlayer superiorPlayer, int altLimit) {
+        IslandChangeAltLimit islandChangeAltLimit = new IslandChangeAltLimit();
+        islandChangeAltLimit.island = island;
+        islandChangeAltLimit.superiorPlayer = superiorPlayer;
+        islandChangeAltLimit.altLimit = altLimit;
+        return fireEvent(ISLAND_CHANGE_ALT_LIMIT_EVENT, islandChangeAltLimit);
+    }
+
     public static PluginEvent<IslandChangeCropGrowth> callIslandChangeCropGrowthEvent(Island island, CommandSender commandSender, double cropGrowth) {
         return callIslandChangeCropGrowthEvent(island, commandSenderToSuperiorPlayer(commandSender), cropGrowth);
     }

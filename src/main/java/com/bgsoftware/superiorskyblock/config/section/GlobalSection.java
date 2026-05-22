@@ -71,6 +71,10 @@ public class GlobalSection extends SettingsContainerHolder {
         return getContainer().coopMembers;
     }
 
+    public boolean isAltMembers() {
+        return getContainer().altMembers;
+    }
+
     public boolean isEditPlayerPermissions() {
         return getContainer().editPlayerPermissions;
     }

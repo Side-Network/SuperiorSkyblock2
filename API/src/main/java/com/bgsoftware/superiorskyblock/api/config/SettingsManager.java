@@ -120,6 +120,12 @@ public interface SettingsManager {
     boolean isCoopMembers();
 
     /**
+     * Whether island alt members are enabled.
+     * Config path: alt-members
+     */
+    boolean isAltMembers();
+
+    /**
      * Should players be able to edit island privileges for other players?
      * Config path: edit-player-permissions
      */
@@ -900,6 +906,12 @@ public interface SettingsManager {
          * Config-path: default-values.coop-limit
          */
         int getCoopLimit();
+
+        /**
+         * The default alts limit for new islands.
+         * Config-path: default-values.alt-limit
+         */
+        int getAltLimit();
 
         /**
          * The default crop-growth multiplier for new islands.

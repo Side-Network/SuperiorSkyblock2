@@ -24,14 +24,21 @@ public class SPlayerRole implements PlayerRole {
     private final String displayName;
     private final int id;
     private final int weight;
+    private final boolean altRole;
     private final RolePrivilegeNode defaultPermissions;
 
     public SPlayerRole(String name, @Nullable String displayName, int id, int weight, List<String> defaultPermissions,
                        @Nullable SPlayerRole previousRole) {
+        this(name, displayName, id, weight, defaultPermissions, previousRole, false);
+    }
+
+    public SPlayerRole(String name, @Nullable String displayName, int id, int weight, List<String> defaultPermissions,
+                       @Nullable SPlayerRole previousRole, boolean altRole) {
         this.name = name;
         this.displayName = displayName == null ? name : displayName;
         this.id = id;
         this.weight = weight;
+        this.altRole = altRole;
 
         String permissions = defaultPermissions.isEmpty() ? null : String.join(";", defaultPermissions);
 
@@ -54,6 +61,10 @@ public class SPlayerRole implements PlayerRole {
 
     public static PlayerRole coopRole() {
         return plugin.getRoles().getCoopRole();
+    }
+
+    public static PlayerRole altRole() {
+        return plugin.getRoles().getAltRole();
     }
 
     public static PlayerRole of(int weight) {
@@ -147,6 +158,11 @@ public class SPlayerRole implements PlayerRole {
     @Override
     public boolean isRoleLadder() {
         return getWeight() >= 0 && (getPreviousRole() != null || getNextRole() != null);
+    }
+
+    @Override
+    public boolean isAltRole() {
+        return altRole;
     }
 
     @Override

@@ -85,12 +85,22 @@ public class CmdSetRole implements IPermissibleCommand {
         if (playerRole == null)
             return;
 
+        if (playerRole.isAltRole()) {
+            Message.CANNOT_SET_ROLE.send(sender, playerRole);
+            return;
+        }
+
         Island targetIsland = targetPlayer.getIsland();
 
         // Checking requirements for players
         if (superiorPlayer != null) {
             if (!playerIsland.isMember(targetPlayer)) {
                 Message.PLAYER_NOT_INSIDE_ISLAND.send(sender);
+                return;
+            }
+
+            if (targetPlayer.getPlayerRole().isAltRole()) {
+                Message.CANNOT_SET_ROLE.send(sender, targetPlayer.getPlayerRole());
                 return;
             }
 
@@ -148,10 +158,10 @@ public class CmdSetRole implements IPermissibleCommand {
 
     @Override
     public List<String> tabComplete(SuperiorSkyblockPlugin plugin, SuperiorPlayer superiorPlayer, Island island, String[] args) {
-        return args.length == 2 ? island == null ?
+        return args.length == 2 ?                 island == null ?
                 CommandTabCompletes.getOnlinePlayers(plugin, args[1], false, onlinePlayer -> onlinePlayer.getIsland() != null) :
-                CommandTabCompletes.getIslandMembers(island, args[1]) :
-                args.length == 3 ? CommandTabCompletes.getPlayerRoles(plugin, args[2], PlayerRole::isRoleLadder) : Collections.emptyList();
+                CommandTabCompletes.getIslandMembers(island, args[1], member -> !member.getPlayerRole().isAltRole()) :
+                args.length == 3 ? CommandTabCompletes.getPlayerRoles(plugin, args[2], role -> role.isRoleLadder() && !role.isAltRole()) : Collections.emptyList();
     }
 
 }

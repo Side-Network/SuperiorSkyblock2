@@ -253,6 +253,26 @@ public class SpawnIsland implements Island {
     }
 
     @Override
+    public void inviteAlt(SuperiorPlayer superiorPlayer) {
+        // Do nothing.
+    }
+
+    @Override
+    public void revokeAltInvite(SuperiorPlayer superiorPlayer) {
+        // Do nothing.
+    }
+
+    @Override
+    public boolean isAltInvited(SuperiorPlayer superiorPlayer) {
+        return false;
+    }
+
+    @Override
+    public List<SuperiorPlayer> getAltInvitedPlayers() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void addMember(SuperiorPlayer superiorPlayer, PlayerRole playerRole) {
         // Do nothing.
     }
@@ -321,6 +341,36 @@ public class SpawnIsland implements Island {
     @Override
     public void setCoopLimit(int coopLimit) {
         // Do nothing.
+    }
+
+    @Override
+    public int getAltLimit() {
+        return 0;
+    }
+
+    @Override
+    public int getAltLimitRaw() {
+        return 0;
+    }
+
+    @Override
+    public void setAltLimit(int altLimit) {
+        // Do nothing.
+    }
+
+    @Override
+    public int getIslandAltCount() {
+        return 0;
+    }
+
+    @Override
+    public int getTeamMemberCount() {
+        return 0;
+    }
+
+    @Override
+    public List<SuperiorPlayer> getIslandAlts() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -82,7 +82,7 @@ public class CmdAccept implements ISuperiorCommand {
         }
 
         int teamLimit = island.getTeamLimit();
-        if (teamLimit >= 0 && island.getIslandMembers(true).size() >= teamLimit) {
+        if (teamLimit >= 0 && island.getTeamMemberCount() >= teamLimit) {
             Message.JOIN_FULL_ISLAND.send(superiorPlayer);
             island.revokeInvite(superiorPlayer);
             return;

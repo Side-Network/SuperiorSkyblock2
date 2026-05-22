@@ -88,6 +88,7 @@ public class SettingsContainer {
     public final int defaultWarpsLimit;
     public final int defaultTeamLimit;
     public final int defaultCoopLimit;
+    public final int defaultAltLimit;
     public final int defaultCropGrowth;
     public final double defaultSpawnerRates;
     public final double defaultMobDrops;
@@ -112,6 +113,7 @@ public class SettingsContainer {
     public final SortingType islandTopOrder;
     public final SortingType globalWarpsOrder;
     public boolean coopMembers;
+    public boolean altMembers;
     public boolean editPlayerPermissions;
     public final ConfigurationSection islandRolesSection;
     public final long calcInterval;
@@ -292,6 +294,8 @@ public class SettingsContainer {
         defaultTeamLimit = Math.max(config.getInt("default-values.team-limit", 4), IslandUpgradeConstants.NO_LIMIT_VALUE);
         defaultWarpsLimit = Math.max(config.getInt("default-values.warps-limit", 3), IslandUpgradeConstants.NO_LIMIT_VALUE);
         defaultCoopLimit = Math.max(config.getInt("default-values.coop-limit", 8), IslandUpgradeConstants.NO_LIMIT_VALUE);
+
+        defaultAltLimit = Math.max(config.getInt("default-values.alt-limit", 2), IslandUpgradeConstants.NO_LIMIT_VALUE);
         defaultCropGrowth = Math.max(config.getInt("default-values.crop-growth", 1), IslandUpgradeConstants.NO_LIMIT_VALUE);
         defaultSpawnerRates = Math.max(config.getDouble("default-values.spawner-rates", 1D), IslandUpgradeConstants.NO_LIMIT_VALUE);
         defaultMobDrops = Math.max(config.getDouble("default-values.mob-drops", 1D), IslandUpgradeConstants.NO_LIMIT_VALUE);
@@ -344,6 +348,7 @@ public class SettingsContainer {
         }
         this.globalWarpsOrder = foundGlobalWarpsOrder;
         coopMembers = config.getBoolean("coop-members", true);
+        altMembers = config.getBoolean("alt-members", true);
         editPlayerPermissions = config.getBoolean("edit-player-permissions", true);
         islandRolesSection = config.getConfigurationSection("island-roles");
         signWarpLine = config.getString("sign-warp-line", "[IslandWarp]");

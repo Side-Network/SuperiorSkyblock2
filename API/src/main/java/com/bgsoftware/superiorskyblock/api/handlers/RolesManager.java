@@ -55,6 +55,13 @@ public interface RolesManager {
     PlayerRole getCoopRole();
 
     /**
+     * Get the alt role.
+     * Will return null if alt members are disabled.
+     */
+    @Nullable
+    PlayerRole getAltRole();
+
+    /**
      * Get a list of all the roles.
      */
     List<PlayerRole> getRoles();

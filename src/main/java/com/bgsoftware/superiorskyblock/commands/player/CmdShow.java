@@ -119,7 +119,7 @@ public class CmdShow implements ISuperiorCommand {
             List<SuperiorPlayer> members = island.getIslandMembers(false);
 
             if (!Message.ISLAND_INFO_PLAYER_LINE.isEmpty(locale)) {
-                members.forEach(superiorPlayer -> {
+                members.stream().filter(superiorPlayer -> !superiorPlayer.getPlayerRole().isAltRole()).forEach(superiorPlayer -> {
                     try {
                         rolesStrings.get(superiorPlayer.getPlayerRole())
                                 .append(Message.ISLAND_INFO_PLAYER_LINE.getMessage(locale, superiorPlayer.getName())).append("\n");
@@ -137,6 +137,17 @@ public class CmdShow implements ISuperiorCommand {
                         if (players != null && players.length() > 0)
                             infoMessage.append(Message.ISLAND_INFO_ROLES.getMessage(locale, playerRole, players));
                     });
+        }
+
+        if (plugin.getSettings().isAltMembers() && !Message.ISLAND_INFO_ALTS.isEmpty(locale)) {
+            List<SuperiorPlayer> alts = island.getIslandAlts();
+            if (!alts.isEmpty()) {
+                StringBuilder altPlayers = new StringBuilder();
+                if (!Message.ISLAND_INFO_PLAYER_LINE.isEmpty(locale)) {
+                    alts.forEach(alt -> altPlayers.append(Message.ISLAND_INFO_PLAYER_LINE.getMessage(locale, alt.getName())).append("\n"));
+                }
+                infoMessage.append(Message.ISLAND_INFO_ALTS.getMessage(locale, alts.size(), island.getAltLimit(), altPlayers));
+            }
         }
 
         if (!Message.ISLAND_INFO_FOOTER.isEmpty(locale))

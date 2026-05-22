@@ -89,6 +89,9 @@ public class IslandPrivilegePagedObjectButton extends AbstractPagedMenuButton<Me
         if (!plugin.getSettings().isCoopMembers() && playerRole == SPlayerRole.coopRole())
             return false;
 
+        if (playerRole != null && playerRole.isAltRole())
+            return false;
+
         if (islandPrivilegeType == IslandPrivilege.Type.COMMAND &&
                 playerRole != null && playerRole.isLessThan(SPlayerRole.defaultRole())) {
             return false;

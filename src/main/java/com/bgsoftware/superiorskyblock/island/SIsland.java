@@ -199,6 +199,7 @@ public class SIsland implements Island {
     private final Synchronized<IntValue> warpsLimit = Synchronized.of(IntValue.syncedFixed(IslandUpgradeConstants.SYNCED_VALUE));
     private final Synchronized<IntValue> teamLimit = Synchronized.of(IntValue.syncedFixed(IslandUpgradeConstants.SYNCED_VALUE));
     private final Synchronized<IntValue> coopLimit = Synchronized.of(IntValue.syncedFixed(IslandUpgradeConstants.SYNCED_VALUE));
+    private final Synchronized<IntValue> altLimit = Synchronized.of(IntValue.fixed(IslandUpgradeConstants.NO_LIMIT_VALUE));
     private volatile int peakMemberCount = 1;
     private final Synchronized<DoubleValue> cropGrowth = Synchronized.of(DoubleValue.syncedFixed(IslandUpgradeConstants.SYNCED_VALUE));
     private final Synchronized<DoubleValue> spawnerRates = Synchronized.of(DoubleValue.syncedFixed(IslandUpgradeConstants.SYNCED_VALUE));
@@ -218,6 +219,7 @@ public class SIsland implements Island {
     private final Set<SuperiorPlayer> bannedPlayers = Sets.newConcurrentHashSet();
     private final Set<SuperiorPlayer> coopPlayers = Sets.newConcurrentHashSet();
     private final Set<SuperiorPlayer> invitedPlayers = Sets.newConcurrentHashSet();
+    private final Set<SuperiorPlayer> altInvitedPlayers = Sets.newConcurrentHashSet();
     private final Map<SuperiorPlayer, PlayerPrivilegeNode> playerPermissions = new ConcurrentHashMap<>();
     private final Map<UUID, Rating> ratings = new ConcurrentHashMap<>();
     /*
@@ -327,6 +329,7 @@ public class SIsland implements Island {
         this.spawnerRates.set(builder.spawnerRates);
         this.mobDrops.set(builder.mobDrops);
         this.coopLimit.set(builder.coopLimit);
+        this.altLimit.set(builder.altLimit);
         this.bankLimit.set(builder.bankLimit);
         this.lastInterest = builder.lastInterestTime;
 
@@ -518,6 +521,8 @@ public class SIsland implements Island {
 
         Log.debug(Debug.INVITE_MEMBER, owner.getName(), superiorPlayer.getName());
 
+        revokeAltInvite(superiorPlayer);
+
         invitedPlayers.add(superiorPlayer);
         superiorPlayer.addInvite(this);
 
@@ -547,6 +552,67 @@ public class SIsland implements Island {
     }
 
     @Override
+    public void inviteAlt(SuperiorPlayer superiorPlayer) {
+        Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
+
+        Log.debug(Debug.INVITE_MEMBER, owner.getName(), superiorPlayer.getName());
+
+        revokeInvite(superiorPlayer);
+
+        altInvitedPlayers.add(superiorPlayer);
+        superiorPlayer.addAltInvite(this);
+
+        registerTask(BukkitExecutor.sync(() -> revokeAltInvite(superiorPlayer), 6000L));
+    }
+
+    @Override
+    public void revokeAltInvite(SuperiorPlayer superiorPlayer) {
+        Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
+
+        Log.debug(Debug.REVOKE_INVITE, owner.getName(), superiorPlayer.getName());
+
+        altInvitedPlayers.remove(superiorPlayer);
+        superiorPlayer.removeAltInvite(this);
+    }
+
+    @Override
+    public boolean isAltInvited(SuperiorPlayer superiorPlayer) {
+        Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
+        return altInvitedPlayers.contains(superiorPlayer);
+    }
+
+    @Override
+    public List<SuperiorPlayer> getAltInvitedPlayers() {
+        return new SequentialListBuilder<SuperiorPlayer>().build(this.altInvitedPlayers);
+    }
+
+    @Override
+    public int getTeamMemberCount() {
+        int membersCount = this.members.readAndGet(_members -> {
+            int count = 0;
+            for (SuperiorPlayer member : _members) {
+                if (!member.getPlayerRole().isAltRole())
+                    count++;
+            }
+            return count;
+        });
+
+        return membersCount + 1;
+    }
+
+    @Override
+    public int getIslandAltCount() {
+        return getIslandAlts().size();
+    }
+
+    @Override
+    public List<SuperiorPlayer> getIslandAlts() {
+        return this.members.readAndGet(_members -> new SequentialListBuilder<SuperiorPlayer>()
+                .filter(superiorPlayer -> superiorPlayer.getPlayerRole().isAltRole())
+                .build(_members));
+    }
+
+    @Override
     public void addMember(SuperiorPlayer superiorPlayer, PlayerRole playerRole) {
         Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
         Preconditions.checkNotNull(playerRole, "playerRole parameter cannot be null.");
@@ -562,6 +628,7 @@ public class SIsland implements Island {
         // Remove player from being cooped, invited and its ratings
         removeCoop(superiorPlayer);
         revokeInvite(superiorPlayer);
+        revokeAltInvite(superiorPlayer);
         removeRating(superiorPlayer);
 
         superiorPlayer.setIsland(this);
@@ -585,10 +652,19 @@ public class SIsland implements Island {
         }
 
         if (!superiorPlayer.isOnline() || !superiorPlayer.asPlayer().hasPermission("superior.admin.bypasspeakmembercount")) {
-            int currentCount = this.members.readAndGet(Set::size) + 1; // +1 for owner
-            if (currentCount > this.peakMemberCount) {
-                this.peakMemberCount = currentCount;
-                IslandsDatabaseBridge.savePeakMemberCount(this);
+            if (!playerRole.isAltRole()) {
+                int currentCount = this.members.readAndGet(members -> {
+                    int count = 0;
+                    for (SuperiorPlayer member : members) {
+                        if (!member.getPlayerRole().isAltRole())
+                            count++;
+                    }
+                    return count;
+                }) + 1;
+                if (currentCount > this.peakMemberCount) {
+                    this.peakMemberCount = currentCount;
+                    IslandsDatabaseBridge.savePeakMemberCount(this);
+                }
             }
         }
 
@@ -816,6 +892,30 @@ public class SIsland implements Island {
 
         this.coopLimit.set(IntValue.fixed(coopLimit));
         IslandsDatabaseBridge.saveCoopLimit(this);
+    }
+
+    @Override
+    public int getAltLimit() {
+        return this.altLimit.readAndGet(IntValue::get);
+    }
+
+    @Override
+    public int getAltLimitRaw() {
+        return this.altLimit.readAndGet(altLimit -> altLimit.get());
+    }
+
+    @Override
+    public void setAltLimit(int altLimit) {
+        if (altLimit < IslandUpgradeConstants.NO_LIMIT_VALUE)
+            altLimit = IslandUpgradeConstants.NO_LIMIT_VALUE;
+
+        Log.debug(Debug.SET_COOP_LIMIT, owner.getName(), altLimit);
+
+        if (altLimit == getAltLimitRaw())
+            return;
+
+        this.altLimit.set(IntValue.fixed(altLimit));
+        IslandsDatabaseBridge.saveAltLimit(this);
     }
 
     /*
@@ -1599,6 +1699,9 @@ public class SIsland implements Island {
         Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
         Preconditions.checkNotNull(islandPrivilege, "islandPrivilege parameter cannot be null.");
 
+        if (superiorPlayer.getPlayerRole().isAltRole())
+            return;
+
         Log.debug(Debug.SET_PERMISSION, owner.getName(),
                 superiorPlayer.getName(), islandPrivilege, value);
 
@@ -1627,6 +1730,9 @@ public class SIsland implements Island {
     @Override
     public void resetPermissions(SuperiorPlayer superiorPlayer) {
         Preconditions.checkNotNull(superiorPlayer, "superiorPlayer parameter cannot be null.");
+
+        if (superiorPlayer.getPlayerRole().isAltRole())
+            return;
 
         Log.debug(Debug.RESET_PERMISSIONS, owner.getName(), superiorPlayer.getName());
 
@@ -1779,6 +1885,7 @@ public class SIsland implements Island {
         this.bankInterestTask.set((BukkitTask) null);
 
         invitedPlayers.forEach(invitedPlayer -> invitedPlayer.removeInvite(this));
+        altInvitedPlayers.forEach(altInvitedPlayer -> altInvitedPlayer.removeAltInvite(this));
         coopPlayers.forEach(coopPlayer -> coopPlayer.removeCoop(this));
 
         if (BuiltinModules.BANK.getConfiguration().hasDisbandRefund()) {

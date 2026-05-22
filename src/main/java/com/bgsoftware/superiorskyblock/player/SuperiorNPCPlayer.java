@@ -286,6 +286,21 @@ public class SuperiorNPCPlayer implements SuperiorPlayer, ObjectsPool.Releasable
     }
 
     @Override
+    public void addAltInvite(Island island) {
+        // Do nothing.
+    }
+
+    @Override
+    public void removeAltInvite(Island island) {
+        // Do nothing.
+    }
+
+    @Override
+    public List<Island> getAltInvites() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void addCoop(Island island) {
         throw new UnsupportedOperationException("Cannot mark NPCs as coop players");
     }

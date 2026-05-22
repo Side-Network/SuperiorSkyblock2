@@ -75,6 +75,11 @@ public class CmdDemote implements IPermissibleCommand {
             return;
         }
 
+        if (targetPlayer.getPlayerRole().isAltRole()) {
+            Message.LAST_ROLE_DEMOTE.send(superiorPlayer);
+            return;
+        }
+
         if (!targetPlayer.getPlayerRole().isLessThan(superiorPlayer.getPlayerRole())) {
             Message.DEMOTE_PLAYERS_WITH_LOWER_ROLE.send(superiorPlayer);
             return;

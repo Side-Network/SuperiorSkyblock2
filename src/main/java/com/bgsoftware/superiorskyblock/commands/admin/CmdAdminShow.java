@@ -196,6 +196,9 @@ public class CmdAdminShow implements IAdminIslandCommand {
         if (plugin.getSettings().isCoopMembers())
             collectIslandData(locale, infoMessage, island::getCoopLimit, island::getCoopLimitRaw, Message.ISLAND_INFO_ADMIN_COOP_LIMIT);
 
+        if (plugin.getSettings().isAltMembers())
+            collectIslandData(locale, infoMessage, island::getAltLimit, island::getAltLimitRaw, Message.ISLAND_INFO_ADMIN_ALT_LIMIT);
+
         // Island bank limit
         if (BuiltinModules.BANK.isEnabled())
             collectIslandData(locale, infoMessage, island::getBankLimit, island::getBankLimitRaw, Message.ISLAND_INFO_ADMIN_BANK_LIMIT,
@@ -279,8 +282,9 @@ public class CmdAdminShow implements IAdminIslandCommand {
             List<SuperiorPlayer> members = island.getIslandMembers(false);
 
             if (!Message.ISLAND_INFO_PLAYER_LINE.isEmpty(locale)) {
-                members.forEach(superiorPlayer -> rolesStrings.computeIfAbsent(superiorPlayer.getPlayerRole(), role -> new StringBuilder())
-                        .append(Message.ISLAND_INFO_PLAYER_LINE.getMessage(locale, superiorPlayer.getName())).append("\n"));
+                members.stream().filter(superiorPlayer -> !superiorPlayer.getPlayerRole().isAltRole())
+                        .forEach(superiorPlayer -> rolesStrings.computeIfAbsent(superiorPlayer.getPlayerRole(), role -> new StringBuilder())
+                                .append(Message.ISLAND_INFO_PLAYER_LINE.getMessage(locale, superiorPlayer.getName())).append("\n"));
             }
 
             rolesStrings.keySet().stream()
@@ -290,6 +294,17 @@ public class CmdAdminShow implements IAdminIslandCommand {
                         if (players != null && players.length() > 0)
                             infoMessage.append(Message.ISLAND_INFO_ROLES.getMessage(locale, playerRole, players));
                     });
+        }
+
+        if (plugin.getSettings().isAltMembers() && !Message.ISLAND_INFO_ALTS.isEmpty(locale)) {
+            List<SuperiorPlayer> alts = island.getIslandAlts();
+            if (!alts.isEmpty()) {
+                StringBuilder altPlayers = new StringBuilder();
+                if (!Message.ISLAND_INFO_PLAYER_LINE.isEmpty(locale)) {
+                    alts.forEach(alt -> altPlayers.append(Message.ISLAND_INFO_PLAYER_LINE.getMessage(locale, alt.getName())).append("\n"));
+                }
+                infoMessage.append(Message.ISLAND_INFO_ALTS.getMessage(locale, alts.size(), island.getAltLimit(), altPlayers));
+            }
         }
 
         // Temporary - known island entities:

@@ -16,10 +16,13 @@ import java.util.List;
 
 public class RolesManagerImpl extends Manager implements RolesManager {
 
+    private static final int ALT_ROLE_INDEX = -3;
     private static final int GUEST_ROLE_INDEX = -2;
     private static final int COOP_ROLE_INDEX = -1;
     private final RolesContainer rolesContainer;
     private int lastRole = Integer.MIN_VALUE;
+    @Nullable
+    private SPlayerRole altRole;
 
     public RolesManagerImpl(SuperiorSkyblockPlugin plugin, RolesContainer rolesContainer) {
         super(plugin);
@@ -29,6 +32,7 @@ public class RolesManagerImpl extends Manager implements RolesManager {
     @Override
     public void loadData() throws ManagerLoadException {
         this.rolesContainer.clearRoles();
+        this.altRole = null;
 
         ConfigurationSection rolesSection = plugin.getSettings().getIslandRoles().getSection();
 
@@ -43,6 +47,13 @@ public class RolesManagerImpl extends Manager implements RolesManager {
             throw new ManagerLoadException("Missing \"coop\" section for island roles", ManagerLoadException.ErrorLevel.SERVER_SHUTDOWN);
 
         SPlayerRole guestsRole = loadRole(guestSection, GUEST_ROLE_INDEX, null);
+
+        if (plugin.getSettings().isAltMembers()) {
+            ConfigurationSection altSection = rolesSection.getConfigurationSection("alt");
+            if (altSection != null)
+                this.altRole = loadRole(altSection, ALT_ROLE_INDEX, guestsRole, true);
+        }
+
         SPlayerRole coopRole = loadRole(coopSection, COOP_ROLE_INDEX, guestsRole);
 
         ConfigurationSection laddersSection = rolesSection.getConfigurationSection("ladder");
@@ -101,11 +112,22 @@ public class RolesManagerImpl extends Manager implements RolesManager {
     }
 
     @Override
+    @Nullable
+    public PlayerRole getAltRole() {
+        return this.altRole;
+    }
+
+    @Override
     public List<PlayerRole> getRoles() {
         return this.rolesContainer.getRoles();
     }
 
     private SPlayerRole loadRole(ConfigurationSection section, int expectedWeight, SPlayerRole previousRole) throws ManagerLoadException {
+        return loadRole(section, expectedWeight, previousRole, false);
+    }
+
+    private SPlayerRole loadRole(ConfigurationSection section, int expectedWeight, SPlayerRole previousRole,
+                                   boolean altRole) throws ManagerLoadException {
         int weight = section.getInt("weight", expectedWeight);
 
         if (weight != expectedWeight)
@@ -116,7 +138,7 @@ public class RolesManagerImpl extends Manager implements RolesManager {
         String name = section.getString("name");
         String displayName = section.getString("display-name");
 
-        SPlayerRole playerRole = new SPlayerRole(name, displayName, id, weight, section.getStringList("permissions"), previousRole);
+        SPlayerRole playerRole = new SPlayerRole(name, displayName, id, weight, section.getStringList("permissions"), previousRole, altRole);
 
         this.rolesContainer.addPlayerRole(playerRole);
 

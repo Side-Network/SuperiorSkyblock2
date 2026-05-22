@@ -55,6 +55,11 @@ public interface PlayerRole {
     boolean isRoleLadder();
 
     /**
+     * Check whether or not the role is the island alt role.
+     */
+    boolean isAltRole();
+
+    /**
      * Get the next role in the ladder.
      * Will return null if the role is not in the ladder, or it's the last role in the ladder.
      */

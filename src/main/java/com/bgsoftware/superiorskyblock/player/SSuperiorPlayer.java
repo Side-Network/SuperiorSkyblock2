@@ -84,6 +84,7 @@ public class SSuperiorPlayer implements SuperiorPlayer {
 
     private final Map<MissionReference, Counter> completedMissions = new ConcurrentHashMap<>();
     private final List<UUID> pendingInvites = new LinkedList<>();
+    private final List<UUID> pendingAltInvites = new LinkedList<>();
     private final List<Island> coopIslands = new LinkedList<>();
 
     private final UUID uuid;
@@ -575,6 +576,22 @@ public class SSuperiorPlayer implements SuperiorPlayer {
     public List<Island> getInvites() {
         return new SequentialListBuilder<UUID>()
                 .map(this.pendingInvites, uuid -> plugin.getGrid().getIslandByUUID(uuid));
+    }
+
+    @Override
+    public void addAltInvite(Island island) {
+        this.pendingAltInvites.add(island.getUniqueId());
+    }
+
+    @Override
+    public void removeAltInvite(Island island) {
+        this.pendingAltInvites.remove(island.getUniqueId());
+    }
+
+    @Override
+    public List<Island> getAltInvites() {
+        return new SequentialListBuilder<UUID>()
+                .map(this.pendingAltInvites, uuid -> plugin.getGrid().getIslandByUUID(uuid));
     }
 
     @Override

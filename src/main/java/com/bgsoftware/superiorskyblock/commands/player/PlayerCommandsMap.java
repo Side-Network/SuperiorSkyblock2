@@ -25,6 +25,8 @@ public class PlayerCommandsMap extends CommandsMap {
             registerCommand(new CmdCoop());
             registerCommand(new CmdCoops());
         }
+        if (plugin.getSettings().isAltMembers())
+            registerCommand(new CmdAlt());
         registerCommand(new CmdCounts());
         registerCommand(new CmdCreate());
         registerCommand(new CmdDelWarp());

@@ -86,6 +86,11 @@ public class CmdPermissions implements IPermissibleCommand {
                 return;
             }
 
+            if (targetPlayer.getPlayerRole().isAltRole()) {
+                Message.ALT_CANNOT_EDIT_PERMISSIONS.send(superiorPlayer);
+                return;
+            }
+
             if (island.isMember(targetPlayer) && !superiorPlayer.getPlayerRole().isHigherThan(targetPlayer.getPlayerRole())) {
                 Message.CHANGE_PERMISSION_FOR_HIGHER_ROLE.send(superiorPlayer);
                 return;
@@ -126,7 +131,8 @@ public class CmdPermissions implements IPermissibleCommand {
                 tabVariables.add("reset");
             if (plugin.getSettings().isEditPlayerPermissions()) {
                 tabVariables.addAll(CommandTabCompletes.getOnlinePlayers(plugin, args[1],
-                        plugin.getSettings().isTabCompleteHideVanished()));
+                        plugin.getSettings().isTabCompleteHideVanished(), player ->
+                                island == null || !island.isMember(player) || !player.getPlayerRole().isAltRole()));
             }
         } else if (plugin.getSettings().isEditPlayerPermissions() && args.length == 3) {
             if ("reset".contains(args[2].toLowerCase(Locale.ENGLISH)))

@@ -53,6 +53,7 @@ public class IslandPrivileges {
     public static final IslandPrivilege IGNITE_CREEPER = register("IGNITE_CREEPER");
     public static final IslandPrivilege INTERACT = register("INTERACT");
     public static final IslandPrivilege INVITE_MEMBER = register("INVITE_MEMBER", IslandPrivilege.Type.COMMAND);
+    public static final IslandPrivilege INVITE_ALT = register("INVITE_ALT", IslandPrivilege.Type.COMMAND);
     public static final IslandPrivilege ISLAND_CHEST = register("ISLAND_CHEST", IslandPrivilege.Type.COMMAND);
     public static final IslandPrivilege ITEM_FRAME = register("ITEM_FRAME");
     public static final IslandPrivilege KICK_MEMBER = register("KICK_MEMBER", IslandPrivilege.Type.COMMAND);

@@ -161,6 +161,30 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
     List<SuperiorPlayer> getInvitedPlayers();
 
     /**
+     * Invite a player to the island as an alt.
+     *
+     * @param superiorPlayer The player to invite.
+     */
+    void inviteAlt(SuperiorPlayer superiorPlayer);
+
+    /**
+     * Revoke an alt invitation of a player.
+     *
+     * @param superiorPlayer The player to revoke his alt invite.
+     */
+    void revokeAltInvite(SuperiorPlayer superiorPlayer);
+
+    /**
+     * Checks whether the player has been invited to the island as an alt.
+     */
+    boolean isAltInvited(SuperiorPlayer superiorPlayer);
+
+    /**
+     * Get all the alt invited players of the island.
+     */
+    List<SuperiorPlayer> getAltInvitedPlayers();
+
+    /**
      * Add a player to the island.
      *
      * @param superiorPlayer The player to add.
@@ -264,6 +288,39 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
      * @param coopLimit The coop players limit to set.
      */
     void setCoopLimit(int coopLimit);
+
+    /**
+     * Get the alt members limit of the island.
+     */
+    int getAltLimit();
+
+    /**
+     * Get the alt members limit of the island that was set using a command.
+     */
+    int getAltLimitRaw();
+
+    /**
+     * Set the alt members limit of the island.
+     *
+     * @param altLimit The alt members limit to set.
+     */
+    void setAltLimit(int altLimit);
+
+    /**
+     * Get the amount of alt members on the island.
+     */
+    int getIslandAltCount();
+
+    /**
+     * Get the amount of team members on the island, excluding alts.
+     * This includes the owner of the island.
+     */
+    int getTeamMemberCount();
+
+    /**
+     * Get all alt members of the island.
+     */
+    List<SuperiorPlayer> getIslandAlts();
 
     /**
      * Update status of a player if he's inside the island or not.
@@ -3004,6 +3061,10 @@ public interface Island extends Comparable<Island>, IMissionsHolder, IPersistent
         Builder setCoopLimit(int coopLimit);
 
         int getCoopLimit();
+
+        Builder setAltLimit(int altLimit);
+
+        int getAltLimit();
 
         Builder setBankLimit(BigDecimal bankLimit);
 

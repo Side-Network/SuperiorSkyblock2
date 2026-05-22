@@ -113,6 +113,10 @@ public class IslandsDatabaseBridge {
         updateIslandSettingsValue(island, "coops_limit", island.getCoopLimit());
     }
 
+    public static void saveAltLimit(Island island) {
+        updateIslandSettingsValue(island, "alts_limit", island.getAltLimit());
+    }
+
     public static void saveIslandHome(Island island, Dimension dimension, @Nullable WorldPosition worldPosition) {
         if (worldPosition == null) {
             runOperationIfRunning(island.getDatabaseBridge(), databaseBridge -> {
@@ -805,6 +809,7 @@ public class IslandsDatabaseBridge {
                         pool.obtain().withNameAndValue("size", island.getIslandSizeRaw()),
                         pool.obtain().withNameAndValue("bank_limit", island.getBankLimitRaw() + ""),
                         pool.obtain().withNameAndValue("coops_limit", island.getCoopLimitRaw()),
+                        pool.obtain().withNameAndValue("alts_limit", island.getAltLimitRaw()),
                         pool.obtain().withNameAndValue("members_limit", island.getTeamLimitRaw()),
                         pool.obtain().withNameAndValue("warps_limit", island.getWarpsLimitRaw()),
                         pool.obtain().withNameAndValue("crop_growth_multiplier", island.getCropGrowthRaw()),

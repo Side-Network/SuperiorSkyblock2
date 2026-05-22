@@ -29,6 +29,7 @@ import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.I
 import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeBlockLimit;
 import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeBorderSize;
 import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeCoopLimit;
+import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeAltLimit;
 import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeCropGrowth;
 import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeDescription;
 import static com.bgsoftware.superiorskyblock.core.events.args.PluginEventArgs.IslandChangeDiscord;
@@ -264,6 +265,18 @@ public abstract class PluginEventType<Args extends PluginEventArgs> extends Even
         public void applyBukkitToPluginEvent(Event bukkitEvent, PluginEvent<IslandChangeCoopLimit> pluginEvent) {
             super.applyBukkitToPluginEvent(bukkitEvent, pluginEvent);
             pluginEvent.getArgs().coopLimit = ((IslandChangeCoopLimitEvent) bukkitEvent).getCoopLimit();
+        }
+    };
+    public static final PluginEventType<IslandChangeAltLimit> ISLAND_CHANGE_ALT_LIMIT_EVENT = new PluginEventType<IslandChangeAltLimit>(IslandChangeAltLimitEvent.class) {
+        @Override
+        public Event createBukkitEvent(IslandChangeAltLimit args) {
+            return new IslandChangeAltLimitEvent(args.superiorPlayer, args.island, args.altLimit);
+        }
+
+        @Override
+        public void applyBukkitToPluginEvent(Event bukkitEvent, PluginEvent<IslandChangeAltLimit> pluginEvent) {
+            super.applyBukkitToPluginEvent(bukkitEvent, pluginEvent);
+            pluginEvent.getArgs().altLimit = ((IslandChangeAltLimitEvent) bukkitEvent).getAltLimit();
         }
     };
     public static final PluginEventType<IslandChangeCropGrowth> ISLAND_CHANGE_CROP_GROWTH_EVENT = new PluginEventType<IslandChangeCropGrowth>(IslandChangeCropGrowthEvent.class) {

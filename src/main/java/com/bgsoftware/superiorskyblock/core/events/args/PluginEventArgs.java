@@ -122,6 +122,12 @@ public class PluginEventArgs {
 
     }
 
+    public static class IslandChangeAltLimit extends IslandDoActionArgs {
+
+        public int altLimit;
+
+    }
+
     public static class IslandChangeCropGrowth extends IslandDoActionArgs {
 
         public double cropGrowth;

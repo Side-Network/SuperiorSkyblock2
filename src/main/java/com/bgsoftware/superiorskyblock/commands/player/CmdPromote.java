@@ -77,6 +77,11 @@ public class CmdPromote implements IPermissibleCommand {
 
         PlayerRole playerRole = targetPlayer.getPlayerRole();
 
+        if (playerRole.isAltRole()) {
+            Message.LAST_ROLE_PROMOTE.send(superiorPlayer);
+            return;
+        }
+
         if (playerRole.isLastRole()) {
             Message.LAST_ROLE_PROMOTE.send(superiorPlayer);
             return;
@@ -122,7 +127,7 @@ public class CmdPromote implements IPermissibleCommand {
         return args.length != 2 ? Collections.emptyList() : CommandTabCompletes.getIslandMembers(island, args[1], islandMember -> {
             PlayerRole playerRole = islandMember.getPlayerRole();
             PlayerRole nextRole = playerRole.getNextRole();
-            return nextRole != null && !nextRole.isLastRole() && playerRole.isLessThan(superiorPlayer.getPlayerRole()) &&
+            return !playerRole.isAltRole() && nextRole != null && !nextRole.isLastRole() && playerRole.isLessThan(superiorPlayer.getPlayerRole()) &&
                     !nextRole.isHigherThan(superiorPlayer.getPlayerRole());
         });
     }

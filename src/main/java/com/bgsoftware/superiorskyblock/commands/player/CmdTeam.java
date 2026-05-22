@@ -75,7 +75,7 @@ public class CmdTeam implements ISuperiorCommand {
 
             if (!Message.ISLAND_TEAM_STATUS_HEADER.isEmpty(locale)) {
                 infoMessage.append(Message.ISLAND_TEAM_STATUS_HEADER.getMessage(locale, island.getOwner().getName(),
-                        island.getIslandMembers(true).size(), island.getTeamLimit())).append("\n");
+                        island.getTeamMemberCount(), island.getTeamLimit())).append("\n");
             }
 
             List<SuperiorPlayer> members = island.getIslandMembers(true);
@@ -89,7 +89,7 @@ public class CmdTeam implements ISuperiorCommand {
                 String onlineStatus = Message.ISLAND_TEAM_STATUS_ONLINE.getMessage(locale),
                         offlineStatus = Message.ISLAND_TEAM_STATUS_OFFLINE.getMessage(locale);
 
-                members.forEach(islandMember -> {
+                members.stream().filter(islandMember -> !islandMember.getPlayerRole().isAltRole()).forEach(islandMember -> {
                     PlayerRole playerRole = islandMember.getPlayerRole();
                     long time = islandMember.getLastTimeStatus() == -1 ? -1 : ((System.currentTimeMillis() / 1000) - islandMember.getLastTimeStatus());
                     boolean onlinePlayer = islandMember.isOnline() && islandMember.isShownAsOnline();

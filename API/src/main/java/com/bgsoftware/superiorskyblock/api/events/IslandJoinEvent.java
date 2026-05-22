@@ -75,7 +75,12 @@ public class IslandJoinEvent extends IslandEvent implements Cancellable {
         /**
          * The player was joined due to an admin, either by `/is admin add` or `/is admin join`
          */
-        ADMIN
+        ADMIN,
+
+        /**
+         * The player accepted an alt invitation to the island.
+         */
+        ALT_INVITE
 
     }
 

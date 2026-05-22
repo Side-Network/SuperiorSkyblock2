@@ -45,6 +45,11 @@ public class DefaultValuesSection extends SettingsContainerHolder implements Set
     }
 
     @Override
+    public int getAltLimit() {
+        return getContainer().defaultAltLimit;
+    }
+
+    @Override
     public double getCropGrowth() {
         return getContainer().defaultCropGrowth;
     }

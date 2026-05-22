@@ -359,6 +359,31 @@ public interface SuperiorPlayer extends IMissionsHolder, IPersistentDataHolder, 
     List<Island> getInvites();
 
     /**
+     * Add an alt invitation to an island for the player.
+     * Do not use this method directly unless you know what you're doing.
+     * Instead, use {@link Island#inviteAlt(SuperiorPlayer)}
+     *
+     * @param island The island that invited the player as an alt.
+     */
+    void addAltInvite(Island island);
+
+    /**
+     * Remove an alt invitation from an island for the player.
+     * Do not use this method directly unless you know what you're doing.
+     * Instead, use {@link Island#revokeAltInvite(SuperiorPlayer)}
+     *
+     * @param island The island to remove the alt invitation from.
+     */
+    void removeAltInvite(Island island);
+
+    /**
+     * Get all pending alt invites of the player.
+     *
+     * @return Pending alt invites, in the same order they were sent.
+     */
+    List<Island> getAltInvites();
+
+    /**
      * Mark player as a coop of an island.
      * !Can cause issues if not used properly!
      *

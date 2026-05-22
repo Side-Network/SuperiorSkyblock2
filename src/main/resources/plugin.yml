@@ -75,6 +75,10 @@ permissions:
             description: Add a player as a co-op to your island.
           superior.island.coops:
             description: Open the coops menu.
+          superior.island.alt:
+            description: Manage island alt members.
+          superior.island.alt.accept:
+            description: Accept an island alt invitation.
           superior.island.counts:
             description: See block counts in your island.
           superior.island.create:
@@ -195,6 +199,8 @@ permissions:
             description: Add a bonus to a player.
           superior.admin.addcooplimit:
             description: Increase coop players limit for another player's island.
+          superior.admin.addaltlimit:
+            description: Increase alt members limit for another player's island.
           superior.admin.addcropgrowth:
             description: Increase the crop growth multiplier for another player's island.
           superior.admin.addeffect:
@@ -295,6 +301,8 @@ permissions:
             description: Set the chest rows for another player's island.
           superior.admin.setcooplimit:
             description: Set coop players limit for another player's island.
+          superior.admin.setaltlimit:
+            description: Set alt members limit for another player's island.
           superior.admin.setcropgrowth:
             description: Set the crop growth multiplier for another player's island.
           superior.admin.setdisbands:
