@@ -123,6 +123,10 @@ public enum Materials {
         return hasTag(material, Tag.HOE);
     }
 
+    public static boolean isOpenable(Material material) {
+        return hasTag(material, Tag.OPENABLE);
+    }
+
     public static Set<Material> getBlocksNonLegacy() {
         return Collections.unmodifiableSet(BLOCK_NON_LEGACY_MATERIALS);
     }
@@ -183,6 +187,9 @@ public enum Materials {
                 materialTags.add(Tag.BED);
             if (materialName.contains("_HOE"))
                 materialTags.add(Tag.HOE);
+            // Covers doors, trapdoors (incl. TRAP_DOOR) and fence gates.
+            if (materialName.contains("DOOR") || materialName.contains("FENCE_GATE"))
+                materialTags.add(Tag.OPENABLE);
 
             if (!materialTags.isEmpty())
                 enumMap.put(material, materialTags);
@@ -220,7 +227,8 @@ public enum Materials {
         CARPET,
         BED,
         HARNESS,
-        HOE
+        HOE,
+        OPENABLE
 
     }
 

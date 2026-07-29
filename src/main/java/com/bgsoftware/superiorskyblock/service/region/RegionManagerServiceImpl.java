@@ -201,12 +201,17 @@ public class RegionManagerServiceImpl implements RegionManagerService, IService 
 
             int stackedBlockAmount = plugin.getStackedBlocks().getStackedBlockAmount(blockLocation);
 
-            if (!isInteractableItem && stackedBlockAmount <= 1 && !INTERACTABLES_CACHE.contains(blockKey))
+            Material blockType = block.getType();
+
+            // Openable blocks (doors, trapdoors, fence gates) must always require INTERACT,
+            // even when missing from interactables.yml (outdated configs / new materials).
+            boolean isOpenableBlock = Materials.isOpenable(blockType);
+
+            if (!isInteractableItem && stackedBlockAmount <= 1 && !isOpenableBlock && !INTERACTABLES_CACHE.contains(blockKey))
                 return InteractionResult.SUCCESS;
 
             BlockState blockState = block.getState();
             EntityType spawnType = usedItem == null ? EntityType.UNKNOWN : BukkitItems.getEntityType(usedItem);
-            Material blockType = block.getType();
             Material usedItemType = usedItem == null ? null : usedItem.getType();
 
             IslandPrivilege islandPrivilege;
